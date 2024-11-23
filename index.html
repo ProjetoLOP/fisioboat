@@ -1,25 +1,14 @@
 <!DOCTYPE html>
-<a-box position="0 0.5 -5" depth="2" height="0.5" width="1" color="#8B4513" boat-controls></a-box>
 <html>
     <head>
         <meta charset="UTF-8">
         <title>Fisioboat</title>
+
+        <!-- Script de Configuração do Aframe -->
         <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-        <script>
-            AFRAME.registerComponent('boat-controls', {
-                init: function () {
-                    window.addEventListener('keydown', (event) => {
-                        const position = this.el.getAttribute('position');
-                        switch (event.key) {
-                            case ' ':
-                                position.z -= 0.1;
-                                break;
-                        }
-                        this.el.setAttribute('position', position);
-                    });
-                }
-            });
-        </script>
+
+        <!-- Script -->
+        <script src="./script.js"></script>
     </head>
     <body>
         <a-scene>
