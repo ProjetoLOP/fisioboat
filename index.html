@@ -19,7 +19,8 @@
             <a-plane position="0 0 -5" rotation="-90 0 0" width="20" height="20" color="#1E90FF"></a-plane>
 
             <!-- Objeto do Barco -->
-            <a-entity gltf-model="./Assets/Boat/Boat.gltf"  rotation="0 180 0" boat-controls></a-entity>
+            <a-entity id="boat" gltf-model="./Assets/Boat/Boat.gltf"  rotation="0 180 0" boat-controls></a-entity>
+            <a-entity camera look-controls follow="target: #boat; offset: 0 1.5 -1"></a-entity>
         </a-scene>
     </body>
 </html>
