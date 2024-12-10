@@ -5,16 +5,16 @@
     <meta charset="UTF-8">
     <title>Fisioboat</title>
 
-    <!-- MoveNet -->
+    <!-- MoveNet Lib -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
 
-    <!-- Aframe -->
+    <!-- Aframe Lib -->
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
 
-    <!-- Script -->
-    <script src="./script.js"></script>
+    <!-- Aframe Scenario Manipulation -->
+    <script src="./aframe-scene.js"></script>
 </head>
 
 <body>
@@ -35,7 +35,7 @@
         <a-entity camera look-controls follow="target: #boat; offset: 0 1.5 -1"></a-entity>
     </a-scene>
 
-    <!-- scripts -->
+    <!-- MoveNet Manipulation -->
     <script src="/moveNet.js"></script>
 </body>
 

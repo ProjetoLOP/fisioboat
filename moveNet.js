@@ -33,32 +33,50 @@ async function main() {
 
         if (poses.length > 0) {
             const keypoints = poses[0].keypoints;
-            const leftHip = keypoints.find(kp => kp.name === "left_hip");
-            const rightHip = keypoints.find(kp => kp.name === "right_hip");
-            const leftKnee = keypoints.find(kp => kp.name === "left_knee");
-            const rightKnee = keypoints.find(kp => kp.name === "right_knee");
-            const leftAnkle = keypoints.find(kp => kp.name === "left_ankle");
-            const rightAnkle = keypoints.find(kp => kp.name === "right_ankle");
+
+            // Filtrar keypoints com confiabilidade suficiente
+            const threshold = 0.5; // Confiança mínima
+            const leftHip = keypoints.find(kp => kp.name === "left_hip" && kp.score > threshold);
+            const rightHip = keypoints.find(kp => kp.name === "right_hip" && kp.score > threshold);
+            const leftKnee = keypoints.find(kp => kp.name === "left_knee" && kp.score > threshold);
+            const rightKnee = keypoints.find(kp => kp.name === "right_knee" && kp.score > threshold);
+            const leftAnkle = keypoints.find(kp => kp.name === "left_ankle" && kp.score > threshold);
+            const rightAnkle = keypoints.find(kp => kp.name === "right_ankle" && kp.score > threshold);
 
             if (leftHip && rightHip && leftKnee && rightKnee && leftAnkle && rightAnkle) {
                 const leftAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
                 const rightAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
 
-                // Detecting squat based on knee angle
-                if ((leftAngle < 120 || rightAngle < 120) && !isSquatting) {
-                    isSquatting = true;
-                } else if ((leftAngle > 160 && rightAngle > 160) && isSquatting) {
-                    isSquatting = false;
+                // Configurações ajustadas
+                const squatStartAngle = 135; // Começo do agachamento
+                const squatEndAngle = 160; // Retorno à posição ereta
+                const stabilityFrames = 3; // Frames consecutivos para estabilidade
 
-                    // Emitir evento global para notificar o barco
-                    const event = new Event('squatDetected');
-                    window.dispatchEvent(event);
+                if ((leftAngle < squatStartAngle || rightAngle < squatStartAngle) && !isSquatting) {
+                    squatFrames++;
+                    if (squatFrames >= stabilityFrames) {
+                        isSquatting = true;
+                        squatFrames = 0;
+                    }
+                } else if ((leftAngle > squatEndAngle && rightAngle > squatEndAngle) && isSquatting) {
+                    squatFrames++;
+                    if (squatFrames >= stabilityFrames) {
+                        isSquatting = false;
+                        squatFrames = 0;
+
+                        // Emitir evento global
+                        const event = new Event('squatDetected');
+                        window.dispatchEvent(event);
+                    }
+                } else {
+                    squatFrames = 0; // Resetar contador fora dos ângulos
                 }
             }
         }
 
         requestAnimationFrame(detectPose);
     }
+
 
     detectPose();
 }
