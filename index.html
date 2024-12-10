@@ -1,26 +1,42 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Fisioboat</title>
 
-        <!-- Script de Configuração do Aframe -->
-        <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>Fisioboat</title>
 
-        <!-- Script -->
-        <script src="./script.js"></script>
-    </head>
-    <body>
-        <a-scene>
-            <!-- Skybox -->
-            <a-sky material="src: ./Assets/Skybox.png;"></a-sky>
+    <!-- MoveNet -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
 
-            <!-- Água -->
-            <a-plane position="0 0 -5" rotation="-90 0 0" width="100" height="100" material="src: ./Assets/Water.png; repeat: 50 50"></a-plane>
+    <!-- Aframe -->
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
 
-            <!-- Barco -->
-            <a-entity id="boat" gltf-model="./Assets/Boat/Boat.gltf"  rotation="0 180 0" boat-controls></a-entity>
-            <a-entity camera look-controls follow="target: #boat; offset: 0 1.5 -1"></a-entity>
-        </a-scene>
-    </body>
+    <!-- Script -->
+    <script src="./script.js"></script>
+</head>
+
+<body>
+    <!-- MoveNet -->
+    <video id="video" autoplay="" playsinline="" muted="" style=" position: absolute;width: 300px;z-index: 1;"></video>
+
+    <!-- Aframe Scene -->
+    <a-scene>
+        <!-- Skybox -->
+        <a-sky material="src: ./Assets/Skybox.png;"></a-sky>
+
+        <!-- Água -->
+        <a-plane position="0 0 -5" rotation="-90 0 0" width="300" height="300"
+            material="src: ./Assets/Water.png; repeat: 50 50"></a-plane>
+
+        <!-- Barco -->
+        <a-entity id="boat" gltf-model="./Assets/Boat/Boat.gltf" rotation="0 180 0" boat-controls></a-entity>
+        <a-entity camera look-controls follow="target: #boat; offset: 0 1.5 -1"></a-entity>
+    </a-scene>
+
+    <!-- scripts -->
+    <script src="/moveNet.js"></script>
+</body>
+
 </html>
