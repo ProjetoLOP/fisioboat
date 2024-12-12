@@ -7,6 +7,7 @@ AFRAME.registerComponent('boat-controls', {
         maxSpeed: { type: 'number', default: 7 }, // Velocidade máxima permitida
     },
     init: function () {
+        this.velocity = 0; // Velocidade inicial do barco
         this.isMoving = false; // Estado inicial: barco parado
 
         // Inicia o movimento ao pressionar a tecla "espaço"
