@@ -9,9 +9,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
-
+    
     <!-- Aframe Lib -->
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-animation-component@^4.1.2/dist/aframe-animation-component.min.js"></script> 
 
     <!-- Aframe Scenario Manipulation -->
     <script src="./aframe-scene.js"></script>
@@ -30,9 +31,13 @@
         <a-plane position="0 0 -5" rotation="-90 0 0" width="300" height="300"
             material="src: ./Assets/Water.png; repeat: 50 50"></a-plane>
 
-        <!-- Barco -->
+        <!-- Barcos -->
         <a-entity id="boat" gltf-model="./Assets/Boat/BarcoTexturizado.glb" rotation="0 0 0" position="0 0.6 0" boat-controls></a-entity>
+        <a-entity id="botBoat" gltf-model="./Assets/Boat/BarcoTexturizado.glb" rotation="0 0 0" position="5 0.6 0" bot-boat></a-entity>
+        <!-- camera options -->
+    <!--<a-entity camera look-controls="enabled: false" follow="target: #boat; offset: 0 1.5 -1"></a-entity> -->
         <a-entity camera look-controls follow="target: #boat; offset: 0 1.5 -1"></a-entity>
+        
     </a-scene>
 
     <!-- MoveNet Manipulation -->
