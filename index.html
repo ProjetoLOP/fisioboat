@@ -1,47 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <title>Fisioboat</title>
-
-    <!-- MoveNet Lib -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
-    
-    <!-- Aframe Lib -->
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://unpkg.com/aframe-animation-component@^4.1.2/dist/aframe-animation-component.min.js"></script> 
-
-    <!-- Aframe Scenario Manipulation -->
-    <script src="./aframe-scene.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FisioBoat</title>
+    <link rel="stylesheet" href="/Assets/styles/start.css">
 </head>
 
 <body>
-    <!-- MoveNet -->
-    <video id="video" autoplay="" playsinline="" muted="" style=" position: absolute;width: 300px;z-index: 1;"></video>
+    <div class="waves"></div>
 
-    <!-- Aframe Scene -->
-    <a-scene>
-        <!-- Skybox -->
-        <a-sky material="src: ./Assets/Skybox.png;"></a-sky>
+    <!-- Bolhas decorativas -->
+    <div class="bubble" style="width: 30px; height: 30px; left: 20%; top: 40%;"></div>
+    <div class="bubble" style="width: 20px; height: 20px; left: 80%; top: 30%;"></div>
+    <div class="bubble" style="width: 25px; height: 25px; left: 60%; top: 60%;"></div>
 
-        <!-- Água -->
-        <a-plane position="0 0 -5" rotation="-90 0 0" width="300" height="300"
-            material="src: ./Assets/Water.png; repeat: 50 50"></a-plane>
-
-        <!-- Barcos -->
-        <a-entity id="boat" gltf-model="./Assets/Boat/BarcoTexturizado.glb" rotation="0 0 0" position="0 0.6 0" boat-controls></a-entity>
-        <a-entity id="botBoat" gltf-model="./Assets/Boat/BarcoTexturizado.glb" rotation="0 0 0" position="5 0.6 0" bot-boat></a-entity>
-        <!-- camera options -->
-    <!--<a-entity camera look-controls="enabled: false" follow="target: #boat; offset: 0 1.5 -1"></a-entity> -->
-        <a-entity camera look-controls follow="target: #boat; offset: 0 1.5 -1"></a-entity>
-        
-    </a-scene>
-
-    <!-- MoveNet Manipulation -->
-    <script src="/moveNet.js"></script>
+    <h1 class="game-title">FisioBoat</h1>
+    <a href="/game.html">
+        <button class="play-button">PLAY</button>
+    </a>
 </body>
 
 </html>

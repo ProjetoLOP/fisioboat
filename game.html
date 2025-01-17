@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Fisioboat</title>
+
+    <!-- Typeit Lib -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typeit/7.0.4/typeit.min.js"></script>
+
+    <!-- MoveNet Lib -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+
+    <!-- Aframe Lib -->
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+
+    <!-- Aframe Scenario Manipulation -->
+    <script src="/Assets/scripts/aframe-scene.js"></script>
+
+    <link rel="stylesheet" href="/Assets/styles/game.css">
+</head>
+
+<body>
+    <!-- MoveNet -->
+
+    <!-- Camera/Video config -->
+    <video id="video" style="position: absolute;width: 300px;z-index: 1;"></video>
+
+    <!-- Aframe Scene -->
+    <a-scene>
+        <!-- Skybox -->
+        <a-sky material="src: ./Assets/images/Skybox.png;"></a-sky>
+
+        <!-- Água -->
+        <a-plane position="0 0 -5" rotation="-90 0 0" width="300" height="300"
+            material="src: ./Assets/images/Water.png; repeat: 50 50"></a-plane>
+
+        <!-- Barcos -->
+        <a-entity id="boat" gltf-model="./Assets/Boat/BarcoTexturizado.glb" rotation="0 0 0" position="0 0.6 0" boat-controls></a-entity>
+        <a-entity id="botBoat" gltf-model="./Assets/Boat/BarcoTexturizado.glb" rotation="0 0 0" position="5 0.6 0" bot-boat></a-entity>
+
+        <!-- Telespectador -->
+        <a-entity camera look-controls follow="target: #boat; offset: 0 1.5 -1"></a-entity>
+    </a-scene>
+
+    <div id="gameInstruction" class="hide">
+        <div id="text"></div>
+    </div>
+
+    <!-- MoveNet Manipulation -->
+    <script src="/Assets/scripts/moveNet.js"></script>
+
+    <script src="/Assets/scripts/game.js"></script>
+</body>
+
+</html>
