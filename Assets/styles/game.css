@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Hammersmith+One&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Hammersmith One", serif;
+}
+
+div#gameInstruction {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    height: 100vh;
+    width: 100vw;
+    background-color: black;
+    transition: all 1s ease;
+    cursor: none;
+}
+
+#text {
+    color: white;
+    font-size: 2.5rem;
+    text-align: center;
+    line-height: 1.5;
+    padding: 20px;
+    opacity: 0.9;
+    white-space: nowrap;
+}
+
+.hide {
+    opacity: 0;
+}
