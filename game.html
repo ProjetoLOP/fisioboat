@@ -38,8 +38,13 @@
             material="src: ./Assets/images/Water.png; repeat: 50 50"></a-plane>
 
         <!-- Barcos -->
-        <a-entity id="boat" gltf-model="./Assets/Boat/BarcoTexturizado.glb" rotation="0 0 0" position="0 0.6 0" boat-controls></a-entity>
-        <a-entity id="botBoat" gltf-model="./Assets/Boat/BarcoTexturizado.glb" rotation="0 0 0" position="5 0.6 0" bot-boat></a-entity>
+        <a-entity id="boat" gltf-model="./Assets/Boat/BarcoTexturizado.glb" rotation="0 0 0" position="0 0.6 0"
+            boat-controls></a-entity>
+        <a-entity id="botBoat" gltf-model="./Assets/Boat/BarcoTexturizado.glb" rotation="0 0 0" position="5 0.6 0"
+            bot-boat></a-entity>
+
+        <!-- Display de Coordenadas -->
+        <a-entity display-coordinates="boat: #boat; botBoat: #botBoat"></a-entity>
 
         <!-- Telespectador -->
         <a-entity camera look-controls follow="target: #boat; offset: 0 1.5 -1"></a-entity>
