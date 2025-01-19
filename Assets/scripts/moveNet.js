@@ -1,7 +1,7 @@
 const video = document.getElementById("video");
 
 async function setupVideo() {
-    //video.loop = true;
+    video.loop = true;
     video.playsinline = true;
     video.muted = true;
     video.src = "./Assets/videos/incorrectMove.mp4";
@@ -95,5 +95,3 @@ async function main() {
 
     detectPose();
 }
-
-// setTimeout(main, 4000);
