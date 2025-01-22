@@ -1,10 +1,11 @@
 const video = document.getElementById("video");
+let isFirstSquat = true;
 
 async function setupVideo() {
     video.loop = true;
     video.playsinline = true;
     video.muted = true;
-    video.src = "./Assets/videos/incorrectMove.mp4";
+    video.src = "./Assets/videos/correctMove.mp4";
     video.type = "video/mp4";
     
     return new Promise((resolve) => {
@@ -27,9 +28,9 @@ async function setupCamera() {
     });
 }
 
-async function main() {
-    await setupVideo();
-    //await setupCamera();
+async function runMoveNet() {
+    // await setupVideo();
+    await setupCamera();
     video.play();
 
     const detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, {
@@ -79,9 +80,21 @@ async function main() {
                         isSquatting = false;
                         squatFrames = 0;
 
+                        const squatDetails = {
+                            instant: new Date().toISOString(),
+                            quality: 10
+                        }
+
                         // Emitir evento global
-                        const event = new Event('squatDetected');
+                        const event = new CustomEvent('squatDetected', { detail: squatDetails });
                         window.dispatchEvent(event);
+
+                        if(isFirstSquat === true) {
+                            const firstSquatEvent = new CustomEvent('firstSquat');
+                            window.dispatchEvent(firstSquatEvent);
+
+                            isFirstSquat = false;
+                        }
                     }
                 } else {
                     squatFrames = 0; // Resetar contador fora dos ângulos

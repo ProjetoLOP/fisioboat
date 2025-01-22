@@ -34,7 +34,7 @@
         <a-sky material="src: ./Assets/images/Skybox.png;"></a-sky>
 
         <!-- Água -->
-        <a-plane position="0 0 -5" rotation="-90 0 0" width="300" height="300"
+        <a-plane position="0 0 -5" rotation="-90 0 0" width="300" height="500"
             material="src: ./Assets/images/Water.png; repeat: 50 50"></a-plane>
 
         <!-- Barcos -->
@@ -43,8 +43,20 @@
         <a-entity id="botBoat" gltf-model="./Assets/Boat/BarcoTexturizado.glb" rotation="0 0 0" position="5 0.6 0"
             bot-boat></a-entity>
 
+        <!-- Timer -->
+        <div class="timer-container">
+            <div class="timer">
+                <div class="timer-icon"></div>
+                <span class="time-unit">00</span>
+                <span class="separator">:</span>
+                <span class="time-unit">00</span>
+                <span class="separator">:</span>
+                <span class="time-unit">00</span>
+            </div>
+        </div>
+
         <!-- Display de Coordenadas -->
-        <a-entity display-coordinates="boat: #boat; botBoat: #botBoat"></a-entity>
+        <!-- <a-entity display-coordinates="boat: #boat; botBoat: #botBoat"></a-entity> -->
 
         <!-- Telespectador -->
         <a-entity camera look-controls follow="target: #boat; offset: 0 1.5 -1"></a-entity>

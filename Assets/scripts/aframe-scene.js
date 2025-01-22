@@ -25,7 +25,9 @@ AFRAME.registerComponent('boat-controls', {
         });
 
         // Dispara o movimento ao detectar o evento de agachamento
-        window.addEventListener('squatDetected', () => {
+        window.addEventListener('squatDetected', (event) => {
+            const squatDetails = event.details;
+
             this.isMoving = true;
             playRowingSound();
         });
@@ -35,7 +37,7 @@ AFRAME.registerComponent('boat-controls', {
         const currentPosition = this.el.getAttribute('position'); // Obtém a posição atual do barco
 
         //Anti queda do abismo
-        currentPosition.z = ((currentPosition.z < -150) ? 0 : currentPosition.z);
+        currentPosition.z = ((currentPosition.z < -250) ? 0 : currentPosition.z);
 
         // Acelera se o barco estiver em movimento
         if (this.isMoving) {
@@ -100,7 +102,7 @@ AFRAME.registerComponent('bot-boat', {
 
         const botCurrentPosition = this.el.getAttribute('position'); // Obtém a posição atual do botBarco
         // Anti queda do abismo
-        botCurrentPosition.z = ((botCurrentPosition.z < -150) ? 0 : botCurrentPosition.z);
+        botCurrentPosition.z = ((botCurrentPosition.z < -250) ? 0 : botCurrentPosition.z);
         // inicia movimentação do bot mediante espaço ou squat
         if (this.isRacing) {
             botCurrentPosition.z -= this.data.botSpeed;
@@ -110,44 +112,44 @@ AFRAME.registerComponent('bot-boat', {
 });
 
 // Componente para exibir as coordenadas z dos barcos na tela
-AFRAME.registerComponent('display-coordinates', {
-    schema: {
-        boat: { type: 'selector' }, // Seletor para o barco controlado pelo usuário
-        botBoat: { type: 'selector' }, // Seletor para o barco bot
-    },
-    init: function () {
-        // Cria elementos HTML para exibir as coordenadas
-        this.infoContainer = document.createElement('div');
-        this.infoContainer.style.position = 'absolute';
-        this.infoContainer.style.top = '10%';
-        this.infoContainer.style.right = '-5%';
-        this.infoContainer.style.transform = 'translate(-50%, -50%)';
-        this.infoContainer.style.color = 'white';
-        this.infoContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-        this.infoContainer.style.padding = '10px';
-        this.infoContainer.style.borderRadius = '5px';
-        this.infoContainer.style.fontFamily = 'Arial, sans-serif';
-        this.infoContainer.style.zIndex = '1000';
+// AFRAME.registerComponent('display-coordinates', {
+//     schema: {
+//         boat: { type: 'selector' }, // Seletor para o barco controlado pelo usuário
+//         botBoat: { type: 'selector' }, // Seletor para o barco bot
+//     },
+//     init: function () {
+//         // Cria elementos HTML para exibir as coordenadas
+//         this.infoContainer = document.createElement('div');
+//         this.infoContainer.style.position = 'absolute';
+//         this.infoContainer.style.top = '10%';
+//         this.infoContainer.style.right = '-5%';
+//         this.infoContainer.style.transform = 'translate(-50%, -50%)';
+//         this.infoContainer.style.color = 'white';
+//         this.infoContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+//         this.infoContainer.style.padding = '10px';
+//         this.infoContainer.style.borderRadius = '5px';
+//         this.infoContainer.style.fontFamily = 'Arial, sans-serif';
+//         this.infoContainer.style.zIndex = '1000';
 
-        // Adiciona o container ao body do documento
-        document.body.appendChild(this.infoContainer);
-    },
-    tick: function () {
-        const boatPosition = this.data.boat.getAttribute('position'); // Posição do barco do usuário
-        const botBoatPosition = this.data.botBoat.getAttribute('position'); // Posição do barco bot
+//         // Adiciona o container ao body do documento
+//         document.body.appendChild(this.infoContainer);
+//     },
+//     tick: function () {
+//         const boatPosition = this.data.boat.getAttribute('position'); // Posição do barco do usuário
+//         const botBoatPosition = this.data.botBoat.getAttribute('position'); // Posição do barco bot
 
-        const zPositionUserBoat = boatPosition.z.toFixed(2);
-        const zPositionBotBoat = botBoatPosition.z.toFixed(2);
-        const boatsDistance = Math.floor(convertZToMeters(zPositionUserBoat, zPositionBotBoat));
+//         const zPositionUserBoat = boatPosition.z.toFixed(2);
+//         const zPositionBotBoat = botBoatPosition.z.toFixed(2);
+//         const boatsDistance = Math.floor(convertZToMeters(zPositionUserBoat, zPositionBotBoat));
 
-        // Atualiza o conteúdo do container
-        this.infoContainer.innerHTML = `
-            <p><strong>Barco 1 (Usuário)</strong> - Z: ${zPositionUserBoat}</p>
-            <p><strong>Barco 2 (Bot)</strong> - Z: ${zPositionBotBoat}</p>
-            <p><strong>Distância</strong>: ${boatsDistance}m</p>
-        `;
-    },
-});
+//         // Atualiza o conteúdo do container
+//         this.infoContainer.innerHTML = `
+//             <p><strong>Barco 1 (Usuário)</strong> - Z: ${zPositionUserBoat}</p>
+//             <p><strong>Barco 2 (Bot)</strong> - Z: ${zPositionBotBoat}</p>
+//             <p><strong>Distância</strong>: ${boatsDistance}m</p>
+//         `;
+//     },
+// });
 
 // Converte unidades de Z em metros
 function convertZToMeters(z1, z2) {
