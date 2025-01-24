@@ -9,9 +9,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/typeit/7.0.4/typeit.min.js"></script>
 
     <!-- MoveNet Lib -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+    <script id="tfjs" src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script id="pose-detection" src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
+    <script id="tfjs-backend-webgl" src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+    
 
     <!-- Aframe Lib -->
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
@@ -20,6 +21,7 @@
     <script src="/Assets/scripts/aframe-scene.js"></script>
 
     <link rel="stylesheet" href="/Assets/styles/game.css">
+    <link rel="stylesheet" href="/Assets/styles/ready.css">
 </head>
 
 <body>
@@ -65,6 +67,10 @@
     <div id="gameInstruction" class="hide">
         <div id="text"></div>
     </div>
+
+    <!-- <div id="gameStartMsg" class="hide">
+        <div id="text2"></div>
+    </div> -->
 
     <!-- MoveNet Manipulation -->
     <script src="/Assets/scripts/moveNet.js"></script>
