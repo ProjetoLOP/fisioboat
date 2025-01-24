@@ -1,4 +1,4 @@
-const isDeveloping = true;
+const isDeveloping = false;
 const gameVars = {
     startTime: "",
     startZPosition: 0,
@@ -267,6 +267,8 @@ window.addEventListener('firstSquat', () => {
 // Dispara o movimento ao detectar o evento de agachamento
 window.addEventListener('squatDetected', (event) => {
     const squatDetails = event.detail;
+    console.log(squatDetails)
+
 
     const userBoatPosition = document.querySelector("#boat").getAttribute('position');
     const zPosition = userBoatPosition.z;
@@ -279,8 +281,6 @@ window.addEventListener('squatDetected', (event) => {
     squatDetails.distance = distanceFromStart;
 
     gameVars.activities.push(squatDetails);
-
-    console.log(squatDetails)
 });
 
 
