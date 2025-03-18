@@ -6,22 +6,22 @@
     <title>Fisioboat</title>
 
     <!-- Typeit Lib -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/typeit/7.0.4/typeit.min.js"></script>
+    <script src="/Assets/scripts/Libs/typeit.min.js"></script>
 
     <!-- MoveNet Lib -->
-    <script id="tfjs" src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <script id="pose-detection" src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
-    <script id="tfjs-backend-webgl" src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+    <script id="tfjs" src="/Assets/scripts/Libs/tfjs.js"></script>
+    <script id="pose-detection" src="/Assets/scripts/Libs/pose-detection.js"></script>
+    <script id="tfjs-backend-webgl" src="/Assets/scripts/Libs/tfjs-backend-webgl.js"></script>
     
 
     <!-- Aframe Lib -->
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="/Assets/scripts/Libs/aframe.min.js"></script>
 
     <!-- Aframe Scenario Manipulation -->
-    <script src="/Assets/scripts/aframe-scene.js"></script>
+    <script src="/Assets/scenes/game/scripts/aframe-scene.js"></script>
 
-    <link rel="stylesheet" href="/Assets/styles/game.css">
-    <link rel="stylesheet" href="/Assets/styles/ready.css">
+    <link rel="stylesheet" href="/Assets/scenes/game/styles/game.css">
+    <link rel="stylesheet" href="/Assets/scenes/game//styles/ready.css">
 </head>
 
 <body>
@@ -33,16 +33,16 @@
     <!-- Aframe Scene -->
     <a-scene>
         <!-- Skybox -->
-        <a-sky material="src: ./Assets/images/Skybox.png;"></a-sky>
+        <a-sky material="src: /Assets/scenario/images/Skybox.png"></a-sky>
 
         <!-- Água -->
         <a-plane position="0 0 -5" rotation="-90 0 0" width="300" height="500"
-            material="src: ./Assets/images/Water.png; repeat: 50 50"></a-plane>
+            material="src: /Assets/scenario/images/Water.png; repeat: 50 50"></a-plane>
 
         <!-- Barcos -->
-        <a-entity id="boat" gltf-model="./Assets/Boat/BarcoTexturizado.glb" rotation="0 0 0" position="0 0.6 0"
+        <a-entity id="boat" gltf-model="/Assets/scenario/Boat/BarcoTexturizado.glb" rotation="0 0 0" position="0 0.6 0"
             boat-controls></a-entity>
-        <a-entity id="botBoat" gltf-model="./Assets/Boat/BarcoTexturizado.glb" rotation="0 0 0" position="5 0.6 0"
+        <a-entity id="botBoat" gltf-model="/Assets/scenario/Boat/BarcoTexturizado.glb" rotation="0 0 0" position="5 0.6 0"
             bot-boat></a-entity>
 
         <!-- Timer -->
@@ -75,7 +75,7 @@
     <!-- MoveNet Manipulation -->
     <script src="/Assets/scripts/moveNet.js"></script>
 
-    <script src="/Assets/scripts/game.js"></script>
+    <script src="/Assets/scenes/game/scripts/game.js"></script>
 </body>
 
 </html>

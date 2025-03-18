@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt_BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FisioBoat</title>
-    <link rel="stylesheet" href="/Assets/styles/start.css">
+
+    <link rel="stylesheet" href="/Assets/pages/start/start.css">
 </head>
 
 <body>
@@ -17,9 +18,41 @@
     <div class="bubble" style="width: 25px; height: 25px; left: 60%; top: 60%;"></div>
 
     <h1 class="game-title">FisioBoat</h1>
-    <a href="/game.html">
-        <button class="play-button">PLAY</button>
-    </a>
+
+    <!-- Carrossel -->
+    <div class="carousel-container">
+        <div class="carousel">
+            <div class="carousel-item" style="background-image: url('/Assets/pages/start/images/level_1.jpg')">
+                <h3 class="phase-title">Fase 1: Marés Calmas</h3>
+            </div>
+            <div class="carousel-item"
+                style="background-image: url('/Assets/pages/start/images/tests&development.jpg')">
+                <h3 class="phase-title">Testes & Desenvolvimento</h3>
+            </div>
+            <div class="carousel-item" style="background-image: url('/api/placeholder/800/280')">
+                <h3 class="phase-title">Fase 3: Tempestade</h3>
+            </div>
+            <div class="carousel-item" style="background-image: url('/api/placeholder/800/280')">
+                <h3 class="phase-title">Fase 4: Oceano Profundo</h3>
+            </div>
+        </div>
+
+        <div class="carousel-nav">
+            <button class="carousel-button" onclick="moveCarousel(-1)">&#10094;</button>
+            <button class="carousel-button" onclick="moveCarousel(1)">&#10095;</button>
+        </div>
+
+        <div class="carousel-dots">
+            <span class="dot active" onclick="goToSlide(0)"></span>
+            <span class="dot" onclick="goToSlide(1)"></span>
+            <span class="dot" onclick="goToSlide(2)"></span>
+            <span class="dot" onclick="goToSlide(3)"></span>
+        </div>
+    </div>
+
+    <button class="play-button">PLAY</button>
+
+<script src="/Assets/pages/start/start.js"></script>
 </body>
 
 </html>

@@ -1,4 +1,4 @@
-const isDeveloping = false;
+const isDeveloping = true;
 const gameVars = {
     startTime: "",
     startZPosition: 0,
@@ -9,10 +9,9 @@ if (isDeveloping) {
     const gameInstruction = document.body.querySelector("#gameInstruction");
     gameInstruction.style.display = "none";
 
-    setTimeout(() => {
-        runMoveNet();
+    moveNetDetector.run().then(() => {
         playOceanAmbienceSound();
-    }, 3000);
+    });
 } else {
     showGameInstruction("Reme o mais rápido que puder nos próximos 30 segundos");
 }
@@ -40,23 +39,22 @@ function showGameInstruction(message) {
         speed: 75,
         waitUntilVisible: true,
         afterComplete: () => {
-            setTimeout(() => {
+            moveNetDetector.run().then(() => {
                 hideGameInstruction();
                 playOceanAmbienceSound();
-                runMoveNet();
-            }, 3000);
+            });
         }
     }).go();
 }
 
 function playOceanAmbienceSound() {
-    const oceanAmbienceSound = new Audio("/Assets/soundEffects/oceanAmbience.mp3");
+    const oceanAmbienceSound = new Audio("/Assets/scenario/soundEffects/oceanAmbience.mp3");
     oceanAmbienceSound.loop = true;
     oceanAmbienceSound.play();
 }
 
 function playRowingSound() {
-    const rowingSoundSrcs = ["/Assets/soundEffects/som-da-remada_1.mp3", "/Assets/soundEffects/som-da-remada_2.mp3", "/Assets/soundEffects/som-da-remada_3.mp3"];
+    const rowingSoundSrcs = ["/Assets/scenario/soundEffects/som-da-remada_1.mp3", "/Assets/scenario/soundEffects/som-da-remada_2.mp3", "/Assets/scenario/soundEffects/som-da-remada_3.mp3"];
 
     // Selecionar um dos sons
     const randomSrc = rowingSoundSrcs[Math.floor(Math.random() * rowingSoundSrcs.length)];
@@ -158,7 +156,7 @@ function createPerformanceStats(data) {
 
     container.innerHTML = `
         <div class="stats-highlight">
-            A parte da corrida em que houve maior performance foi dos ${tempoInicial}s ao ${tempoFinal}s.
+            A parte da corrida em que houve maior performance foi dos ${Math.round(Number(tempoInicial))}s aos ${Math.round(Number(tempoFinal))}s.
         </div>
         
         <div class="stats-grid">
@@ -267,7 +265,7 @@ window.addEventListener('firstSquat', () => {
 // Dispara o movimento ao detectar o evento de agachamento
 window.addEventListener('squatDetected', (event) => {
     const squatDetails = event.detail;
-    console.log(squatDetails)
+    console.log(new Date(squatDetails.instant).getSeconds())
 
 
     const userBoatPosition = document.querySelector("#boat").getAttribute('position');
@@ -321,58 +319,4 @@ function analyzePerformance(data, window = 10) {
         maxDistance,
         bestSequence
     };
-}
-
-
-// A cada movimento, deve logar:
-// - em que momento a partir da data inicial aquele movimento foi executado
-// - a qualidade desse movimento (implementar futuramente)
-// - a distância até aquele momento em relação ao ponto inicial de partida.
-
-// Os 30 segundos serão divididos em 5 partes de 6 segundos. Em cada uma dessas partes serão calculadas:
-// - A quantidade de movimentos;
-// - A frequência média de realização das repetições (ex: 1 rep a cada 1.72s);
-// - A distância média percorrida entre cada repetição (quando a qualidade do movimento influenciar na impulsão do barco);
-// - A distância percorrida do início da parte até seu final (ex: iniciou nos 32m e foi até 84, percorrendo 52m);
-
-// -- Resultado final --
-// A parte da corrida em que houve maior performance foi dos 12s ao 18s. Estatísticas dessa parte:
-// Movimentos: 5
-// Frequência média: 1 rep. a cada 1.2s 
-// Qualidade média dos movimentos: 8.4
-// Distância percorrida: 193m
-// Velocidade média: 6,43 m/s
-
-const activities = [
-    {
-        instant: 1.34, //seconds
-        quality: 7.9, //points
-        distance: 3.2 //meters
-    },
-    {
-        instant: 2.72,
-        quality: 8.3,
-        distance: 6.7
-    },
-    {
-        instant: 4.05,
-        quality: 8.1,
-        distance: 9.4
-    },
-    {
-        instant: 5.41,
-        quality: 7.8,
-        distance: 12.2
-    },
-
-    {
-        instant: 6.68,
-        quality: 8.1,
-        distance: 14.8
-    },
-]
-
-function logActivities() {
-    const startGameTime = new Date();
-
 }
