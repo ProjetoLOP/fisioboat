@@ -33,3 +33,9 @@ O objetivo aqui é tornar o cenário mais imersivo e atrativo, proporcionando um
 - Desenvolver um boneco para o barco.
 - Criar linha de largada para representar o início do jogo.
 - Desenvolver itens marcantes e diferenciados, que serão visíveis conforme o jogador progride no jogo.
+
+### 2) Outras melhorias
+
+- Implementar um sistema de pause no jogo
+
+- Criar documentação completa do jogo: objetivos do projeto, tecnologias utilizadas, referenciar projeto de extensão,instruções sobre como jogar (posicionamento da câmera em relação ao usuário e etc...)
