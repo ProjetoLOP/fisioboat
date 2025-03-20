@@ -1,11 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt_BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Developing</title>
+
+    <!-- MoveNet Lib -->
+    <script id="tfjs" src="/Assets/scripts/Libs/tfjs.js"></script>
+    <script id="pose-detection" src="/Assets/scripts/Libs/pose-detection.js"></script>
+    <script id="tfjs-backend-webgl" src="/Assets/scripts/Libs/tfjs-backend-webgl.js"></script>
+
+    <!-- Aframe Lib -->
+    <script src="/Assets/scripts/Libs/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
+    <script src="/Assets/scenes/devSandbox/scripts/aframe-scene.js"></script>
 </head>
+
 <body>
-    
+    <!-- Camera/Video config -->
+    <video id="video" style="position: absolute;width: 300px;z-index: 1;"></video>
+
+    <!-- Aframe Scene -->
+    <a-scene>
+        <!-- Skybox -->
+        <a-sky src="/Assets/scenario/images/Skybox.png"></a-sky>
+
+        <!-- Ocean -->
+        <a-ocean width="150" depth="300" density="30"></a-ocean>
+
+        <!-- Barcos -->
+        <a-entity id="boat" gltf-model="/Assets/scenario/Boat/BarcoTexturizado.glb" rotation="0 0 0" position="0 0.6 0"
+            boat-controls></a-entity>
+
+        <!-- Telespectador -->
+        <a-entity camera look-controls follow="target: #boat; offset: 0 1.5 -1"></a-entity>
+    </a-scene>
+
+    <!-- MoveNet Manipulation -->
+    <script src="/Assets/scripts/moveNet.js"></script>
+    <script>
+        //moveNetDetector.run();
+    </script>
 </body>
+
 </html>

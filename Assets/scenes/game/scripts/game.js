@@ -1,4 +1,4 @@
-const isDeveloping = true;
+const isDeveloping = false;
 const gameVars = {
     startTime: "",
     startZPosition: 0,
