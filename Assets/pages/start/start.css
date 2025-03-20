@@ -46,7 +46,7 @@ html {
 /* Carrossel */
 .carousel-container {
     width: 80%;
-    max-width: 800px;
+    max-width: 600px;
     height: 280px;
     margin: 0 0 20px;
     position: relative;
@@ -83,7 +83,7 @@ html {
     background-image: inherit;
     background-size: cover;
     background-position: center;
-    animation: subtle-move 15s infinite alternate ease-in-out;
+    animation: subtle-move 12.5s infinite alternate ease-in-out;
     z-index: -1;
 }
 

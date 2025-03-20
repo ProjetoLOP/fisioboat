@@ -70,9 +70,7 @@ class MoveNetDetector {
         await this.setupVideo();
         // await this.setupCamera();
 
-        setTimeout(() => {
-            this.video.play();
-        }, 3000)
+        this.video.play();
 
         console.log("Detector inicializado.");
     }
