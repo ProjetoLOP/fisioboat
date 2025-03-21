@@ -34,7 +34,12 @@ O objetivo aqui é tornar o cenário mais imersivo e atrativo, proporcionando um
 - Criar linha de largada para representar o início do jogo.
 - Desenvolver itens marcantes e diferenciados, que serão visíveis conforme o jogador progride no jogo.
 
-### 2) Outras melhorias
+
+### 2) Fix Bugs
+
+- Resolver barco tremendo enquanto o moveNet está sendo executado
+
+### 3) Outras melhorias
 
 - Implementar um sistema de pause no jogo
 

@@ -13,21 +13,45 @@
 
     <!-- Aframe Lib -->
     <script src="/Assets/scripts/Libs/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
+    <script src="/Assets/scripts/Libs/aframe-extras.min.js"></script>
+    <script src="/Assets/scripts/Libs/combo-ocean.js"></script>
+    <script src="/Assets/scripts/Libs/RGBELoader.js"></script>
+    <script>
+        // Register the 'hdri' component
+        AFRAME.registerComponent('hdri', {
+            schema: {
+                url: { type: 'string' }, // Define the data schema
+            },
+            init: function () {
+                const { url } = this.data; // Get the URL from the component data
+                const sceneEl = this.el; // Reference to the A-Frame scene element
+                const scene = sceneEl.object3D; // THREE.js scene object
+                const renderer = sceneEl.renderer; // A-Frame renderer
+                // Set up the HDRI loader
+                const rgbeLoader = new THREE.RGBELoader();
+                rgbeLoader.setDataType(THREE.UnsignedByteType);
+                rgbeLoader.load(url, (texture) => {
+                    // PMREM Generator for converting the texture to a suitable format
+                    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+                    pmremGenerator.compileEquirectangularShader();
+                    const envMap = pmremGenerator.fromEquirectangular(texture).texture;
+                    scene.environment = envMap; // Set the scene environment
+                    texture.dispose();
+                    pmremGenerator.dispose();
+                });
+            }
+        });
+    </script>
     <script src="/Assets/scenes/devSandbox/scripts/aframe-scene.js"></script>
 </head>
 
 <body>
-    <!-- Camera/Video config -->
     <video id="video" style="position: absolute;width: 300px;z-index: 1;"></video>
 
-    <!-- Aframe Scene -->
-    <a-scene>
-        <!-- Skybox -->
-        <a-sky src="/Assets/scenario/images/afternoon-sky.jpeg"></a-sky>
+    <a-scene renderer="colorManagement: true; physicallyCorrectLights: true;" hdri="url: /Assets/scenario/hdr/afternoon.hdr">
+        <a-sky rotation="0 180 0" src="/Assets/scenario/images/afternoon-sky.jpeg"></a-sky>
 
-        <!-- Ocean -->
-        <a-ocean width="150" depth="300" density="40"></a-ocean>
+        <a-ocean-plane position="0 -1 0"></a-ocean-plane>
 
         <!-- Barcos -->
         <a-entity id="boat" gltf-model="/Assets/scenario/Boat/BarcoTexturizado.glb" rotation="0 0 0" position="0 0.6 0"
@@ -40,7 +64,7 @@
     <!-- MoveNet Manipulation -->
     <script src="/Assets/scripts/moveNet.js"></script>
     <script>
-        //moveNetDetector.run();
+        // moveNetDetector.run();
     </script>
 </body>
 
