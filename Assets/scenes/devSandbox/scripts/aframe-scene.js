@@ -35,7 +35,7 @@ AFRAME.registerComponent('boat-controls', {
         const currentPosition = this.el.getAttribute('position'); // Obtém a posição atual do barco
 
         //Anti queda do abismo
-        currentPosition.z = ((currentPosition.z < -250) ? 0 : currentPosition.z);
+        // currentPosition.z = ((currentPosition.z < -250) ? 0 : currentPosition.z);
 
         // Acelera se o barco estiver em movimento
         if (this.isMoving) {
