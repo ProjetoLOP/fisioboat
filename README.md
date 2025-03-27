@@ -39,6 +39,8 @@ O objetivo aqui é tornar o cenário mais imersivo e atrativo, proporcionando um
 
 - Resolver barco tremendo enquanto o moveNet está sendo executado
 
+- Resolver água entrando no barco
+
 ### 3) Outras melhorias
 
 - Implementar um sistema de pause no jogo
