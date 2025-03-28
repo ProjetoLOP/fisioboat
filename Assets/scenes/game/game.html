@@ -33,16 +33,16 @@
     <!-- Aframe Scene -->
     <a-scene>
         <!-- Skybox -->
-        <a-sky material="src: /Assets/scenario/images/Skybox.png"></a-sky>
+        <a-sky material="src: /Assets/scenario/textures/Skybox.png"></a-sky>
 
         <!-- Água -->
         <a-plane position="0 0 -5" rotation="-90 0 0" width="300" height="500"
-            material="src: /Assets/scenario/images/Water.png; repeat: 50 50"></a-plane>
+            material="src: /Assets/scenario/textures/Water.png; repeat: 50 50"></a-plane>
 
         <!-- Barcos -->
-        <a-entity id="boat" gltf-model="/Assets/scenario/Boat/BarcoTexturizado.glb" rotation="0 0 0" position="0 0.6 0"
+        <a-entity id="boat" gltf-model="/Assets/scenario/models/BarcoTexturizado.glb" rotation="0 0 0" position="0 0.6 0"
             boat-controls></a-entity>
-        <a-entity id="botBoat" gltf-model="/Assets/scenario/Boat/BarcoTexturizado.glb" rotation="0 0 0" position="5 0.6 0"
+        <a-entity id="botBoat" gltf-model="/Assets/scenario/models/BarcoTexturizado.glb" rotation="0 0 0" position="5 0.6 0"
             bot-boat></a-entity>
 
         <!-- Timer -->

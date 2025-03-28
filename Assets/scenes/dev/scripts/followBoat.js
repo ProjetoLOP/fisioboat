@@ -31,72 +31,78 @@ AFRAME.registerComponent('bot-boat', {
     },
 });
 
-AFRAME.registerComponent('dynamic-rope', {
+AFRAME.registerComponent('textured-rope', {
     schema: {
         target: { type: 'selector' },  // Barco bot
-        attachPoint: { type: 'vec3', default: { x: 0, y: 0.5, z: 2 } },       // Ponto de conexão no seu barco (por exemplo, a frente)
-        targetAttachPoint: { type: 'vec3', default: { x: 0, y: 0.5, z: -2 } },  // Ponto de conexão no barco bot (por exemplo, a parte de trás)
+        attachPoint: { type: 'vec3', default: { x: 0, y: 0.5, z: 2 } },       // Ponto de conexão no seu barco (ex: a frente)
+        targetAttachPoint: { type: 'vec3', default: { x: 0, y: 0.5, z: -2 } },  // Ponto de conexão no barco bot (ex: a parte de trás)
         breakDistance: { type: 'number', default: 20 } // Distância limite para rompimento da corda
     },
     init: function () {
-        console.log('[dynamic-rope] Inicializando componente de corda dinâmica.');
-        // Cria o material com cor preta e grossura aumentada
-        const material = new THREE.LineBasicMaterial({
-            color: 0x000000,   // Cor preta
-            linewidth: 5       // Grossura (atenção: pode não funcionar no WebGL padrão)
+        console.log('[textured-rope] Inicializando componente de corda realista.');
+        const textureLoader = new THREE.TextureLoader();
+        // Substitua o caminho abaixo pela URL da sua textura de corda
+        const ropeTexture = textureLoader.load('/Assets/scenario/textures/rope.jpg');
+        ropeTexture.wrapS = ropeTexture.wrapT = THREE.RepeatWrapping;
+        ropeTexture.repeat.set(1, 4);
+
+        // Material com a textura
+        const material = new THREE.MeshStandardMaterial({
+            map: ropeTexture,
+            color: 0x4c3b30,   // Amarelo dourado
+            emissive: 0x222222, // Um toque para evidenciar a cor, se necessário
+            transparent: false
         });
-        const points = [new THREE.Vector3(), new THREE.Vector3()];
-        this.geometry = new THREE.BufferGeometry().setFromPoints(points);
-        this.line = new THREE.Line(this.geometry, material);
-        // Desabilita frustum culling para garantir que a linha seja sempre renderizada
-        this.line.frustumCulled = false;
-        // Adiciona a linha à cena (usando coordenadas mundiais)
-        this.el.sceneEl.object3D.add(this.line);
+
+        // Cria a geometria de um cilindro fino com comprimento 1 (no eixo Y)
+        this.geometry = new THREE.CylinderGeometry(0.05, 0.05, 1, 8, 1, true);
+        this.ropeMesh = new THREE.Mesh(this.geometry, material);
+        this.ropeMesh.frustumCulled = false;
+
+        // Adiciona a malha da corda à cena (em coordenadas mundiais)
+        this.el.sceneEl.object3D.add(this.ropeMesh);
         this.ropeBroken = false;
-        console.log('[dynamic-rope] Linha adicionada à cena.');
     },
     tick: function () {
         if (this.ropeBroken) return;
 
-        // Atualiza as matrizes para garantir transformações corretas
+        // Atualiza as matrizes para garantir as transformações corretas
         this.el.object3D.updateMatrixWorld(true);
         this.data.target.object3D.updateMatrixWorld(true);
 
-        // Converte o ponto de conexão do seu barco para coordenadas mundiais
-        const localAttach = new THREE.Vector3(this.data.attachPoint.x, this.data.attachPoint.y, this.data.attachPoint.z);
-        const worldAttach = this.el.object3D.localToWorld(localAttach.clone());
+        // Converte os pontos de conexão para coordenadas mundiais
+        const startLocal = new THREE.Vector3(this.data.attachPoint.x, this.data.attachPoint.y, this.data.attachPoint.z);
+        const endLocal = new THREE.Vector3(this.data.targetAttachPoint.x, this.data.targetAttachPoint.y, this.data.targetAttachPoint.z);
+        const startWorld = this.el.object3D.localToWorld(startLocal.clone());
+        const endWorld = this.data.target.object3D.localToWorld(endLocal.clone());
 
-        // Converte o ponto de conexão do barco bot para coordenadas mundiais
-        const localTargetAttach = new THREE.Vector3(this.data.targetAttachPoint.x, this.data.targetAttachPoint.y, this.data.targetAttachPoint.z);
-        const worldTargetAttach = this.data.target.object3D.localToWorld(localTargetAttach.clone());
-
-        // Calcula a distância entre os dois pontos
-        const distance = worldAttach.distanceTo(worldTargetAttach);
-
-        // Se a distância ultrapassar o limite, a corda se rompe
+        // Calcula a distância entre os pontos
+        const distance = startWorld.distanceTo(endWorld);
         if (distance > this.data.breakDistance) {
-            console.log('[dynamic-rope] Distância excedida (' + distance + ' > ' + this.data.breakDistance + '). Corda rompida.');
-            this.el.sceneEl.object3D.remove(this.line);
+            console.log('[textured-rope] Distância excedida (' + distance + ' > ' + this.data.breakDistance + '). Corda rompida.');
+            this.el.sceneEl.object3D.remove(this.ropeMesh);
             this.ropeBroken = true;
-            // Emite um evento caso queira acoplar alguma lógica ao rompimento
             this.el.emit('ropeBroken', { distance: distance });
             return;
         }
 
-        // Atualiza os vértices da linha com as novas posições
-        const positions = this.geometry.attributes.position.array;
-        positions[0] = worldAttach.x;
-        positions[1] = worldAttach.y;
-        positions[2] = worldAttach.z;
-        positions[3] = worldTargetAttach.x;
-        positions[4] = worldTargetAttach.y;
-        positions[5] = worldTargetAttach.z;
-        this.geometry.attributes.position.needsUpdate = true;
+        // Posiciona a corda no meio entre os dois pontos
+        const midpoint = new THREE.Vector3().addVectors(startWorld, endWorld).multiplyScalar(0.5);
+        this.ropeMesh.position.copy(midpoint);
+
+        // Ajusta a escala para que o cilindro tenha o comprimento da distância calculada
+        this.ropeMesh.scale.set(1, distance, 1);
+
+        // Calcula a rotação necessária para alinhar o cilindro (eixo Y) com a direção entre os pontos
+        const direction = new THREE.Vector3().subVectors(endWorld, startWorld).normalize();
+        const axis = new THREE.Vector3(0, 1, 0);
+        const quaternion = new THREE.Quaternion().setFromUnitVectors(axis, direction);
+        this.ropeMesh.quaternion.copy(quaternion);
     },
     remove: function () {
-        if (this.line) {
-            this.el.sceneEl.object3D.remove(this.line);
-            console.log('[dynamic-rope] Linha removida.');
+        if (this.ropeMesh) {
+            this.el.sceneEl.object3D.remove(this.ropeMesh);
+            console.log('[textured-rope] Corda removida.');
         }
     }
 });
