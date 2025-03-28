@@ -57,12 +57,19 @@
 
         <!-- Barcos -->
         <a-entity id="boat" gltf-model="/Assets/scenario/Boat/BarcoTexturizado.glb" rotation="0 0 0" position="0 0.6 0"
-            boat-controls float-on-ocean="oceanId: ocean"></a-entity>
+            boat-controls float-on-ocean="oceanId: ocean"
+            dynamic-rope="target: #botBoat; attachPoint: 0 0.5 -3; targetAttachPoint: 0 0.5 3">
+        </a-entity>
+
 
         <a-entity id="botBoat" gltf-model="/Assets/scenario/Boat/BarcoTexturizado.glb" rotation="0 0 0"
-            position="5 0.6 0" bot-boat float-on-ocean="oceanId: ocean"></a-entity>
+            position="0 0.6 -10" bot-boat float-on-ocean="oceanId: ocean"></a-entity>
 
         <!-- Telespectador -->
+         <!-- Observador -->
+        <!-- <a-entity camera look-controls wasd-controls position="0 3 0"></a-entity> -->
+
+        <!-- Usuário -->
         <a-entity camera look-controls follow="target: #boat; offset: 0 1.5 -1"></a-entity>
     </a-scene>
 
