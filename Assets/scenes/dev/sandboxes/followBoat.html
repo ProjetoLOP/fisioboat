@@ -51,18 +51,18 @@
 
     <a-scene renderer="colorManagement: true; physicallyCorrectLights: true;"
         hdri="url: /Assets/scenario/hdr/afternoon.hdr">
-        <a-sky rotation="0 180 0" src="/Assets/scenario/images/afternoon-sky.jpeg"></a-sky>
+        <a-sky rotation="0 180 0" src="/Assets/scenario/textures/afternoon-sky.jpeg"></a-sky>
 
         <a-ocean-plane id="ocean" position="0 -1 0"></a-ocean-plane>
 
         <!-- Barcos -->
-        <a-entity id="boat" gltf-model="/Assets/scenario/Boat/BarcoTexturizado.glb" rotation="0 0 0" position="0 0.6 0"
+        <a-entity id="boat" gltf-model="/Assets/scenario/models/BarcoTexturizado.glb" rotation="0 0 0" position="0 0.6 0"
             boat-controls float-on-ocean="oceanId: ocean"
-            dynamic-rope="target: #botBoat; attachPoint: 0 0.5 -3; targetAttachPoint: 0 0.5 3">
+            textured-rope="target: #botBoat; attachPoint: 0 0.5 -3; targetAttachPoint: 0 0.5 3">
         </a-entity>
 
 
-        <a-entity id="botBoat" gltf-model="/Assets/scenario/Boat/BarcoTexturizado.glb" rotation="0 0 0"
+        <a-entity id="botBoat" gltf-model="/Assets/scenario/models/BarcoTexturizado.glb" rotation="0 0 0"
             position="0 0.6 -10" bot-boat float-on-ocean="oceanId: ocean"></a-entity>
 
         <!-- Telespectador -->
