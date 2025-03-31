@@ -1,15 +1,16 @@
-// Componente para controlar o movimento do barco
+// Componente para controlar o barco do jogador
+// Componente para controlar o barco do jogador
 AFRAME.registerComponent('boat-controls', {
     schema: {
         acceleration: { type: 'number', default: 7 }, // Taxa de aceleração
         deceleration: { type: 'number', default: 0.03 }, // Taxa de desaceleração
-        maxSpeed: { type: 'number', default: 7 }, // Velocidade máxima permitida
+        maxSpeed: { type: 'number', default: 7 } // Velocidade máxima permitida
     },
     init: function () {
-        this.velocity = 0; // Velocidade inicial do barco
-        this.isMoving = false; // Estado inicial: barco parado
+        this.velocity = 0; // Velocidade inicial
+        this.isMoving = false; // Estado inicial: parado
 
-        // Inicia o movimento ao pressionar a tecla "espaço"
+        // Inicia o movimento com a tecla "espaço"
         window.addEventListener('keydown', (event) => {
             if (event.key === ' ') {
                 this.isMoving = true;
@@ -23,36 +24,55 @@ AFRAME.registerComponent('boat-controls', {
             }
         });
 
-        // Dispara o movimento ao detectar o evento de agachamento
-        window.addEventListener('squatDetected', (event) => {
-            const squatDetails = event.details;
-
+        // Movimento com o evento de agachamento
+        window.addEventListener('squatDetected', () => {
             this.isMoving = true;
         });
     },
     tick: function (time, timeDelta) {
-        const deltaSeconds = timeDelta / 1000; // Converte o tempo delta para segundos
-        const currentPosition = this.el.getAttribute('position'); // Obtém a posição atual do barco
+        const deltaSeconds = timeDelta / 1000;
+        const currentPosition = this.el.getAttribute('position');
 
-        //Anti queda do abismo
-        currentPosition.z = ((currentPosition.z < -250) ? 0 : currentPosition.z);
-
-        // Acelera se o barco estiver em movimento
-        if (this.isMoving) {
-            this.velocity += this.data.acceleration;
-            this.isMoving = false; // Reseta para evitar movimento contínuo
-        } else {
-            // Aplica desaceleração gradual quando parado
-            this.velocity -= this.data.deceleration;
+        // Anti queda do abismo
+        if (currentPosition.z < -250) {
+            currentPosition.z = 0;
         }
 
-        // Garante que a velocidade esteja entre 0 e o valor máximo permitido
+        // Atualiza velocidade e posição
+        if (this.isMoving) {
+            this.velocity += this.data.acceleration;
+            this.isMoving = false;
+        } else {
+            this.velocity -= this.data.deceleration;
+        }
         this.velocity = Math.max(0, Math.min(this.velocity, this.data.maxSpeed));
-
-        // Atualiza a posição do barco com base na velocidade
         currentPosition.z -= this.velocity * deltaSeconds;
         this.el.setAttribute('position', currentPosition);
+
+        // Verifica colisão com o botBarco
+        const botBoatEl = document.querySelector('#botBoat');
+        if (botBoatEl) {
+            const botPos = botBoatEl.getAttribute('position');
+            const collisionThreshold = 6; // ajuste conforme necessário
+            if (Math.abs(currentPosition.z - botPos.z) < collisionThreshold) {
+                console.log("Colisão detectada entre player e bot.");
+                // Reduz a velocidade em 30%
+                this.velocity *= 0.7;
+                // Se a corda estiver quebrada, chama a função para retomar o jogo
+                const ropeEl = document.querySelector('[stretch-rope]');
+                if (ropeEl && ropeEl.components['stretch-rope'].ropeBroken) {
+                    this.continueGame(botBoatEl, ropeEl);
+                }
+            }
+        }
     },
+    continueGame: function (botBoatEl, ropeEl) {
+        console.log("continueGame: restaurando corda e retomando movimento do bot.");
+        // Restaura a corda
+        ropeEl.emit('ropeRestore', {}, false);
+        // Emite um evento para o botBarco retomar a movimentação
+        botBoatEl.emit('continueGame', {}, false);
+    }
 });
 
 // Componente para telespectador seguir barco
