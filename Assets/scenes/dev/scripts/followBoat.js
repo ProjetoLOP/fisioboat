@@ -1,7 +1,7 @@
 // Componente para controlar o botBarco
 AFRAME.registerComponent('bot-boat', {
     schema: {
-        botSpeed: { type: 'number', default: 0.10 } // Velocidade do botBarco
+        botSpeed: { type: 'number', default: 0.1 } // Velocidade do botBarco
     },
     init: function () {
         this.isRacing = false;    // Estado inicial: parado
