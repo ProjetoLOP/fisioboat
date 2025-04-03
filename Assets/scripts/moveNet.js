@@ -425,3 +425,4 @@ const moveNetDetector = new MoveNetDetector(video, {
     stabilityFrames: 3,
     threshold: 0.5,
 });
+
