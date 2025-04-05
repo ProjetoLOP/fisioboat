@@ -49,7 +49,7 @@
 <body>
     <video id="video" style="position: absolute;width: 300px;z-index: 1;"></video>
 
-    <a-scene stats renderer="colorManagement: true; physicallyCorrectLights: true;"
+    <a-scene renderer="colorManagement: true; physicallyCorrectLights: true;"
         hdri="url: /Assets/scenario/hdr/afternoon.hdr">
         <a-sky rotation="0 180 0" src="/Assets/scenario/textures/afternoon-sky.jpeg"></a-sky>
 
@@ -76,7 +76,7 @@
     <!-- MoveNet Manipulation -->
     <script src="/Assets/scripts/moveNet.js"></script>
     <script>
-        // moveNetDetector.run();
+        moveNetDetector.run();
     </script>
 </body>
 

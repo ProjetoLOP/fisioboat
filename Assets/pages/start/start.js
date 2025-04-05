@@ -42,7 +42,7 @@ document.querySelector('.play-button').addEventListener('click', () => {
         case 1: window.location.href = "/Assets/scenes/game/game.html"
             break;
 
-        case 4: window.location.href = "/Assets/scenes/dev/sandboxes/movenet+worker.html"
+        case 4: window.location.href = "/Assets/scenes/dev/sandboxes/followBoat.html"
             break;
     }
 });

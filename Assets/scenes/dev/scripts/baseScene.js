@@ -1,5 +1,4 @@
 // Componente para controlar o barco do jogador
-// Componente para controlar o barco do jogador
 AFRAME.registerComponent('boat-controls', {
     schema: {
         acceleration: { type: 'number', default: 7 }, // Taxa de aceleração
@@ -30,15 +29,18 @@ AFRAME.registerComponent('boat-controls', {
         });
     },
     tick: function (time, timeDelta) {
-        const deltaSeconds = timeDelta / 1000;
-        const currentPosition = this.el.getAttribute('position');
+        // Limita o delta para evitar deslocamentos muito grandes em frames lentos.
+        const maxDeltaMilliseconds = 30; // 30 ms é o limite máximo
+        const deltaSeconds = Math.min(timeDelta, maxDeltaMilliseconds) / 1000;
 
-        // Anti queda do abismo
+        let currentPosition = this.el.getAttribute('position');
+
+        // "Anti queda do abismo"
         if (currentPosition.z < -250) {
             currentPosition.z = 0;
         }
 
-        // Atualiza velocidade e posição
+        // Atualiza velocidade conforme o estado do movimento
         if (this.isMoving) {
             this.velocity += this.data.acceleration;
             this.isMoving = false;
@@ -46,6 +48,8 @@ AFRAME.registerComponent('boat-controls', {
             this.velocity -= this.data.deceleration;
         }
         this.velocity = Math.max(0, Math.min(this.velocity, this.data.maxSpeed));
+
+        // Atualiza a posição com base no delta controlado
         currentPosition.z -= this.velocity * deltaSeconds;
         this.el.setAttribute('position', currentPosition);
 
@@ -74,6 +78,7 @@ AFRAME.registerComponent('boat-controls', {
         botBoatEl.emit('continueGame', {}, false);
     }
 });
+
 
 // Componente para telespectador seguir barco
 AFRAME.registerComponent('follow', {

@@ -36,7 +36,7 @@ class MoveNetDetector {
         this.video.loop = true;
         this.video.playsInline = true;
         this.video.muted = true;
-        this.video.src = "/Assets/videos/correctMove(2).mp4"; // caminho para o vídeo pré gravado
+        this.video.src = "/Assets/videos/stress3.mp4"; // caminho para o vídeo pré gravado
 
         return new Promise((resolve, reject) => {
             this.video.onloadedmetadata = () => resolve(this.video);
