@@ -42,12 +42,12 @@
             }
         });
     </script>
-    <script src="/Assets/scenes/dev/scripts/baseScene.js"></script>
-    <script src="/Assets/scenes/dev/scripts/followBoat.js"></script>
+    <script src="/Assets/scenes/dev/baseScene/baseScene.js"></script>
+    <script src="/Assets/scenes/dev/followBoat/followBoat.js"></script>
 </head>
 
 <body>
-    <video id="video" style="position: absolute;width: 300px;z-index: 1;"></video>
+    <video id="video" style="position: absolute;width: 300px;z-index: 1;margin:10px;border-radius: 8px;"></video>
 
     <a-scene renderer="colorManagement: true; physicallyCorrectLights: true;"
         hdri="url: /Assets/scenario/hdr/afternoon.hdr">
@@ -76,7 +76,7 @@
     <!-- MoveNet Manipulation -->
     <script src="/Assets/scripts/moveNet.js"></script>
     <script>
-        moveNetDetector.run();
+        // moveNetDetector.run();
     </script>
 </body>
 

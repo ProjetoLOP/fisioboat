@@ -1,0 +1,48 @@
+/* Importa a fonte Hammersmith One do Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Hammersmith+One&display=swap');
+
+#checkupOverlay {
+    z-index: 1;
+}
+
+#checkupOverlay.active {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+#checkupOverlay h1 {
+    color: #fff;
+    font-family: 'Hammersmith One', sans-serif;
+    animation: pulse 2s infinite;
+}
+
+#video {
+    border-radius: 8px;
+}
+
+/* Efeitos */
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        text-shadow: 0 0 5px #fff;
+    }
+    50% {
+        transform: scale(1.05);
+        text-shadow: 0 0 20px #fff;
+    }
+    100% {
+        transform: scale(1);
+        text-shadow: 0 0 5px #fff;
+    }
+}

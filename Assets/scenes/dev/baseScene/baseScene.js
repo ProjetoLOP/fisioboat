@@ -1,7 +1,7 @@
 // Componente para controlar o barco do jogador
 AFRAME.registerComponent('boat-controls', {
     schema: {
-        acceleration: { type: 'number', default: 7 }, // Taxa de aceleração
+        acceleration: { type: 'number', default: 14 }, // Taxa de aceleração
         deceleration: { type: 'number', default: 0.03 }, // Taxa de desaceleração
         maxSpeed: { type: 'number', default: 7 } // Velocidade máxima permitida
     },
