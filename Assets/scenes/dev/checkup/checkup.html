@@ -49,7 +49,12 @@
 
 <body>
     <div class="active" id="checkupOverlay">
-        <video id="video"></video>
+        <div id="video-container">
+            <video id="video"></video>
+            <div class="loading-dots active">
+                <span>.</span><span>.</span><span>.</span>
+            </div>
+        </div>
         <h1>Aperte <i>"Enter"</i> quando estiver pronto</h1>
     </div>
 
@@ -69,9 +74,8 @@
 
     <!-- MoveNet Manipulation -->
     <!-- <script src="/Assets/scripts/moveNet.js"></script> -->
+    <script src="/Assets/scripts/moveNet.min.js"></script>
     <script>
-        // moveNetDetector.run();
-
         // Função para acessar a câmera
         async function setupCamera() {
             try {
@@ -80,9 +84,14 @@
                     audio: false
                 });
 
-                const videoElement = document.getElementById('video');
+                const videoContainer = document.getElementById("video-container");
+                const loadingDots = videoContainer.querySelector(".loading-dots");
+                const videoElement = videoContainer.querySelector('#video');
+
                 videoElement.srcObject = stream;
                 videoElement.play();
+
+                loadingDots.classList.remove("active");
 
                 console.log('Câmera inicializada com sucesso');
             } catch (error) {
@@ -91,29 +100,53 @@
             }
         }
 
-        // Inicializa a câmera quando a página carrega
-        document.addEventListener('DOMContentLoaded', setupCamera);
+        // Função para preparar vídeo
+        function setupVideo() {
+            const videoEl = document.getElementById("video");
+
+            videoEl.src = "/Assets/videos/stress4.mp4";
+            videoEl.loop = true;
+            videoEl.play();
+
+            videoEl.addEventListener("playing", () => {
+                const loadingDots = document.querySelector(".loading-dots");
+                loadingDots.classList.remove("active");
+            });
+        }
+
+        // Inicializa a câmera/video quando a página carrega
+        // document.addEventListener('click', () => {
+        //     setupVideo();
+        // }, { once: true });
 
         // Função para iniciar o jogo quando Enter for pressionado
-        document.addEventListener('keydown', function (event) {
+        document.addEventListener('keypress', function (event) {
             if (event.key === 'Enter') {
-                startGame();
+                detectPose();
+
+                const loadingDots = document.querySelector(".loading-dots");
+                loadingDots.classList.add("active");
             }
+        });
+
+        window.addEventListener("detector:ready", () => {
+            // setupVideo();
+            setupCamera();
+        });
+
+        window.addEventListener("pose:ready", () => {
+            setTimeout(startGame, 1200)
         });
 
         // Função para iniciar o jogo
         function startGame() {
+            const overlay = document.getElementById('checkupOverlay');
+            const videoContainer = document.getElementById('video-container');
+            overlay.classList.remove('active');
+            videoContainer.classList.add('game-started');
             // Aqui você pode adicionar o código para iniciar seu jogo
             console.log('Iniciando o jogo...');
-            alert('Jogo iniciado!');
-            // Você pode redirecionar para a página do jogo ou iniciar o jogo na mesma página
-            // window.location.href = 'jogo.html';
-
-            // Ou pode remover os elementos da câmera e mostrar o jogo
-            // document.querySelector('.camera-overlay').style.display = 'none';
-            // document.querySelector('.camera-container').style.display = 'none';
-            // document.querySelector('.title').style.display = 'none';
-            // E então iniciar sua lógica de jogo...
+            // alert('Jogo iniciado!');
         }
     </script>
 </body>
