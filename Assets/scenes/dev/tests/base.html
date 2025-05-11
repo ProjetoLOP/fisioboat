@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt_BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developing</title>
+
+    <!-- MoveNet Lib -->
+    <script id="tfjs" src="/Assets/scripts/Libs/tfjs.js"></script>
+    <script id="pose-detection" src="/Assets/scripts/Libs/pose-detection.js"></script>
+    <script id="tfjs-backend-webgl" src="/Assets/scripts/Libs/tfjs-backend-webgl.js"></script>
+
+    <!-- Aframe Lib -->
+    <script src="/Assets/scripts/Libs/aframe.min.js"></script>
+    <script src="/Assets/scripts/Libs/aframe-extras.min.js"></script>
+    <script src="/Assets/scripts/Libs/combo-ocean.js"></script>
+    <script src="/Assets/scripts/Libs/RGBELoader.js"></script>
+    <script>
+        // Register the 'hdri' component
+        AFRAME.registerComponent('hdri', {
+            schema: {
+                url: { type: 'string' }, // Define the data schema
+            },
+            init: function () {
+                const { url } = this.data; // Get the URL from the component data
+                const sceneEl = this.el; // Reference to the A-Frame scene element
+                const scene = sceneEl.object3D; // THREE.js scene object
+                const renderer = sceneEl.renderer; // A-Frame renderer
+                // Set up the HDRI loader
+                const rgbeLoader = new THREE.RGBELoader();
+                rgbeLoader.setDataType(THREE.UnsignedByteType);
+                rgbeLoader.load(url, (texture) => {
+                    // PMREM Generator for converting the texture to a suitable format
+                    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+                    pmremGenerator.compileEquirectangularShader();
+                    const envMap = pmremGenerator.fromEquirectangular(texture).texture;
+                    scene.environment = envMap; // Set the scene environment
+                    texture.dispose();
+                    pmremGenerator.dispose();
+                });
+            }
+        });
+    </script>
+    <script src="/Assets/scenes/dev/tests/baseScene.js"></script>
+    <script src="/Assets/scenes/dev/tests/botBoat.js"></script>
+</head>
+
+<body>
+    <video id="video" style="position: absolute;width: 300px;z-index: 1;"></video>
+
+    <a-scene renderer="colorManagement: true; physicallyCorrectLights: true;"
+        hdri="url: /Assets/scenario/hdr/afternoon.hdr">
+        <a-sky rotation="0 180 0" src="/Assets/scenario/textures/afternoon-sky.jpeg"></a-sky>
+
+        <a-ocean-plane id="ocean" position="0 -1 0"></a-ocean-plane>
+
+        <!-- Barcos -->
+        <a-entity id="boat" gltf-model="/Assets/scenario/models/BarcoTexturizado.glb" rotation="0 0 0"
+            position="0 0.6 0" player-boat float-on-ocean="oceanId: ocean"></a-entity>
+
+        <a-entity id="botBoat" gltf-model="/Assets/scenario/models/BarcoTexturizado.glb" rotation="0 0 0"
+            position="5 0.6 0" bot-boat float-on-ocean="oceanId: ocean"></a-entity>
+
+        <!-- Telespectador -->
+        <!-- <a-entity camera look-controls follow="target: #boat; offset: 0 1.5 -1"></a-entity> -->
+       <!-- Observador -->
+        <a-entity camera look-controls wasd-controls position="2.5 3 5"></a-entity>
+    </a-scene>
+
+    <script src="/Assets/scenes/dev/tests/performance-utils.js"></script>
+    <script src="/Assets/scenes/dev/tests/performance.js"></script>
+</body>
+
+</html>
