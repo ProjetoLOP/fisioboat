@@ -1,9 +1,9 @@
 // Componente para controlar o botBarco
 AFRAME.registerComponent('bot-boat', {
     schema: {
-        acceleration: { type: 'number', default: 14 }, // Taxa de aceleração
+        acceleration: { type: 'number', default: 7.77 }, // Taxa de aceleração
         deceleration: { type: 'number', default: 0.03 }, // Taxa de desaceleração
-        maxSpeed: { type: 'number', default: 7 }         // Velocidade máxima permitida
+        maxSpeed: { type: 'number', default: 7.77 }         // Velocidade máxima permitida
     },
     init: function () {
         this.velocity = 0;         // Velocidade inicial
@@ -46,10 +46,10 @@ AFRAME.registerComponent('bot-boat', {
 
         let botCurrentPosition = this.el.getAttribute('position');
 
-        // Anti queda do abismo
-        if (botCurrentPosition.z < -250) {
-            botCurrentPosition.z = 0;
-        }
+        // // Anti queda do abismo
+        // if (botCurrentPosition.z < -250) {
+        //     botCurrentPosition.z = 0;
+        // }
 
         // Atualiza a velocidade:
         // Se estiver correndo e a corda não estiver quebrada, acelera.
@@ -67,6 +67,7 @@ AFRAME.registerComponent('bot-boat', {
         this.el.setAttribute('position', botCurrentPosition);
     }
 });
+
 
 
 // Componente para a corda esticável entre os barcos

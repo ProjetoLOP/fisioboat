@@ -297,3 +297,8 @@ function convertZToMeters(z1, z2) {
     const differenceInZ = Math.abs(z1 - z2); // Diferença absoluta entre os dois valores de z
     return differenceInZ / unitsPerMeter; // Converte para metros
 }
+
+function convertMetersToZ(meters) {
+    const unitsPerMeter = 13.7 / 3; // Unidades de z equivalentes a 1 metro
+    return meters * unitsPerMeter; // Converte para unidades de z
+}

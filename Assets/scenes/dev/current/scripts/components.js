@@ -1,7 +1,7 @@
 // Componente para controlar o barco do jogador
-AFRAME.registerComponent('boat-controls', {
+AFRAME.registerComponent('player-boat', {
     schema: {
-        acceleration: { type: 'number', default: 14 }, // Taxa de aceleração
+        acceleration: { type: 'number', default: 7 }, // Taxa de aceleração
         deceleration: { type: 'number', default: 0.03 }, // Taxa de desaceleração
         maxSpeed: { type: 'number', default: 7 } // Velocidade máxima permitida
     },
@@ -13,6 +13,8 @@ AFRAME.registerComponent('boat-controls', {
         window.addEventListener('keydown', (event) => {
             if (event.key === ' ') {
                 this.isMoving = true;
+
+                dispatchSquatEvents()
             }
         });
 
@@ -79,7 +81,6 @@ AFRAME.registerComponent('boat-controls', {
     }
 });
 
-
 // Componente para telespectador seguir barco
 AFRAME.registerComponent('follow', {
     schema: {
@@ -98,5 +99,37 @@ AFRAME.registerComponent('follow', {
             targetPosition.y + this.data.offset.y,
             targetPosition.z + this.data.offset.z
         );
+    }
+});
+
+AFRAME.registerComponent('evasive-speed-controller', {
+    schema: {
+        boat: { type: 'selector' },
+        botBoat: { type: 'selector' },
+    },
+
+    init: function () {
+        this.lastDistance = null; // Armazena a última distância registrada
+        this.botBoatMaxSpeed = this.data.botBoat.getAttribute('bot-boat').maxSpeed;
+    },
+
+    tick: function () {
+        const boatPosition = this.data.boat.getAttribute('position');
+        const botBoatPosition = this.data.botBoat.getAttribute('position');
+
+        const zPositionUserBoat = boatPosition.z.toFixed(2);
+        const zPositionBotBoat = botBoatPosition.z.toFixed(2);
+        const boatsDistance = Math.floor(convertZToMeters(zPositionUserBoat, zPositionBotBoat));
+
+        if (boatsDistance !== this.lastDistance) {
+            const velocityPercentage = 1 - boatsDistance / 10;
+            this.data.botBoat.setAttribute('bot-boat', { maxSpeed: this.botBoatMaxSpeed * velocityPercentage });
+
+            console.log(boatsDistance);
+            console.log(velocityPercentage)
+            console.log("-------------------");
+
+            this.lastDistance = boatsDistance;
+        }
     }
 });
