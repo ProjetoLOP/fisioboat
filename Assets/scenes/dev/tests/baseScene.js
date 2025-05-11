@@ -68,9 +68,32 @@ AFRAME.registerComponent('player-boat', {
         // Atualiza a posição com base no delta controlado
         currentPosition.z -= this.velocity * deltaSeconds;
         this.el.setAttribute('position', currentPosition);
+
+        // Verifica colisão com o botBarco
+        const botBoatEl = document.querySelector('#botBoat');
+        if (botBoatEl) {
+            const botPos = botBoatEl.getAttribute('position');
+            const collisionThreshold = 6; // ajuste conforme necessário
+            if (Math.abs(currentPosition.z - botPos.z) < collisionThreshold) {
+                console.log("Colisão detectada entre player e bot.");
+                // Reduz a velocidade em 30%
+                this.velocity *= 0.7;
+                // Se a corda estiver quebrada, chama a função para retomar o jogo
+                const ropeEl = document.querySelector('[stretch-rope]');
+                if (ropeEl && ropeEl.components['stretch-rope'].ropeBroken) {
+                    this.continueGame(botBoatEl, ropeEl);
+                }
+            }
+        }
+    },
+    continueGame: function (botBoatEl, ropeEl) {
+        console.log("continueGame: restaurando corda e retomando movimento do bot.");
+        // Restaura a corda
+        ropeEl.emit('ropeRestore', {}, false);
+        // Emite um evento para o botBarco retomar a movimentação
+        botBoatEl.emit('continueGame', {}, false);
     }
 });
-
 
 // Componente para telespectador seguir barco
 AFRAME.registerComponent('follow', {
@@ -90,5 +113,37 @@ AFRAME.registerComponent('follow', {
             targetPosition.y + this.data.offset.y,
             targetPosition.z + this.data.offset.z
         );
+    }
+});
+
+AFRAME.registerComponent('evasive-speed-controller', {
+    schema: {
+        boat: { type: 'selector' },
+        botBoat: { type: 'selector' },
+    },
+
+    init: function () {
+        this.lastDistance = null; // Armazena a última distância registrada
+        this.botBoatMaxSpeed = this.data.botBoat.getAttribute('bot-boat').maxSpeed;
+    },
+
+    tick: function () {
+        const boatPosition = this.data.boat.getAttribute('position');
+        const botBoatPosition = this.data.botBoat.getAttribute('position');
+
+        const zPositionUserBoat = boatPosition.z.toFixed(2);
+        const zPositionBotBoat = botBoatPosition.z.toFixed(2);
+        const boatsDistance = Math.floor(convertZToMeters(zPositionUserBoat, zPositionBotBoat));
+
+        if (boatsDistance !== this.lastDistance) {
+            const velocityPercentage = 1 - boatsDistance / 10;
+            this.data.botBoat.setAttribute('bot-boat', { maxSpeed: this.botBoatMaxSpeed * velocityPercentage });
+
+            console.log(boatsDistance);
+            console.log(velocityPercentage)
+            console.log("-------------------");
+
+            this.lastDistance = boatsDistance;
+        }
     }
 });

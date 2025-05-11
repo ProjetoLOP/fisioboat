@@ -57,15 +57,19 @@
 
         <!-- Barcos -->
         <a-entity id="boat" gltf-model="/Assets/scenario/models/BarcoTexturizado.glb" rotation="0 0 0"
-            position="0 0.6 0" player-boat float-on-ocean="oceanId: ocean"></a-entity>
+            position="0 0.6 0" player-boat float-on-ocean="oceanId: ocean"
+            stretch-rope="target: #botBoat; attachPoint: 0 0.5 -3; targetAttachPoint: 0 0.5 3; slackThreshold: 16; maxSag: 5; startBroken: true"></a-entity>
 
         <a-entity id="botBoat" gltf-model="/Assets/scenario/models/BarcoTexturizado.glb" rotation="0 0 0"
-            position="5 0.6 0" bot-boat float-on-ocean="oceanId: ocean"></a-entity>
+            position="0 0.6 -15" bot-boat float-on-ocean="oceanId: ocean"></a-entity>
+
+        <!-- lidar com proximadade dos barcos -->
+        <a-entity id="evasive-speed-controller" evasive-speed-controller="boat: #boat; botBoat: #botBoat"></a-entity>
 
         <!-- Telespectador -->
-        <!-- <a-entity camera look-controls follow="target: #boat; offset: 0 1.5 -1"></a-entity> -->
-       <!-- Observador -->
-        <a-entity camera look-controls wasd-controls position="2.5 3 5"></a-entity>
+        <a-entity camera look-controls follow="target: #boat; offset: 0 1.5 -1"></a-entity>
+        <!-- Observador -->
+        <!-- <a-entity camera look-controls wasd-controls position="2.5 3 5"></a-entity> -->
     </a-scene>
 
     <script src="/Assets/scenes/dev/tests/performance-utils.js"></script>

@@ -17,6 +17,10 @@ window.addEventListener('firstSquat', () => {
 
         // console.log(gameVars.activities)
 
+        // Desativa componente
+        const handleBoatsDistance = document.body.querySelector("#evasive-speed-controller");
+        handleBoatsDistance.removeAttribute('evasive-speed-controller');
+
         const performanceAnalyzed = analyzePerformance(gameVars.activities);
         const performanceCalculated = calculatePerformance(performanceAnalyzed.bestSequence);
 
@@ -27,6 +31,10 @@ window.addEventListener('firstSquat', () => {
 
         console.log("velocidade do bot setada: ", userMaxSpeedInZ);
         botBoat.setAttribute('bot-boat', { maxSpeed: userMaxSpeedInZ });
+
+        // Para o bot para o usuário alcançar
+        botBoat.components['bot-boat'].isRacing = false;
+        botBoat.components['bot-boat'].isRopeBroken = true;
 
         console.log(performanceAnalyzed)
         console.log(performanceCalculated)
