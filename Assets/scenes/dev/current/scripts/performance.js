@@ -1,8 +1,9 @@
 const gameVars = {
     startTime: "",
     startZPosition: 0,
-    userMaxSpeed: 0,
-    activities: []
+    userMaxSpeed: 6, // velocidade padrão player
+    activitiesByMinute: {},
+    currentMinute: 0
 }
 
 window.addEventListener('firstSquat', () => {
@@ -10,74 +11,53 @@ window.addEventListener('firstSquat', () => {
 
     gameVars.startTime = new Date().toISOString();
 
-    setTimeout(() => {
-        // const botBoatPosition = botBoat.getAttribute('position')?.z;
-        // const metersBot = convertZToMeters(botBoatPosition, gameVars.startZPosition);
-        //    console.log(metersBot)
+    setInterval(() => {
+        // retorna diferença em segundos
+        const diffSeconds = calculateTimeDifference(gameVars.startTime, new Date().toISOString());
 
-        // console.log(gameVars.activities)
+        // converte para minutos inteiros
+        const diffMinutes = Math.floor(diffSeconds / 60);
+
+        // seta no gameVars
+        gameVars.currentMinute = diffMinutes;
+    }, 1000);
+
+    setTimeout(() => {
+        // console.log(gameVars.activitiesByMinute)
 
         // Desativa componente
         const handleBoatsDistance = document.body.querySelector("#evasive-speed-controller");
         handleBoatsDistance.removeAttribute('evasive-speed-controller');
 
-        const performanceAnalyzed = analyzePerformance(gameVars.activities);
-        const performanceCalculated = calculatePerformance(performanceAnalyzed.bestSequence);
+        // const performanceAnalyzed = analyzePerformance(gameVars.activitiesByMinute);
+        // const performanceCalculated = calculatePerformance(performanceAnalyzed.bestSequence);
+        // console.log(performanceAnalyzed)
+        // console.log(performanceCalculated)
 
-        const userMaxSpeed = performanceCalculated.velocidadeMedia;
-        gameVars.userMaxSpeed = userMaxSpeed;
 
-        const userMaxSpeedInZ = convertMetersToZ(userMaxSpeed);
+        // const userMaxSpeed = performanceCalculated.velocidadeMedia;
+        // const userMaxSpeedInZ = convertMetersToZ(userMaxSpeed);
+        // gameVars.userMaxSpeed = userMaxSpeed;
 
-        console.log("velocidade do bot setada: ", userMaxSpeedInZ);
-        botBoat.setAttribute('bot-boat', { maxSpeed: userMaxSpeedInZ });
+
+        console.log("velocidade do bot setada: ", gameVars.userMaxSpeed);
+        botBoat.setAttribute('bot-boat', { maxSpeed: gameVars.userMaxSpeed });
 
         // Para o bot para o usuário alcançar
         botBoat.components['bot-boat'].isRacing = false;
         botBoat.components['bot-boat'].isRopeBroken = true;
 
-        console.log(performanceAnalyzed)
-        console.log(performanceCalculated)
-
-    }, 20000)
+        for (minute in gameVars.activitiesByMinute) {
+            const activities = gameVars.activitiesByMinute[minute];
+            
+            console.log("Minuto: ", minute);
+            // const performanceAnalyzed = analyzePerformance(activities);
+            const performanceCalculated = calculatePerformance(activities);
+            // console.log(performanceAnalyzed)
+            console.log(performanceCalculated)
+        }
+    }, 140000)
 })
-
-
-// // Ativar timer
-// const intervalId = setInterval(updateTimer, 1000);
-// animateTimer();
-
-// setTimeout(() => {
-//     //Para o vídeo
-//     const video = document.getElementById("video");
-//     video.pause();
-
-//     // Para o setInterval
-//     clearInterval(intervalId);
-
-//     // Chamando a função
-//     const result = analyzePerformance(gameVars.activities);
-//     const performanceCalculated = calculatePerformance(result.bestSequence);
-
-//     // Exibindo o resultado
-//     console.log("Maior número de movimentos:", result.maxMovements);
-//     console.log("Maior distância coberta:", result.maxDistance);
-//     console.log("Melhor sequência de movimentos:", result.bestSequence);
-
-//     const statsBoard = createPerformanceStats(performanceCalculated);
-
-//     const activitiesTable = createMovementTable(result.bestSequence);
-
-//     const gameInstruction = document.querySelector("#gameInstruction");
-//     gameInstruction.style.display = "flex";
-//     void gameInstruction.offsetWidth; //Renderiza o elemento com um display diferente de none, para não pular animação
-//     gameInstruction.classList.remove("hide");
-
-//     gameInstruction.replaceChildren();
-//     gameInstruction.appendChild(activitiesTable);
-//     gameInstruction.appendChild(statsBoard);
-// }, 30000)
-// });
 
 // Dispara o movimento ao detectar o evento de agachamento
 window.addEventListener('squatDetected', (event) => {
@@ -95,5 +75,11 @@ window.addEventListener('squatDetected', (event) => {
     squatDetails.distance = distanceFromStart;
 
     // Armazenando squat
-    gameVars.activities.push(squatDetails);
+
+    // verifica se o minuto já existe e incializa o array
+    if (!gameVars.activitiesByMinute[gameVars.currentMinute]) {
+        gameVars.activitiesByMinute[gameVars.currentMinute] = [];
+    }
+
+    gameVars.activitiesByMinute[gameVars.currentMinute].push(squatDetails);
 });

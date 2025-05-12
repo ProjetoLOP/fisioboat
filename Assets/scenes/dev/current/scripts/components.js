@@ -125,9 +125,9 @@ AFRAME.registerComponent('evasive-speed-controller', {
             const velocityPercentage = 1 - boatsDistance / 10;
             this.data.botBoat.setAttribute('bot-boat', { maxSpeed: this.botBoatMaxSpeed * velocityPercentage });
 
-            console.log(boatsDistance);
-            console.log(velocityPercentage)
-            console.log("-------------------");
+            // console.log("Distância entre barcos: " + boatsDistance);
+            // console.log(`Velocidade setada para ${velocityPercentage * 100}%`);
+            // console.log("-------------------");
 
             this.lastDistance = boatsDistance;
         }
