@@ -28,6 +28,7 @@ function setupVideo() {
 
     videoEl.src = "/Assets/videos/stress4.mp4";
     videoEl.loop = true;
+    videoEl.muted = true;
     videoEl.play();
 
     videoEl.addEventListener("playing", () => {
