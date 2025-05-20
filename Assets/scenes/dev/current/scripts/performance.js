@@ -56,7 +56,7 @@ window.addEventListener('firstSquat', () => {
             // console.log(performanceAnalyzed)
             console.log(performanceCalculated)
         }
-    }, 140000)
+    }, 30000)
 })
 
 // Dispara o movimento ao detectar o evento de agachamento
