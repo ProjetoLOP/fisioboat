@@ -36,9 +36,9 @@ AFRAME.registerComponent('boat-controls', {
         let currentPosition = this.el.getAttribute('position');
 
         // "Anti queda do abismo"
-        if (currentPosition.z < -250) {
-            currentPosition.z = 0;
-        }
+        // if (currentPosition.z < -250) {
+        //     currentPosition.z = 0;
+        // }
 
         // Atualiza velocidade conforme o estado do movimento
         if (this.isMoving) {

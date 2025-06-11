@@ -39,10 +39,19 @@ document.querySelector('.play-button').addEventListener('click', () => {
 
     // Aqui você pode adicionar o código para iniciar o jogo na fase selecionada
     switch (selectedLevel) {
-        case 1: window.location.href = "/Assets/scenes/game/game.html"
+        case 1: window.location.href = "/Assets/scenes/game/gameExample.html"
+            break;
+
+        case 2: window.location.href = "/Assets/scenes/dev/baseScene/base.html"
+            break;
+
+        case 3: window.location.href = "/Assets/scenes/dev/followBoat/followBoat.html"
             break;
 
         case 4: window.location.href = "/Assets/scenes/dev/checkup/checkup.html"
+            break;
+
+        case 5: window.location.href = "/Assets/scenes/dev/current/devGame.html"
             break;
     }
 });
