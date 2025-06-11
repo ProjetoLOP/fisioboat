@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<!-- MoveNet Lib -->
+<script id="tfjs" src="/Assets/scripts/Libs/tfjs.js"></script>
+<script id="pose-detection" src="/Assets/scripts/Libs/pose-detection.js"></script>
+<script id="tfjs-backend-webgl" src="/Assets/scripts/Libs/tfjs-backend-webgl.js"></script>
+
+<!-- Styles -->
+<link rel="stylesheet" href="./checkup.css">
+
+<body>
+    <div class="active" id="checkupOverlay">
+        <div id="video-container">
+            <video id="video"></video>
+            <div class="loading-dots active">
+                <span>.</span><span>.</span><span>.</span>
+            </div>
+        </div>
+        <h1>Aperte <i>"Enter"</i> quando estiver pronto</h1>
+    </div>
+
+    <div class="movementState">
+        <img id="performing" src="/Assets/scenario/images/squats.png">
+        
+        <img id="complete" src="/Assets/scenario/images/man.png">
+    </div>
+
+    <script src="./moveNet.min.js"></script>
+    <script src="./checkup.js"></script>
+</body>
+
+</html>

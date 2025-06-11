@@ -26,7 +26,7 @@ async function setupCamera() {
 function setupVideo() {
     const videoEl = document.getElementById("video");
 
-    videoEl.src = "/Assets/videos/stress3.mp4";
+    videoEl.src = "/Assets/videos/WIN_20250610_15_25_23_Pro.mp4";
     videoEl.loop = true;
     videoEl.muted = true;
     videoEl.play();
@@ -58,7 +58,7 @@ document.addEventListener('keypress', function (event) {
 
 window.addEventListener("detector:ready", () => {
     // setupCamera();
-     setupVideo();
+    setupVideo();
 });
 
 window.addEventListener("pose:ready", () => {
@@ -68,6 +68,22 @@ window.addEventListener("pose:ready", () => {
 window.addEventListener("squatDetected", () => {
     // console.log("Um agachamento foi completado!");
     // Aqui você pode adicionar código para atualizar a pontuação ou interface
+});
+
+window.addEventListener("completed", () => {
+    const imgCompleteState = document.body.querySelector("#complete");
+    const imgPerformingState = document.body.querySelector("#performing");
+
+    imgPerformingState.classList.remove("active");
+    imgCompleteState.classList.add("active");
+});
+
+window.addEventListener("performing", () => {
+    const imgCompleteState = document.body.querySelector("#complete");
+    const imgPerformingState = document.body.querySelector("#performing");
+
+    imgCompleteState.classList.remove("active");
+    imgPerformingState.classList.add("active");
 });
 
 // Inicializa o detector de pose ao carregar a página
