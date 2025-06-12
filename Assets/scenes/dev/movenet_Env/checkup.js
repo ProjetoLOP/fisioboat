@@ -26,7 +26,7 @@ async function setupCamera() {
 function setupVideo() {
     const videoEl = document.getElementById("video");
 
-    videoEl.src = "/Assets/videos/stress3.mp4";
+    videoEl.src = "/Assets/videos/stress12.mp4";
     videoEl.loop = true;
     videoEl.muted = true;
     videoEl.play();
@@ -65,7 +65,8 @@ window.addEventListener("pose:ready", () => {
     setTimeout(startGame, 1200);
 });
 
-window.addEventListener("squatDetected", () => {
+window.addEventListener("squatDetected", (event) => {
+    console.log(event.detail)
     // console.log("Um agachamento foi completado!");
     // Aqui você pode adicionar código para atualizar a pontuação ou interface
 });
