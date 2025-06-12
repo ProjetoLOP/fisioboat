@@ -26,7 +26,7 @@ async function setupCamera() {
 function setupVideo() {
     const videoEl = document.getElementById("video");
 
-    videoEl.src = "/Assets/videos/stress7.mp4";
+    videoEl.src = "/Assets/videos/stress3.mp4";
     videoEl.loop = true;
     videoEl.muted = true;
     videoEl.play();
