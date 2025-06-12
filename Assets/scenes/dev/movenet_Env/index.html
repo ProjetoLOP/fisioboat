@@ -28,13 +28,47 @@
 
     <div class="movementState">
         <img id="performing" src="/Assets/scenario/images/squats.png">
-        
         <img id="complete" src="/Assets/scenario/images/man.png">
     </div>
 
-    <div class="dashboard">
-        <p>Depth:</p>
-        <div class="depth"></div>
+    <div class="exercise-interface active" id="exerciseInterface">
+        <div class="exercise-header">
+            <div class="exercise-icon">
+                <div class="squat-figure"></div>
+            </div>
+            <h1 class="exercise-title">SQUATS</h1>
+        </div>
+
+        <!-- Seção Geral: REPS e TIME -->
+        <div class="general-stats">
+            <div class="stat-item" id="reps">
+                <div class="stat-label">REPS</div>
+                <div class="stat-value">0</div>
+            </div>
+
+            <div class="stat-item timer-container" id="time">
+                <div class="stat-label">TIME</div>
+                <div class="timer-display">
+                    <span class="timer-minutes">00</span>
+                    <span class="timer-separator">:</span>
+                    <span class="timer-seconds">00</span>
+                    <span class="stat-unit">/MIN</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Last Squat: DURATION e DEPTH -->
+        <div class="last-squat-stats">
+            <div class="stat-item" id="duration">
+                <div class="stat-label">DURATION</div>
+                <div class="stat-value">0<span class="stat-unit">s</span></div>
+            </div>
+
+            <div class="stat-item" id="depth">
+                <div class="stat-label">DEPTH</div>
+                <div class="stat-value">0<span class="stat-unit">cm</span></div>
+            </div>
+        </div>
     </div>
 
     <script src="./moveNet.min.js"></script>

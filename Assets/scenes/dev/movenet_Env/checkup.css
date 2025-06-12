@@ -11,6 +11,7 @@ body {
     background: #222;
     color: white;
     display: flex;
+    font-family: 'Hammersmith One', sans-serif;
     justify-content: center;
     align-items: center;
     width: 100vw;
@@ -69,6 +70,19 @@ body {
     transition: width 0.5s ease, height 0.5s ease;
 }
 
+/* Estado de jogo iniciado */
+#video-container.game-started {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1;
+}
+
+#video-container.game-started #video {
+    width: 300px;
+    height: auto;
+}
+
 /* Pontinhos de loading */
 .loading-dots {
     display: none;
@@ -105,25 +119,152 @@ body {
     animation-delay: 0.2s;
 }
 
-/* Estado de jogo iniciado */
-#video-container.game-started {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 1;
-}
-
-#video-container.game-started #video {
-    width: 300px;
-    height: auto;
-}
-
 div.movementState img {
     display: none;
 }
 
 div.movementState img.active {
     display: block;
+}
+
+.exercise-interface {
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 20px;
+    padding: 40px;
+    width: 400px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.exercise-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+    gap: 20px;
+}
+
+.exercise-icon {
+    width: 80px;
+    height: 80px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.squat-figure {
+    width: 50px;
+    height: 50px;
+    background: #222;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    position: relative;
+}
+
+.squat-figure::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 20px;
+    background: #222;
+    border-radius: 50%;
+}
+
+.squat-figure::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 15px;
+    background: #222;
+    border-radius: 50%;
+}
+
+.exercise-title {
+    font-size: 48px;
+    font-weight: bold;
+    color: white;
+    letter-spacing: 2px;
+}
+
+.general-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 18px;
+    color: #aaa;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+.stat-value {
+    font-size: 72px;
+    font-weight: bold;
+    color: white;
+    line-height: 1;
+}
+
+.timer-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.timer-container .stat-value {
+    display: none;
+}
+
+.timer-display {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+}
+
+.timer-minutes,
+.timer-seconds {
+    font-size: 40px;
+    font-weight: bold;
+    color: white;
+}
+
+.timer-separator {
+    font-size: 40px;
+    font-weight: bold;
+    color: white;
+    margin: 0 5px;
+}
+
+.stat-unit {
+    font-size: 24px;
+    color: #aaa;
+    margin-left: 5px;
+}
+
+.last-squat-stats {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.last-squat-stats .stat-value {
+    font-size: 48px;
+}
+
+.last-squat-stats .stat-unit {
+    font-size: 18px;
 }
 
 /* Animações auxiliares */

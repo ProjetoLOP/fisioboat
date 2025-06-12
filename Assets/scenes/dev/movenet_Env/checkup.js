@@ -26,7 +26,7 @@ async function setupCamera() {
 function setupVideo() {
     const videoEl = document.getElementById("video");
 
-    videoEl.src = "/Assets/videos/stress12.mp4";
+    videoEl.src = "/Assets/videos/stress10.mp4";
     videoEl.loop = true;
     videoEl.muted = true;
     videoEl.play();
@@ -43,6 +43,7 @@ function startGame() {
     const videoContainer = document.getElementById('video-container');
     overlay.classList.remove('active');
     videoContainer.classList.add('game-started');
+    document.body.classList.add("game-started");
     console.log('Iniciando o jogo...');
 }
 
@@ -66,9 +67,16 @@ window.addEventListener("pose:ready", () => {
 });
 
 window.addEventListener("squatDetected", (event) => {
-    console.log(event.detail)
-    // console.log("Um agachamento foi completado!");
-    // Aqui você pode adicionar código para atualizar a pontuação ou interface
+    const { depth, duration } = event.detail;
+
+    const repsEl = document.body.querySelector("#reps .stat-value");
+    const durationEl = document.body.querySelector("#duration .stat-value");
+    const depthEl = document.body.querySelector("#depth .stat-value");
+
+    const currentReps = Number(repsEl.textContent);
+    repsEl.textContent = currentReps + 1;
+    durationEl.textContent = `${(duration / 1000).toFixed(2)}s`;
+    depthEl.textContent = depth.toFixed(2);
 });
 
 window.addEventListener("completed", () => {
@@ -79,7 +87,27 @@ window.addEventListener("completed", () => {
     imgCompleteState.classList.add("active");
 });
 
+let firstSquat = false;
+
 window.addEventListener("performing", () => {
+    if (!firstSquat) {
+        firstSquat = true;
+
+        let seconds = 0;
+        let minutes = 0;
+
+        const timerInterval = setInterval(() => {
+            seconds++;
+            if (seconds >= 60) {
+                minutes++;
+                seconds = 0;
+            }
+
+            document.querySelector('.timer-minutes').textContent = minutes.toString().padStart(2, '0');
+            document.querySelector('.timer-seconds').textContent = seconds.toString().padStart(2, '0');
+        }, 1000);
+    }
+
     const imgCompleteState = document.body.querySelector("#complete");
     const imgPerformingState = document.body.querySelector("#performing");
 
