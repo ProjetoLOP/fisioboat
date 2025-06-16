@@ -63,7 +63,9 @@
 
     <a-scene renderer="colorManagement: true; physicallyCorrectLights: true;"
         hdri="url: /Assets/scenario/hdr/afternoon.hdr">
-        <a-sky rotation="0 180 0" src="/Assets/scenario/textures/afternoon-sky.jpeg"></a-sky>
+        <a-sky rotation="0 180 0" src="/Assets/scenario/textures/sunset-sky.jpeg"
+            geometry="primitive: sphere; radius: 5000">
+        </a-sky>
 
         <a-ocean-plane id="ocean" position="0 -1 0"></a-ocean-plane>
 
@@ -78,15 +80,20 @@
         <!-- lidar com proximadade dos barcos -->
         <a-entity id="evasive-speed-controller" evasive-speed-controller="boat: #boat; botBoat: #botBoat"></a-entity>
 
+        <!-- Pre-carregar assets -->
+        <a-assets>
+            <img id="ropeTexture" src="/Assets/scenario/textures/rope.jpg">
+        </a-assets>
+
         <!-- Telespectador -->
         <!-- Observador -->
-        <!-- <a-entity camera look-controls wasd-controls position="-8 3 -10"></a-entity> -->
+        <a-entity camera look-controls wasd-controls position="-8 3 -10"></a-entity>
 
         <!-- Usuário -->
-        <a-entity camera look-controls follow="target: #boat; offset: 0 1.5 -1"></a-entity>
+        <!-- <a-entity camera look-controls follow="target: #boat; offset: 0 1.5 -1"></a-entity> -->
     </a-scene>
 
-    <script src="/Assets/scripts/movenet.min.js"></script>
+    <script src="/Assets/scenes/dev/movenet_Env/moveNet.min.js"></script>
     <script src="/Assets/scenes/dev/current/scripts/checkup.js"></script>
     <script src="/Assets/scenes/dev/current/scripts/performance.js"></script>
 </body>

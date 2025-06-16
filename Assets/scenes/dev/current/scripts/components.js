@@ -1,85 +1,85 @@
 // Componente para controlar o barco do jogador
 AFRAME.registerComponent('player-boat', {
-    schema: {
-        acceleration: { type: 'number', default: 7 }, // Taxa de aceleração
-        deceleration: { type: 'number', default: 0.03 }, // Taxa de desaceleração
-        maxSpeed: { type: 'number', default: 7 } // Velocidade máxima permitida
-    },
-    init: function () {
-        this.velocity = 0; // Velocidade inicial
-        this.isMoving = false; // Estado inicial: parado
+  schema: {
+    acceleration: { type: 'number', default: 7 },   // impulso de aceleração por squat
+    drag:         { type: 'number', default: 0.3 },   // coeficiente de arrasto (1/s)
+    maxSpeed:     { type: 'number', default: 7 }    // velocidade máxima (m/s)
+  },
 
-        // Inicia o movimento com a tecla "espaço"
-        window.addEventListener('keydown', (event) => {
-            if (event.key === ' ') {
-                this.isMoving = true;
+  init() {
+    this.velocity = 0;
+    this.isMoving = false;
 
-                dispatchSquatEvents()
-            }
-        });
+    // eventos de input
+    window.addEventListener('keydown', e => { if (e.key === ' ') this.isMoving = true; });
+    window.addEventListener('keyup',   e => { if (e.key === ' ') this.isMoving = false; });
+    window.addEventListener('squatDetected', () => this.isMoving = true);
 
-        // Para o movimento ao soltar a tecla "espaço"
-        window.addEventListener('keyup', (event) => {
-            if (event.key === ' ') {
-                this.isMoving = false;
-            }
-        });
+    // fixed-step
+    this.accumulator  = 0;
+    this.fixedStepMs  = 30;
+    this.prevPosition = this.el.object3D.position.clone();
+    this.currPosition = this.prevPosition.clone();
+  },
 
-        // Movimento com o evento de agachamento
-        window.addEventListener('squatDetected', () => {
-            this.isMoving = true;
-        });
-    },
-    tick: function (time, timeDelta) {
-        // Limita o delta para evitar deslocamentos muito grandes em frames lentos.
-        const maxDeltaMilliseconds = 30; // 30 ms é o limite máximo
-        const deltaSeconds = Math.min(timeDelta, maxDeltaMilliseconds) / 1000;
-
-        let currentPosition = this.el.getAttribute('position');
-
-        // "Anti queda do abismo"
-        // if (currentPosition.z < -250) {
-        //     currentPosition.z = 0;
-        // }
-
-        // Atualiza velocidade conforme o estado do movimento
-        if (this.isMoving) {
-            this.velocity += this.data.acceleration;
-            this.isMoving = false;
-        } else {
-            this.velocity -= this.data.deceleration;
-        }
-        this.velocity = Math.max(0, Math.min(this.velocity, this.data.maxSpeed));
-
-        // Atualiza a posição com base no delta controlado
-        currentPosition.z -= this.velocity * deltaSeconds;
-        this.el.setAttribute('position', currentPosition);
-
-        // Verifica colisão com o botBarco
-        const botBoatEl = document.querySelector('#botBoat');
-        if (botBoatEl) {
-            const botPos = botBoatEl.getAttribute('position');
-            const collisionThreshold = 6; // ajuste conforme necessário
-            if (Math.abs(currentPosition.z - botPos.z) < collisionThreshold) {
-                console.log("Colisão detectada entre player e bot.");
-                // Reduz a velocidade em 30%
-                this.velocity *= 0.7;
-                // Se a corda estiver quebrada, chama a função para retomar o jogo
-                const ropeEl = document.querySelector('[stretch-rope]');
-                if (ropeEl && ropeEl.components['stretch-rope'].ropeBroken) {
-                    this.continueGame(botBoatEl, ropeEl);
-                }
-            }
-        }
-    },
-    continueGame: function (botBoatEl, ropeEl) {
-        console.log("continueGame: restaurando corda e retomando movimento do bot.");
-        // Restaura a corda
-        ropeEl.emit('ropeRestore', {}, false);
-        // Emite um evento para o botBarco retomar a movimentação
-        botBoatEl.emit('continueGame', {}, false);
+  tick(time, timeDelta) {
+    this.accumulator += timeDelta;
+    while (this.accumulator >= this.fixedStepMs) {
+      this._physicsStep(this.fixedStepMs / 1000);
+      this.accumulator -= this.fixedStepMs;
     }
+    const alpha = this.accumulator / this.fixedStepMs;
+    this._render(alpha);
+  },
+
+  _physicsStep(dt) {
+    // atualiza prev
+    this.prevPosition.copy(this.currPosition);
+
+    if (this.isMoving) {
+      this.velocity += this.data.acceleration;
+      this.isMoving = false;
+    } else {
+      // desaceleração via arrasto proporcional à velocidade
+      this.velocity -= this.velocity * this.data.drag * dt;
+    }
+
+    // clamp e zero small
+    this.velocity = THREE.MathUtils.clamp(this.velocity, 0, this.data.maxSpeed);
+    if (this.velocity < 0.01) this.velocity = 0;
+
+    // atualiza posição
+    this.currPosition.z -= this.velocity * dt;
+
+    // colisão com bot
+    const bot = document.querySelector('#botBoat');
+    if (bot) {
+      const bz = bot.getAttribute('position').z;
+      if (Math.abs(this.currPosition.z - bz) < 6) {
+        this.velocity *= 0.7;
+        const rope = document.querySelector('[stretch-rope]');
+        if (rope?.components['stretch-rope'].ropeBroken) {
+          this.continueGame(bot, rope);
+        }
+      }
+    }
+  },
+
+  _render(alpha) {
+    const z = THREE.MathUtils.lerp(
+      this.prevPosition.z,
+      this.currPosition.z,
+      alpha
+    );
+    this.el.object3D.position.z = z;
+  },
+
+  continueGame(bot, rope) {
+    rope.emit('ropeRestore');
+    bot.emit('continueGame');
+  }
 });
+
 
 // Componente para telespectador seguir barco
 AFRAME.registerComponent('follow', {

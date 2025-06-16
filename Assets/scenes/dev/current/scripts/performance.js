@@ -1,12 +1,21 @@
 const gameVars = {
     startTime: "",
     startZPosition: 0,
-    userMaxSpeed: 6, // velocidade padrão player
+    userMaxSpeed: 7, // velocidade padrão player
     activitiesByMinute: {},
     currentMinute: 0
 }
 
-window.addEventListener('firstSquat', () => {
+let firstSquat = false;
+
+window.addEventListener("performing", () => {
+    if (!firstSquat) {
+        x();
+        firstSquat = true;
+    }
+});
+
+function x() {
     const botBoat = document.querySelector('#botBoat');
 
     gameVars.startTime = new Date().toISOString();
@@ -23,33 +32,33 @@ window.addEventListener('firstSquat', () => {
     }, 1000);
 
     setTimeout(() => {
-        // console.log(gameVars.activitiesByMinute)
+        console.log(gameVars.activitiesByMinute)
 
-        // Desativa componente
+        // * Desativa componente
         const handleBoatsDistance = document.body.querySelector("#evasive-speed-controller");
         handleBoatsDistance.removeAttribute('evasive-speed-controller');
 
-        // const performanceAnalyzed = analyzePerformance(gameVars.activitiesByMinute);
-        // const performanceCalculated = calculatePerformance(performanceAnalyzed.bestSequence);
-        // console.log(performanceAnalyzed)
-        // console.log(performanceCalculated)
+        // * Analisa resultados e obtém velocidade média do usuário
+        const performanceAnalyzed = analyzePerformance(gameVars.activitiesByMinute[0]);
+        const performanceCalculated = calculatePerformance(performanceAnalyzed.bestSequence);
+        console.log(performanceAnalyzed)
+        console.log(performanceCalculated)
 
+        const userMaxSpeed = performanceCalculated.velocidadeMedia;
+        const userMaxSpeedInZ = convertMetersToZ(userMaxSpeed);
+        gameVars.userMaxSpeed = userMaxSpeedInZ;
 
-        // const userMaxSpeed = performanceCalculated.velocidadeMedia;
-        // const userMaxSpeedInZ = convertMetersToZ(userMaxSpeed);
-        // gameVars.userMaxSpeed = userMaxSpeed;
-
-
+        // * Seta velocidade do bot
         console.log("velocidade do bot setada: ", gameVars.userMaxSpeed);
         botBoat.setAttribute('bot-boat', { maxSpeed: gameVars.userMaxSpeed });
 
-        // Para o bot para o usuário alcançar
+        // * Para o bot para o usuário alcançar
         botBoat.components['bot-boat'].isRacing = false;
         botBoat.components['bot-boat'].isRopeBroken = true;
 
         for (minute in gameVars.activitiesByMinute) {
             const activities = gameVars.activitiesByMinute[minute];
-            
+
             console.log("Minuto: ", minute);
             // const performanceAnalyzed = analyzePerformance(activities);
             const performanceCalculated = calculatePerformance(activities);
@@ -57,7 +66,7 @@ window.addEventListener('firstSquat', () => {
             console.log(performanceCalculated)
         }
     }, 30000)
-})
+}
 
 // Dispara o movimento ao detectar o evento de agachamento
 window.addEventListener('squatDetected', (event) => {
