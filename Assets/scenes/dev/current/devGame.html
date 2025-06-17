@@ -43,9 +43,8 @@
         });
     </script>
 
-    <script src="/Assets/scenes/dev/current/scripts/utils.js"></script>
-    <script src="/Assets/scenes/dev/current/scripts/components.js"></script>
-    <script src="/Assets/scenes/dev/current/scripts/botBoat.js"></script>
+    <script src="/Assets/scenes/dev/current/scripts/game/utils.js"></script>
+    <script src="/Assets/scenes/dev/current/scripts/aframe/components.js"></script>
 
     <link rel="stylesheet" href="/Assets/scenes/dev/current/styles/checkup.css">
     <link rel="stylesheet" href="/Assets/scenes/dev/current/styles/congrats.css">
@@ -78,7 +77,7 @@
 
             <h1 class="celebration-title">🎉 Parabéns! 🎉</h1>
             <p class="celebration-subtitle">Você concluiu a sessão com sucesso!</p>
-            <button class="save-button" onclick="saveSession()">
+            <button class="save-button">
                 💾 Salvar Sessão
             </button>
         </div>
@@ -117,8 +116,9 @@
     </a-scene>
 
     <script src="/Assets/scenes/dev/current/scripts/moveNet.min.js"></script>
-    <script src="/Assets/scenes/dev/current/scripts/checkup.js"></script>
-    <script src="/Assets/scenes/dev/current/scripts/performance.js"></script>
+    <script src="/Assets/scenes/dev/current/scripts/game/game.js"></script>
+    <script src="/Assets/scenes/dev/current/scripts/page/checkup.js"></script>
+    <script src="/Assets/scenes/dev/current/scripts/page/page.js"></script>
 </body>
 
 </html>

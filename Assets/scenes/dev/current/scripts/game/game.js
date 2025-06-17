@@ -1,9 +1,10 @@
 const gameVars = {
+    sessionDuration: 60,
+    adaptDuration: 30,
     startTime: "",
     startZPosition: 0,
     userMaxSpeed: 7, // velocidade padrão player
-    activities: [],
-    currentMinute: 0
+    activities: []
 }
 
 let firstSquat = false;
@@ -41,8 +42,8 @@ function startGame() {
 
     // Mapeia segundos → função a executar
     const timeTriggers = {
-        20: adaptBotVelocity,
-        60: endGame
+        [gameVars.adaptDuration]: adaptBotVelocity,
+        [gameVars.sessionDuration]: endGame
     };
 
     const triggered = new Set();
@@ -63,10 +64,10 @@ function startGame() {
 }
 
 function endGame() {
+    stopDetection();
+
     const congratsScreen = document.body.querySelector("#celebrationOverlay");
     congratsScreen.classList.add("active");
-
-    stopDetection();
 }
 
 function adaptBotVelocity() {
@@ -116,4 +117,43 @@ function formatSquatData(squatData) {
     squatDataFormatted.distance = Math.round(distance * 100) / 100;
 
     return squatDataFormatted;
+}
+
+function getSessionStats() {
+    const playerBoatPosition = document.querySelector("#boat").getAttribute('position');
+    const zPosition = playerBoatPosition.z;
+    const distanceFromStart = convertZToMeters(zPosition, gameVars.startZPosition);
+
+    const sessionStats = {
+        sessionDuration: gameVars.sessionDuration,
+        reps: gameVars.activities.length,
+        repsByMinute: Math.round((gameVars.activities.length / (gameVars.sessionDuration / 60)) * 100) / 100,
+        distance: Math.round(distanceFromStart * 100) / 100
+    }
+
+    return sessionStats;
+}
+
+function saveSession(sessionStats) {
+    // 1. Pega o objeto "sessions" atual do localStorage (ou cria um vazio)
+    const sessions = JSON.parse(localStorage.getItem("sessions")) || {};
+
+    // 2. Gera um novo ID automático
+    // Pega os IDs existentes, transforma em números, encontra o maior e soma 1
+    const newId = Object.keys(sessions).length > 0
+        ? Math.max(...Object.keys(sessions).map(id => Number(id))) + 1
+        : 1;
+
+    // 3. Cria a nova sessão
+    const session = {
+        occurredAt: new Date().toISOString(),
+        stats: sessionStats,
+        activities: gameVars.activities
+    };
+
+    // 4. Adiciona ao objeto sessions
+    sessions[newId] = session;
+
+    // 5. Salva de volta no localStorage
+    localStorage.setItem("sessions", JSON.stringify(sessions));
 }
