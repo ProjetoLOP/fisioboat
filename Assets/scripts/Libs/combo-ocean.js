@@ -58,8 +58,8 @@ AFRAME.registerPrimitive('a-ocean-plane', {
   defaultComponents: {
     geometry: {
       primitive: 'plane',
-      height: 1500,
-      width: 1500,
+      height: 4000,
+      width: 4000,
       segmentsHeight: 100,
       segmentsWidth: 100
     },
@@ -130,8 +130,8 @@ function getOceanHeightAt(worldX, worldZ, oceanEl) {
   const vertsY = segH + 1; // 101
 
   // Largura e altura do plano
-  const planeWidth  = 1500;
-  const planeHeight = 1500;
+  const planeHeight = 4000;
+  const planeWidth  = 4000;
   
   // 2) Converter (worldX, worldZ) para coordenadas LOCAIS do plano
   //    Precisamos de um Vector3 para usar worldToLocal().

@@ -1,6 +1,10 @@
 /* Importa a fonte Hammersmith One do Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Hammersmith+One&display=swap');
 
+body {
+    font-family: 'Hammersmith One', sans-serif;
+}
+
 /* Overlay padrão */
 #checkupOverlay {
     z-index: 1;
@@ -19,7 +23,8 @@
     width: 100%;
     height: 100%;
 
-    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    background: rgba(0, 0, 0, 0.7);
 }
 
 /* Ao tirar .active do overlay, esconda o título e os loading‑dots */
@@ -31,7 +36,6 @@
 /* Título dentro do overlay */
 #checkupOverlay h1 {
     color: #fff;
-    font-family: 'Hammersmith One', sans-serif;
     animation: pulse 2s infinite;
     margin: 0;
 }

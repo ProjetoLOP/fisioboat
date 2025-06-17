@@ -13,7 +13,7 @@ AFRAME.registerComponent('player-boat', {
     // eventos de input
     window.addEventListener('keydown', e => { if (e.key === ' ') this.isMoving = true; });
     window.addEventListener('keyup',   e => { if (e.key === ' ') this.isMoving = false; });
-    window.addEventListener('squatDetected', () => this.isMoving = true);
+    window.addEventListener('completed', () => this.isMoving = true);
 
     // fixed-step
     this.accumulator  = 0;

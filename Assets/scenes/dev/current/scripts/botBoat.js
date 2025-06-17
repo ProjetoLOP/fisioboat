@@ -14,7 +14,7 @@ AFRAME.registerComponent('bot-boat', {
     window.addEventListener('keydown', e => {
       if (e.key === ' ' && !this.isRopeBroken) this.isRacing = true;
     });
-    window.addEventListener('squatDetected', () => {
+    window.addEventListener('completed', () => {
       if (!this.isRopeBroken) this.isRacing = true;
     });
     document.addEventListener('ropeBroken', () => {
@@ -136,7 +136,7 @@ AFRAME.registerComponent('stretch-rope', {
 
         setTimeout(() => {
           this.el.emit('ropeRemove');
-        }, 200)
+        }, 1000)
     },
 
     tick: function () {

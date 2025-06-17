@@ -38,7 +38,7 @@ function setupVideo() {
 }
 
 // Função para iniciar o jogo
-function startGame() {
+function removeOverlay() {
     const overlay = document.getElementById('checkupOverlay');
     const videoContainer = document.getElementById('video-container');
     overlay.classList.remove('active');
@@ -49,12 +49,12 @@ function startGame() {
 // Event listeners
 document.addEventListener('keypress', function (event) {
     if (event.key === 'Enter') {
-        detectPose(); // Função importada de movenet.min.js
+        startDetection(); // Função importada de movenet.min.js
 
         const loadingDots = document.querySelector(".loading-dots");
         loadingDots.classList.add("active");
     }
-});
+}, {once: true});
 
 window.addEventListener("detector:ready", () => {
     // setupCamera();
@@ -62,12 +62,7 @@ window.addEventListener("detector:ready", () => {
 });
 
 window.addEventListener("pose:ready", () => {
-    setTimeout(startGame, 1200);
-});
-
-window.addEventListener("squatDetected", () => {
-    // console.log("Um agachamento foi completado!");
-    // Aqui você pode adicionar código para atualizar a pontuação ou interface
+    setTimeout(removeOverlay, 1200);
 });
 
 // Inicializa o detector de pose ao carregar a página
