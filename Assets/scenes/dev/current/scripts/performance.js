@@ -41,7 +41,7 @@ function startGame() {
 
     // Mapeia segundos → função a executar
     const timeTriggers = {
-        30: adaptBotVelocity,
+        20: adaptBotVelocity,
         60: endGame
     };
 
