@@ -1,2 +1,5 @@
-# Ignore all video files
+# Ignorar todos os arquivos .mp4
 *.mp4
+
+# Mas não ignorar stress10.mp4
+!Assets/videos/stress3.mp4
