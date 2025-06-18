@@ -43,11 +43,11 @@
         });
     </script>
 
-    <script src="/Assets/scenes/dev/current/scripts/utils.js"></script>
-    <script src="/Assets/scenes/dev/current/scripts/components.js"></script>
-    <script src="/Assets/scenes/dev/current/scripts/botBoat.js"></script>
+    <script src="/Assets/scenes/dev/current/scripts/game/utils.js"></script>
+    <script src="/Assets/scenes/dev/current/scripts/aframe/components.js"></script>
 
     <link rel="stylesheet" href="/Assets/scenes/dev/current/styles/checkup.css">
+    <link rel="stylesheet" href="/Assets/scenes/dev/current/styles/congrats.css">
 </head>
 
 <body>
@@ -61,34 +61,64 @@
         <h1>Aperte <i>"Enter"</i> quando estiver pronto</h1>
     </div>
 
+    <div class="celebration-overlay" id="celebrationOverlay">
+        <div class="celebration-content">
+            <!-- Confetes -->
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+
+            <h1 class="celebration-title">🎉 Parabéns! 🎉</h1>
+            <p class="celebration-subtitle">Você concluiu a sessão com sucesso!</p>
+            <button class="save-button">
+                💾 Salvar Sessão
+            </button>
+        </div>
+    </div>
+
     <a-scene renderer="colorManagement: true; physicallyCorrectLights: true;"
         hdri="url: /Assets/scenario/hdr/afternoon.hdr">
-        <a-sky rotation="0 180 0" src="/Assets/scenario/textures/afternoon-sky.jpeg"></a-sky>
+        <a-sky rotation="0 180 0" src="/Assets/scenario/textures/sunset-sky.jpeg"
+            geometry="primitive: sphere; radius: 5000">
+        </a-sky>
 
         <a-ocean-plane id="ocean" position="0 -1 0"></a-ocean-plane>
 
         <!-- Barcos -->
         <a-entity id="boat" gltf-model="/Assets/scenario/models/BarcoTexturizado.glb" rotation="0 0 0"
-            position="0 0.6 0" player-boat float-on-ocean="oceanId: ocean"
+            position="0 0.6 1500" player-boat float-on-ocean="oceanId: ocean"
             stretch-rope="target: #botBoat; attachPoint: 0 0.5 -3; targetAttachPoint: 0 0.5 3; slackThreshold: 16; maxSag: 5; startBroken: true"></a-entity>
 
         <a-entity id="botBoat" gltf-model="/Assets/scenario/models/BarcoTexturizado.glb" rotation="0 0 0"
-            position="0 0.6 -15" bot-boat float-on-ocean="oceanId: ocean"></a-entity>
+            position="0 0.6 1485" bot-boat float-on-ocean="oceanId: ocean"></a-entity>
 
         <!-- lidar com proximadade dos barcos -->
         <a-entity id="evasive-speed-controller" evasive-speed-controller="boat: #boat; botBoat: #botBoat"></a-entity>
 
+        <!-- Pre-carregar assets -->
+        <a-assets>
+            <img id="ropeTexture" src="/Assets/scenario/textures/rope.jpg">
+        </a-assets>
+
         <!-- Telespectador -->
         <!-- Observador -->
-        <!-- <a-entity camera look-controls wasd-controls position="-8 3 -10"></a-entity> -->
+        <!-- <a-entity camera look-controls wasd-controls position="-8 200 1500"></a-entity> -->
 
         <!-- Usuário -->
         <a-entity camera look-controls follow="target: #boat; offset: 0 1.5 -1"></a-entity>
     </a-scene>
 
-    <script src="/Assets/scripts/movenet.min.js"></script>
-    <script src="/Assets/scenes/dev/current/scripts/checkup.js"></script>
-    <script src="/Assets/scenes/dev/current/scripts/performance.js"></script>
+    <script src="/Assets/scenes/dev/current/scripts/moveNet.min.js"></script>
+    <script src="/Assets/scenes/dev/current/scripts/game/game.js"></script>
+    <script src="/Assets/scenes/dev/current/scripts/page/checkup.js"></script>
+    <script src="/Assets/scenes/dev/current/scripts/page/page.js"></script>
 </body>
 
 </html>
