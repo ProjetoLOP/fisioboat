@@ -57,8 +57,8 @@ document.addEventListener('keypress', function (event) {
 }, {once: true});
 
 window.addEventListener("detector:ready", () => {
-    // setupCamera();
-     setupVideo();
+    setupCamera();
+    //setupVideo();
 });
 
 window.addEventListener("pose:ready", () => {
