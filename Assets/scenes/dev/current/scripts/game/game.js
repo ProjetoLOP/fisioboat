@@ -1,5 +1,5 @@
 const gameVars = {
-    sessionDuration: 60,
+    sessionDuration: 450,
     adaptDuration: 30,
     startTime: "",
     startZPosition: 0,
