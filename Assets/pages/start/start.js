@@ -41,5 +41,7 @@ document.querySelector('.play-button').addEventListener('click', () => {
     switch (selectedLevel) {
         case 1: window.location.href = "/Assets/scenes/game/game.html"
             break;
+        case 2: window.location.href = "/Assets/scenes/dev/incont_urinaria/game.html"
+            break;
     }
 });
