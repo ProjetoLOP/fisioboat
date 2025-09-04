@@ -45,8 +45,10 @@ function startGame() {
         [gameVars.adaptDuration]: adaptBotVelocity,
         [gameVars.sessionDuration]: endGame,
         15: showFigure,
-        75: showFigure,
-        105: showFigure
+        45: showFigure,
+        90: showFigure,
+        120: showFigure,
+        150: showFigure,
     };
 
     const triggered = new Set();

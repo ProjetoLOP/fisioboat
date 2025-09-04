@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fisioboat- Formulário de Avaliação</title>
+    <link rel="stylesheet" href="./styles/form.css">
+</head>
+
+<body>
+    <div class="floating-particles" id="particles"></div>
+
+    <header class="header">
+        <a href="hub.html">
+            <div class="logo">FISIOBOAT</div>
+        </a>
+        <a href="hub.html">
+            <button class="back-btn">← Voltar</button>
+        </a>
+    </header>
+
+    <div class="main-content">
+        <div class="form-container">
+            <h1 class="form-title">Formulário de Avaliação</h1>
+
+            <form id="evaluationForm">
+                <!-- Dados Pessoais -->
+                <div class="form-section">
+                    <h2 class="section-title">Dados Pessoais</h2>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email" class="form-label required">Email</label>
+                            <input type="email" id="email" name="email" class="form-input" placeholder="seu@email.com"
+                                required>
+                            <div class="error-message">Por favor, insira um email válido</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="telefone" class="form-label required">Telefone</label>
+                            <input type="tel" id="telefone" name="telefone" class="form-input"
+                                placeholder="(11) 99999-9999" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="idade" class="form-label required">Idade (anos)</label>
+                            <input type="number" id="idade" name="idade" class="form-input" min="1" max="120" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="altura" class="form-label required">Altura (cm)</label>
+                            <input type="number" id="altura" name="altura" class="form-input" min="50" max="250"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="peso" class="form-label required">Massa corporal (kg)</label>
+                            <input type="number" id="peso" name="peso" class="form-input" min="20" max="300" step="0.1"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="imc" class="form-label required">IMC</label>
+                            <input type="text" id="imc" name="imc" class="form-input calculated-field" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hábitos de Vida -->
+                <div class="form-section">
+                    <h2 class="section-title">Hábitos de Vida</h2>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label required">Fuma tabaco?</label>
+                            <div class="radio-group">
+                                <label class="radio-item">
+                                    <input type="radio" name="fuma" value="sim" required>
+                                    Sim
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="fuma" value="nao" required>
+                                    Não
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Já fumou?</label>
+                            <div class="radio-group">
+                                <label class="radio-item">
+                                    <input type="radio" name="ja_fumou" value="sim">
+                                    Sim
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="ja_fumou" value="nao">
+                                    Não
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Bebe bebida alcoólica?</label>
+                            <div class="radio-group">
+                                <label class="radio-item">
+                                    <input type="radio" name="bebe" value="sim">
+                                    Sim
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="bebe" value="nao">
+                                    Não
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Já bebeu?</label>
+                            <div class="radio-group">
+                                <label class="radio-item">
+                                    <input type="radio" name="ja_bebeu" value="sim">
+                                    Sim
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="ja_bebeu" value="nao">
+                                    Não
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="medicamentos" class="form-label required">Toma algum tipo de medicamento? Se sim,
+                            qual?</label>
+                        <textarea id="medicamentos" name="medicamentos" class="form-input" rows="3"
+                            placeholder="Descreva os medicamentos ou escreva 'Nenhum'" required></textarea>
+                    </div>
+                </div>
+
+                <!-- Informações Socioeconômicas -->
+                <div class="form-section">
+                    <h2 class="section-title">Informações Socioeconômicas</h2>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="escolaridade" class="form-label">Escolaridade</label>
+                            <select id="escolaridade" name="escolaridade" class="form-select">
+                                <option value="">Selecione...</option>
+                                <option value="ensino_medio_incompleto">Ensino médio incompleto</option>
+                                <option value="ensino_medio_completo">Ensino médio completo</option>
+                                <option value="graduacao_incompleta">Graduação incompleta</option>
+                                <option value="graduacao_completa">Graduação completa</option>
+                                <option value="especializacao">Especialização</option>
+                                <option value="mestrado">Mestrado</option>
+                                <option value="doutorado">Doutorado</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="renda" class="form-label required">Renda familiar (salário mínimo)</label>
+                            <select id="renda" name="renda" class="form-select" required>
+                                <option value="">Selecione...</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="acima_4">Acima de 4</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sintomas e Condições -->
+                <div class="form-section">
+                    <h2 class="section-title">Sintomas e Condições</h2>
+
+                    <div class="form-group">
+                        <label class="form-label required">Qual o motivo levou a buscar um médico/especialista?</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="motivos" value="perde_sem_perceber">
+                                Perde urina sem perceber
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="motivos" value="perde_ao_fazer_forca">
+                                Perde urina ao fazer força
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="motivos" value="perde_ao_torcir">
+                                Perde urina ao torcir/expirar
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="motivos" value="perde_ao_agachar">
+                                Perde urina ao agachar
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="motivos" value="perde_ao_levantar">
+                                Perde urina ao se levantar
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">Com que frequência você perde urina?</label>
+                        <div class="radio-group">
+                            <label class="radio-item">
+                                <input type="radio" name="frequencia_urina" value="nunca" required>
+                                Nunca
+                            </label>
+                            <label class="radio-item">
+                                <input type="radio" name="frequencia_urina" value="uma_vez_semana" required>
+                                Uma vez por semana ou menos
+                            </label>
+                            <label class="radio-item">
+                                <input type="radio" name="frequencia_urina" value="duas_tres_semana" required>
+                                Duas ou três vezes por semana
+                            </label>
+                            <label class="radio-item">
+                                <input type="radio" name="frequencia_urina" value="uma_vez_dia" required>
+                                Uma vez ao dia
+                            </label>
+                            <label class="radio-item">
+                                <input type="radio" name="frequencia_urina" value="diversas_vezes_dia" required>
+                                Diversas vezes ao dia
+                            </label>
+                            <label class="radio-item">
+                                <input type="radio" name="frequencia_urina" value="tempo_todo" required>
+                                O tempo todo
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Quantidade de urina que você pensa que perde</label>
+                        <div class="radio-group">
+                            <label class="radio-item">
+                                <input type="radio" name="quantidade_urina" value="0">
+                                Nenhuma (0)
+                            </label>
+                            <label class="radio-item">
+                                <input type="radio" name="quantidade_urina" value="2">
+                                Uma pequena quantidade (2)
+                            </label>
+                            <label class="radio-item">
+                                <input type="radio" name="quantidade_urina" value="4">
+                                Uma moderada quantidade (4)
+                            </label>
+                            <label class="radio-item">
+                                <input type="radio" name="quantidade_urina" value="6">
+                                Uma grande quantidade (6)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">Em geral quanto que perder urina interfere em sua vida
+                            diária? (0 = não interfere, 10 = interfere muito)</label>
+                        <div class="scale-container">
+                            <div class="scale-item" data-value="0">0</div>
+                            <div class="scale-item" data-value="1">1</div>
+                            <div class="scale-item" data-value="2">2</div>
+                            <div class="scale-item" data-value="3">3</div>
+                            <div class="scale-item" data-value="4">4</div>
+                            <div class="scale-item" data-value="5">5</div>
+                            <div class="scale-item" data-value="6">6</div>
+                            <div class="scale-item" data-value="7">7</div>
+                            <div class="scale-item" data-value="8">8</div>
+                            <div class="scale-item" data-value="9">9</div>
+                            <div class="scale-item" data-value="10">10</div>
+                        </div>
+                        <input type="hidden" name="interferencia_vida" id="interferencia_vida" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Quando você perde urina? (Marque todas as alternativas que se
+                            aplicam)</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="quando_perde" value="antes_banheiro">
+                                Perco antes de chegar ao banheiro
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="quando_perde" value="tusso_espiro">
+                                Perco quando tusso ou espiro
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="quando_perde" value="dormindo">
+                                Perco quando estou dormindo
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="quando_perde" value="atividade_fisica">
+                                Perco quando estou fazendo atividades físicas
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="quando_perde" value="terminei_urinar">
+                                Perco quando terminei de urinar e estou me vestindo
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="quando_perde" value="sem_razao">
+                                Perco sem razão óbvia
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="quando_perde" value="tempo_todo">
+                                Perco o tempo todo
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Equilíbrio e Quedas -->
+                <div class="form-section">
+                    <h2 class="section-title">Equilíbrio e Quedas</h2>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Tem desequilíbrio postural?</label>
+                            <div class="radio-group">
+                                <label class="radio-item">
+                                    <input type="radio" name="desequilibrio" value="sim">
+                                    Sim
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="desequilibrio" value="nao">
+                                    Não
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Já chegou a cair?</label>
+                            <div class="radio-group">
+                                <label class="radio-item">
+                                    <input type="radio" name="ja_caiu" value="sim">
+                                    Sim
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="ja_caiu" value="nao">
+                                    Não
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tempo_queda" class="form-label">Quanto tempo da última queda (meses)</label>
+                        <input type="number" id="tempo_queda" name="tempo_queda" class="form-input" min="0">
+                    </div>
+                </div>
+
+                <!-- Exercícios Físicos -->
+                <div class="form-section">
+                    <h2 class="section-title">Exercícios Físicos</h2>
+
+                    <div class="form-group">
+                        <label class="form-label">Pratica algum tipo de exercício físico?</label>
+                        <div class="radio-group">
+                            <label class="radio-item">
+                                <input type="radio" name="pratica_exercicio" value="sim">
+                                Sim
+                            </label>
+                            <label class="radio-item">
+                                <input type="radio" name="pratica_exercicio" value="nao">
+                                Não
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="tipos-exercicio" style="display: none;">
+                        <label class="form-label">Se sim, qual? (Múltipla escolha)</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tipos_exercicio" value="musculacao">
+                                Musculação
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tipos_exercicio" value="natacao">
+                                Natação
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tipos_exercicio" value="corrida">
+                                Corrida na rua
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tipos_exercicio" value="caminhada">
+                                Caminhada
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tipos_exercicio" value="crossfit">
+                                CrossFit
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tipos_exercicio" value="yoga">
+                                Yoga
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tipos_exercicio" value="fisioterapia">
+                                Fisioterapia convencional
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tipos_exercicio" value="ciclismo">
+                                Ciclismo
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tipos_exercicio" value="funcional">
+                                Treinamento funcional
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="duracao-exercicio" style="display: none;">
+                        <label for="duracao_treino" class="form-label">Quantos minutos de treino/sessão diária?</label>
+                        <div class="radio-group">
+                            <label class="radio-item">
+                                <input type="radio" name="duracao_treino" value="30">
+                                30 minutos
+                            </label>
+                            <label class="radio-item">
+                                <input type="radio" name="duracao_treino" value="45">
+                                45 minutos
+                            </label>
+                            <label class="radio-item">
+                                <input type="radio" name="duracao_treino" value="60">
+                                60 minutos
+                            </label>
+                            <label class="radio-item">
+                                <input type="radio" name="duracao_treino" value="acima_60">
+                                Acima de 60 minutos
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tratamento -->
+                <div class="form-section">
+                    <h2 class="section-title">Tratamento e Histórico Médico</h2>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label required">Está em algum tratamento ou reabilitação do assoalho
+                                pélvico?</label>
+                            <div class="radio-group">
+                                <label class="radio-item">
+                                    <input type="radio" name="tratamento_assoalho" value="sim" required>
+                                    Sim
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="tratamento_assoalho" value="nao" required>
+                                    Não
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tempo_diagnostico" class="form-label">Quanto tempo de diagnóstico do sintoma
+                                (meses)</label>
+                            <div class="radio-group">
+                                <label class="radio-item">
+                                    <input type="radio" name="tempo_diagnostico" value="3">
+                                    3 meses
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="tempo_diagnostico" value="6">
+                                    6 meses
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="tempo_diagnostico" value="9">
+                                    9 meses
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="tempo_diagnostico" value="12">
+                                    12 meses
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="tempo_diagnostico" value="acima_12">
+                                    Acima de 12 meses
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Doenças -->
+                <div class="form-section">
+                    <h2 class="section-title">Histórico de Saúde</h2>
+
+                    <div class="form-group">
+                        <label class="form-label required">Tem algum tipo de doença não transmissível?</label>
+                        <div class="radio-group">
+                            <label class="radio-item">
+                                <input type="radio" name="tem_doenca" value="sim" required>
+                                Sim
+                            </label>
+                            <label class="radio-item">
+                                <input type="radio" name="tem_doenca" value="nao" required>
+                                Não
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="tipos-doenca" style="display: none;">
+                        <label class="form-label">Se sim, qual? (Múltipla escolha)</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tipos_doenca" value="hipertensao">
+                                Hipertensão
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tipos_doenca" value="alzheimer">
+                                Alzheimer
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tipos_doenca" value="diabetes_tipo1">
+                                Diabetes tipo 1
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tipos_doenca" value="diabetes_tipo2">
+                                Diabetes tipo 2
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tipos_doenca" value="respiratorio">
+                                Respiratório
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tipos_doenca" value="metabolico">
+                                Metabólico
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tipos_doenca" value="hormonal">
+                                Hormonal
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tipos_doenca" value="ansiedade">
+                                Ansiedade
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tipos_doenca" value="depressao">
+                                Depressão
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tipos_doenca" value="tireoide">
+                                Tireóide
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tipos_doenca" value="outro">
+                                Outro
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Enviar Formulário</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Calcular IMC automaticamente
+        function calculateIMC() {
+            const altura = parseFloat(document.getElementById('altura').value);
+            const peso = parseFloat(document.getElementById('peso').value);
+            const imcField = document.getElementById('imc');
+
+            if (altura && peso) {
+                const alturaMetros = altura / 100;
+                const imc = (peso / (alturaMetros * alturaMetros)).toFixed(2);
+                imcField.value = imc;
+            } else {
+                imcField.value = '';
+            }
+        }
+
+        // Máscara para telefone
+        function formatPhone(input) {
+            let value = input.value.replace(/\D/g, '');
+            value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
+            value = value.replace(/(\d)(\d{4})$/, '$1-$2');
+            input.value = value;
+        }
+
+        // Mostrar/esconder campos baseados nas respostas
+        function toggleExerciseFields() {
+            const praticaExercicio = document.querySelector('input[name="pratica_exercicio"]:checked');
+            const tiposExercicio = document.getElementById('tipos-exercicio');
+            const duracaoExercicio = document.getElementById('duracao-exercicio');
+
+            if (praticaExercicio && praticaExercicio.value === 'sim') {
+                tiposExercicio.style.display = 'block';
+                duracaoExercicio.style.display = 'block';
+            } else {
+                tiposExercicio.style.display = 'none';
+                duracaoExercicio.style.display = 'none';
+            }
+        }
+
+        function toggleDiseaseFields() {
+            const temDoenca = document.querySelector('input[name="tem_doenca"]:checked');
+            const tiposDoenca = document.getElementById('tipos-doenca');
+
+            if (temDoenca && temDoenca.value === 'sim') {
+                tiposDoenca.style.display = 'block';
+            } else {
+                tiposDoenca.style.display = 'none';
+            }
+        }
+
+        // Escala de interferência
+        function setupInterferenceScale() {
+            const scaleItems = document.querySelectorAll('.scale-item');
+            const hiddenInput = document.getElementById('interferencia_vida');
+
+            scaleItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    // Remove seleção anterior
+                    scaleItems.forEach(i => i.classList.remove('selected'));
+
+                    // Adiciona seleção atual
+                    item.classList.add('selected');
+                    hiddenInput.value = item.dataset.value;
+                });
+            });
+        }
+
+        // Validação do formulário
+        function validateForm(event) {
+            event.preventDefault();
+
+            let isValid = true;
+            const requiredFields = document.querySelectorAll('[required]');
+
+            requiredFields.forEach(field => {
+                const errorMessage = field.parentNode.querySelector('.error-message');
+
+                if (!field.value.trim()) {
+                    if (errorMessage) {
+                        errorMessage.style.display = 'block';
+                        errorMessage.textContent = 'Este campo é obrigatório';
+                    }
+                    field.style.borderColor = '#ff4757';
+                    isValid = false;
+                } else {
+                    if (errorMessage) {
+                        errorMessage.style.display = 'none';
+                    }
+                    field.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                }
+            });
+
+            // Validação específica para email
+            const emailField = document.getElementById('email');
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (emailField.value && !emailPattern.test(emailField.value)) {
+                const errorMessage = emailField.parentNode.querySelector('.error-message');
+                if (errorMessage) {
+                    errorMessage.style.display = 'block';
+                    errorMessage.textContent = 'Por favor, insira um email válido';
+                }
+                emailField.style.borderColor = '#ff4757';
+                isValid = false;
+            }
+
+            // Validação para campos de radio obrigatórios
+            const requiredRadioGroups = ['fuma', 'frequencia_urina', 'tratamento_assoalho', 'tem_doenca'];
+            requiredRadioGroups.forEach(groupName => {
+                const checkedRadio = document.querySelector(`input[name="${groupName}"]:checked`);
+                if (!checkedRadio) {
+                    isValid = false;
+                    // Encontrar o container do grupo de radio e mostrar erro
+                    const radioGroup = document.querySelector(`input[name="${groupName}"]`).closest('.form-group');
+                    if (radioGroup) {
+                        radioGroup.style.borderLeft = '3px solid #ff4757';
+                        setTimeout(() => {
+                            radioGroup.style.borderLeft = 'none';
+                        }, 3000);
+                    }
+                }
+            });
+
+            // Validação da escala de interferência
+            const interferencia = document.getElementById('interferencia_vida').value;
+            if (!interferencia) {
+                const scaleContainer = document.querySelector('.scale-container');
+                scaleContainer.style.border = '2px solid #ff4757';
+                setTimeout(() => {
+                    scaleContainer.style.border = 'none';
+                }, 3000);
+                isValid = false;
+            }
+
+            // Validação para pelo menos um motivo selecionado
+            const motivosChecked = document.querySelectorAll('input[name="motivos"]:checked');
+            if (motivosChecked.length === 0) {
+                const motivosGroup = document.querySelector('input[name="motivos"]').closest('.form-group');
+                motivosGroup.style.borderLeft = '3px solid #ff4757';
+                setTimeout(() => {
+                    motivosGroup.style.borderLeft = 'none';
+                }, 3000);
+                isValid = false;
+            }
+
+            if (isValid) {
+                // Aqui você pode enviar os dados para o servidor
+                const formData = new FormData(event.target);
+                console.log('Formulário válido! Dados:', Object.fromEntries(formData));
+
+                // Simular envio
+                const submitBtn = document.querySelector('.submit-btn');
+                submitBtn.textContent = 'Enviando...';
+                submitBtn.disabled = true;
+
+                setTimeout(() => {
+                    alert('Formulário enviado com sucesso!');
+                    submitBtn.textContent = 'Enviar Formulário';
+                    submitBtn.disabled = false;
+                }, 2000);
+            } else {
+                // Scroll para o primeiro erro
+                const firstError = document.querySelector(
+                    '[style*="border-color: rgb(255, 71, 87)"], [style*="border-left: 3px solid rgb(255, 71, 87)"]'
+                );
+
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            setupInterferenceScale();
+
+            // IMC calculation
+            document.getElementById('altura').addEventListener('input', calculateIMC);
+            document.getElementById('peso').addEventListener('input', calculateIMC);
+
+            // Phone formatting
+            document.getElementById('telefone').addEventListener('input', (e) => formatPhone(e.target));
+
+            // Toggle fields
+            document.querySelectorAll('input[name="pratica_exercicio"]').forEach(radio => {
+                radio.addEventListener('change', toggleExerciseFields);
+            });
+
+            document.querySelectorAll('input[name="tem_doenca"]').forEach(radio => {
+                radio.addEventListener('change', toggleDiseaseFields);
+            });
+
+            // Form validation
+            document.getElementById('evaluationForm').addEventListener('submit', validateForm);
+
+            // Clear error styling on input
+            document.querySelectorAll('.form-input, .form-select').forEach(field => {
+                field.addEventListener('input', () => {
+                    field.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                    const errorMessage = field.parentNode.querySelector('.error-message');
+                    if (errorMessage) {
+                        errorMessage.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
