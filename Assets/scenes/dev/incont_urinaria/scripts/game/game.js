@@ -4,7 +4,9 @@ const gameVars = {
     startTime: "",
     startZPosition: 0,
     userMaxSpeed: 7, // velocidade padrão player
-    activities: []
+    activities: [],
+    currentTime: 0,
+    timeTriggers: {}
 }
 
 let firstSquat = false;
@@ -36,44 +38,74 @@ window.addEventListener('completed', (event) => {
 
 function startGame() {
     const playerBoat = document.querySelector("#boat");
-
+    
+    // Armazena dados iniciais
     gameVars.startZPosition = playerBoat.getAttribute('position').z;
     gameVars.startTime = new Date().toISOString();
-
+    
     // Mapeia segundos → função a executar
-    const timeTriggers = {
-        [gameVars.adaptDuration]: adaptBotVelocity,
-        [gameVars.sessionDuration]: endGame,
-        15: showFigure,
-        45: showFigure,
-        90: showFigure,
-        120: showFigure,
-        150: showFigure,
-    };
+    gameVars.timeTriggers[gameVars.adaptDuration] = adaptBotVelocity;
+    gameVars.timeTriggers[gameVars.sessionDuration] = endGame;
+    setFigureTriggers();
 
     const triggered = new Set();
 
     setInterval(() => {
         const diffSeconds = calculateTimeDifference(gameVars.startTime, new Date().toISOString());
+        gameVars.currentTime = diffSeconds;
 
-        for (const timeStr of Object.keys(timeTriggers)) {
+        for (const timeStr of Object.keys(gameVars.timeTriggers)) {
             const targetTime = Number(timeStr);
 
             if (diffSeconds >= targetTime && !triggered.has(targetTime)) {
                 triggered.add(targetTime);
-                timeTriggers[targetTime]();
+                gameVars.timeTriggers[targetTime]();
             }
         }
 
     }, 1000);
 }
 
+function setFigureTriggers() {
+  const minutes = Math.floor(gameVars.sessionDuration / 60);
+
+  for (let m = 0; m < minutes; m++) {
+    const chosen = [];
+
+    while (chosen.length < 3) {
+      const rand = Math.floor(Math.random() * 60);
+
+      // garante unicidade + diferença mínima de 7
+      if (
+        !chosen.includes(rand) &&
+        chosen.every(x => Math.abs(x - rand) >= 7)
+      ) {
+        chosen.push(rand);
+      }
+    }
+
+    // ordenar para facilitar leitura
+    chosen.sort((a, b) => a - b);
+
+    // converter para segundos absolutos na sessão
+    const absoluteSeconds = chosen.map(sec => m * 60 + sec);
+
+    // adicionar ao timeTriggers
+    absoluteSeconds.forEach(triggerTime => {
+      gameVars.timeTriggers[triggerTime] = showFigure;
+    });
+
+    console.log(`Minuto ${m + 1}: [${absoluteSeconds.join(", ")}]`);
+  }
+}
+
+
 function showFigure() {
     const figure = document.querySelector("#aperta");
     figure.classList.add("active");
     setTimeout(() => {
         figure.classList.remove("active");
-    }, 5000)
+    }, 4000)
 }
 
 function endGame() {

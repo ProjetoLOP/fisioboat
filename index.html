@@ -1,55 +1,325 @@
 <!DOCTYPE html>
-<html lang="pt_BR">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FisioBoat</title>
-
-    <link rel="stylesheet" href="/Assets/pages/start/start.css">
+    <title>Fisioboat</title>
+    <link rel="stylesheet" href="/Assets/pages/index/hub.css">
 </head>
 
 <body>
-    <div class="waves"></div>
+    <div class="floating-particles" id="particles"></div>
+    <div class="top-bar">
+        <a href="/Assets/pages/form/form.html">
+            <button class="create-btn" id="createBtn">Criar Usuário</button>
+        </a>
+    </div>
 
-    <!-- Bolhas decorativas -->
-    <div class="bubble" style="width: 30px; height: 30px; left: 20%; top: 40%;"></div>
-    <div class="bubble" style="width: 20px; height: 20px; left: 80%; top: 30%;"></div>
-    <div class="bubble" style="width: 25px; height: 25px; left: 60%; top: 60%;"></div>
 
-    <h1 class="game-title">FisioBoat</h1>
+    <div class="container">
+        <h1 class="title">FISIOBOAT</h1>
 
-    <!-- Carrossel -->
-    <div class="carousel-container">
-        <div class="carousel">
-            <div class="carousel-item"
-                style="background-image: url('/Assets/pages/start/images/tests&development.jpg')">
-                <h3 class="phase-title">Fase Principal</h3>
+        <div class="search-container">
+            <div style="position: relative; width: 350px;">
+                <input type="text" class="search-input" placeholder="Buscar usuário..." id="searchInput" autocomplete="off" spellcheck="false">
+                <div class="search-results" id="searchResults">
+                    <!-- Resultados da busca aparecerão aqui -->
+                </div>
             </div>
-            <div class="carousel-item"
-                style="background-image: url('/Assets/pages/start/images/tests&development.jpg')">
-                <h3 class="phase-title">Incontinência urinária</h3>
-            </div>
-        </div>
-
-        <div class="carousel-nav">
-            <button class="carousel-button" onclick="moveCarousel(-1)">&#10094;</button>
-            <button class="carousel-button" onclick="moveCarousel(1)">&#10095;</button>
-        </div>
-
-        <div class="carousel-dots">
-            <span class="dot active" onclick="goToSlide(0)"></span>
-            <span class="dot" onclick="goToSlide(1)"></span>
         </div>
     </div>
 
-    <a href="/Assets/pages/sessions/sessions.html" class="sessions-button">
-        Minhas Sessões
-    </a>
+    <script>
+        // Dados de exemplo dos usuários
+        const users = [
+            { id: 1, name: "João Silva", level: "#183658", avatar: "J" },
+            { id: 2, name: "Maria Santos", level: "#283658", avatar: "M" },
+            { id: 3, name: "Pedro Costa", level: "#383658", avatar: "P" },
+            { id: 4, name: "Ana Oliveira", level: "#483658", avatar: "A" },
+            { id: 5, name: "Carlos Ferreira", level: "#583658", avatar: "C" },
+            { id: 6, name: "Luciana Pereira", level: "#683658", avatar: "L" },
+            { id: 7, name: "Roberto Lima", level: "#788158", avatar: "R" },
+            { id: 8, name: "Fernanda Rocha", level: "#883848", avatar: "F" },
+            { id: 9, name: "Gabriel Martins", level: "#983298", avatar: "G" },
+            { id: 10, name: "Julia Mendes", level: "#107564", avatar: "J" }
+        ];
 
-    <button class="play-button">PLAY</button>
+        let searchTimeout;
+        let isSearching = false;
 
-    <script src="/Assets/pages/start/start.js"></script>
+        // Função para buscar usuários
+        function searchUsers(query) {
+            if (!query.trim()) return [];
+
+            return users.filter(user =>
+                user.name.toLowerCase().includes(query.toLowerCase()) ||
+                user.level.toLowerCase().includes(query.toLowerCase())
+            ).slice(0, 5); // Limita a 5 resultados
+        }
+
+        // Função para renderizar os resultados
+        function renderResults(results, query) {
+            const resultsContainer = document.getElementById('searchResults');
+
+            if (results.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        <i>🔍</i><br>
+                        Nenhum usuário encontrado para "${query}"
+                    </div>
+                `;
+            } else {
+                resultsContainer.innerHTML = results.map(user => `
+                    <div class="user-item" onclick="selectUser(${user.id}, '${user.name}')">
+                        <div class="user-avatar">${user.avatar}</div>
+                        <div class="user-info">
+                            <div class="user-name">${highlightMatch(user.name, query)}</div>
+                            <div class="user-level">${user.level}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            resultsContainer.classList.add('show');
+        }
+
+        // Função para destacar o termo pesquisado
+        function highlightMatch(text, query) {
+            if (!query.trim()) return text;
+
+            const regex = new RegExp(`(${query})`, 'gi');
+            return text.replace(regex, '<span style="color: #ff6b35; font-weight: bold;">$1</span>');
+        }
+
+        // Função para esconder os resultados
+        function hideResults() {
+            const resultsContainer = document.getElementById('searchResults');
+            resultsContainer.classList.remove('show');
+        }
+
+        // Função para selecionar um usuário
+        function selectUser(userId, userName) {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.value = userName;
+            hideResults();
+
+            // Simular seleção do usuário
+            window.open(`/Assets/pages/user/user.html?id=${userId}`, "_self");
+            console.log('Usuário selecionado:', { id: userId, name: userName });
+
+            // Efeito visual de seleção
+            searchInput.style.borderColor = '#4CAF50';
+            setTimeout(() => {
+                searchInput.style.borderColor = '';
+            }, 1000);
+        }
+
+        // Event listener para busca em tempo real
+        document.getElementById('searchInput').addEventListener('input', function (e) {
+            const query = e.target.value;
+
+            // Limpar timeout anterior
+            clearTimeout(searchTimeout);
+
+            if (query.trim() === '') {
+                hideResults();
+                return;
+            }
+
+            // Simular delay de busca para efeito mais realista
+            isSearching = true;
+
+            searchTimeout = setTimeout(() => {
+                const results = searchUsers(query);
+                renderResults(results, query);
+                isSearching = false;
+            }, 150); // 150ms delay
+        });
+
+        // Esconder resultados quando clicar fora
+        document.addEventListener('click', function (e) {
+            const searchContainer = document.querySelector('.search-container');
+            if (!searchContainer.contains(e.target)) {
+                hideResults();
+            }
+        });
+
+        // Navegação por teclado
+        document.getElementById('searchInput').addEventListener('keydown', function (e) {
+            const resultsContainer = document.getElementById('searchResults');
+            const userItems = resultsContainer.querySelectorAll('.user-item');
+            let currentSelected = resultsContainer.querySelector('.user-item.selected');
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (currentSelected) {
+                    currentSelected.classList.remove('selected');
+                    const next = currentSelected.nextElementSibling;
+                    if (next) {
+                        next.classList.add('selected');
+                    } else {
+                        userItems[0]?.classList.add('selected');
+                    }
+                } else {
+                    userItems[0]?.classList.add('selected');
+                }
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (currentSelected) {
+                    currentSelected.classList.remove('selected');
+                    const prev = currentSelected.previousElementSibling;
+                    if (prev) {
+                        prev.classList.add('selected');
+                    } else {
+                        userItems[userItems.length - 1]?.classList.add('selected');
+                    }
+                } else {
+                    userItems[userItems.length - 1]?.classList.add('selected');
+                }
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (currentSelected) {
+                    currentSelected.click();
+                }
+            } else if (e.key === 'Escape') {
+                hideResults();
+                this.blur();
+            }
+        });
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 15;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+
+                // Posição aleatória
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+
+                // Delay aleatório para animação
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 4) + 's';
+
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Efeito de digitação no placeholder
+        function typeEffect() {
+            const input = document.getElementById('searchInput');
+            const texts = ['Buscar usuário...', 'Digite o nome...', 'Procurar jogador...'];
+            let currentText = 0;
+            let currentChar = 0;
+            let isDeleting = false;
+
+            function type() {
+                const text = texts[currentText];
+
+                if (isDeleting) {
+                    input.placeholder = text.substring(0, currentChar - 1);
+                    currentChar--;
+                } else {
+                    input.placeholder = text.substring(0, currentChar + 1);
+                    currentChar++;
+                }
+
+                if (!isDeleting && currentChar === text.length) {
+                    setTimeout(() => isDeleting = true, 2000);
+                } else if (isDeleting && currentChar === 0) {
+                    isDeleting = false;
+                    currentText = (currentText + 1) % texts.length;
+                }
+
+                const speed = isDeleting ? 50 : 100;
+                setTimeout(type, speed);
+            }
+
+            // Só inicia o efeito se o input não estiver focado
+            input.addEventListener('focus', () => {
+                input.placeholder = 'Digite aqui...';
+            });
+
+            input.addEventListener('blur', () => {
+                if (input.value === '') {
+                    setTimeout(type, 500);
+                }
+            });
+
+            type();
+        }
+
+        // Efeito de clique no botão
+        document.getElementById('createBtn').addEventListener('click', function () {
+            // Criar efeito de ondas
+            const button = this;
+            const ripple = document.createElement('span');
+            ripple.style.cssText = `
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.6);
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+                left: 50%;
+                top: 50%;
+                margin-left: -10px;
+                margin-top: -10px;
+                width: 20px;
+                height: 20px;
+            `;
+
+            button.appendChild(ripple);
+
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+
+            console.log('Criar usuário clicado!');
+        });
+
+        // Event listener para o input de busca (Enter para ações especiais)
+        document.getElementById('searchInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter' && !document.querySelector('.user-item.selected')) {
+                const query = this.value.trim();
+                if (query) {
+                    console.log('Buscar usuário:', query);
+                    // Aqui você pode adicionar lógica para busca mais avançada
+                }
+            }
+        });
+
+        // Adicionar estilo de ripple para animação
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Inicializar efeitos
+        window.addEventListener('load', function () {
+            createParticles();
+            setTimeout(typeEffect, 1000);
+        });
+
+        // Efeito parallax suave no movimento do mouse
+        document.addEventListener('mousemove', function (e) {
+            const particles = document.querySelectorAll('.particle');
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+
+            particles.forEach((particle, index) => {
+                const speed = (index % 3 + 1) * 0.5;
+                particle.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+            });
+        });
+    </script>
 </body>
 
 </html>

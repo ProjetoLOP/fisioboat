@@ -81,7 +81,7 @@ body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     height: 100vh;
     background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1)),
-        url('/new/init.png') center/cover;
+        url('/Assets/pages/background.png') center/cover;
     display: flex;
     flex-direction: column;
     justify-content: center;
