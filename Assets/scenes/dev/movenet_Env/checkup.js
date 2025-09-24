@@ -26,7 +26,7 @@ async function setupCamera() {
 function setupVideo() {
     const videoEl = document.getElementById("video");
 
-    videoEl.src = "/Assets/videos/stress10.mp4";
+    videoEl.src = "/Assets/videos/stress3.mp4";
     videoEl.loop = true;
     videoEl.muted = true;
     videoEl.play();
@@ -48,18 +48,25 @@ function startGame() {
 }
 
 // Event listeners
-document.addEventListener('keypress', function (event) {
-    if (event.key === 'Enter') {
-        detectPose(); // Função importada de movenet.min.js
+// document.addEventListener('keypress', function (event) {
+//     if (event.key === 'Enter') {
+//         detectPose(); // Função importada de movenet.min.js
 
-        const loadingDots = document.querySelector(".loading-dots");
-        loadingDots.classList.add("active");
-    }
-});
+//         const loadingDots = document.querySelector(".loading-dots");
+//         loadingDots.classList.add("active");
+//     }
+// });
+
+document.addEventListener('click', function (event) {
+    detectPose(); // Função importada de movenet.min.js
+
+    const loadingDots = document.querySelector(".loading-dots");
+    loadingDots.classList.add("active");
+}, { once: true });
 
 window.addEventListener("detector:ready", () => {
-    // setupCamera();
-    setupVideo();
+    setupCamera();
+    // setupVideo();
 });
 
 window.addEventListener("pose:ready", () => {

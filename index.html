@@ -22,7 +22,8 @@
 
         <div class="search-container">
             <div style="position: relative; width: 350px;">
-                <input type="text" class="search-input" placeholder="Buscar usuário..." id="searchInput" autocomplete="off" spellcheck="false">
+                <input type="text" class="search-input" placeholder="Buscar usuário..." id="searchInput"
+                    autocomplete="off" spellcheck="false">
                 <div class="search-results" id="searchResults">
                     <!-- Resultados da busca aparecerão aqui -->
                 </div>
@@ -31,20 +32,6 @@
     </div>
 
     <script>
-        // Dados de exemplo dos usuários
-        const users = [
-            { id: 1, name: "João Silva", level: "#183658", avatar: "J" },
-            { id: 2, name: "Maria Santos", level: "#283658", avatar: "M" },
-            { id: 3, name: "Pedro Costa", level: "#383658", avatar: "P" },
-            { id: 4, name: "Ana Oliveira", level: "#483658", avatar: "A" },
-            { id: 5, name: "Carlos Ferreira", level: "#583658", avatar: "C" },
-            { id: 6, name: "Luciana Pereira", level: "#683658", avatar: "L" },
-            { id: 7, name: "Roberto Lima", level: "#788158", avatar: "R" },
-            { id: 8, name: "Fernanda Rocha", level: "#883848", avatar: "F" },
-            { id: 9, name: "Gabriel Martins", level: "#983298", avatar: "G" },
-            { id: 10, name: "Julia Mendes", level: "#107564", avatar: "J" }
-        ];
-
         let searchTimeout;
         let isSearching = false;
 
@@ -52,10 +39,11 @@
         function searchUsers(query) {
             if (!query.trim()) return [];
 
-            return users.filter(user =>
-                user.name.toLowerCase().includes(query.toLowerCase()) ||
-                user.level.toLowerCase().includes(query.toLowerCase())
-            ).slice(0, 5); // Limita a 5 resultados
+            const users = JSON.parse(localStorage.getItem("users")) || [];
+
+            return users.filter(user => {
+                return user.nome.toLowerCase().includes(query.toLowerCase())
+            }).slice(0, 5); // Limita a 5 resultados
         }
 
         // Função para renderizar os resultados
@@ -71,11 +59,11 @@
                 `;
             } else {
                 resultsContainer.innerHTML = results.map(user => `
-                    <div class="user-item" onclick="selectUser(${user.id}, '${user.name}')">
-                        <div class="user-avatar">${user.avatar}</div>
+                    <div class="user-item" onclick="selectUser('${user.id}', '${user.nome}')">
+                        <div class="user-avatar">${user.nome.charAt(0).toUpperCase()}</div>
                         <div class="user-info">
-                            <div class="user-name">${highlightMatch(user.name, query)}</div>
-                            <div class="user-level">${user.level}</div>
+                            <div class="user-name">${highlightMatch(user.nome, query)}</div>
+                            <div class="user-level">#${user.id}</div>
                         </div>
                     </div>
                 `).join('');

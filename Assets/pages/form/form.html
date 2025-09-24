@@ -31,6 +31,14 @@
 
                     <div class="form-row">
                         <div class="form-group">
+                            <label for="nome" class="form-label required">Nome Completo</label>
+                            <input type="text" id="nome" name="nome" class="form-input" placeholder="Seu nome completo"
+                                required>
+                            <div class="error-message">Por favor, insira seu nome completo</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
                             <label for="email" class="form-label required">Email</label>
                             <input type="email" id="email" name="email" class="form-input" placeholder="seu@email.com"
                                 required>
@@ -558,211 +566,211 @@
     </div>
 
     <script>
-        // Calcular IMC automaticamente
-        function calculateIMC() {
-            const altura = parseFloat(document.getElementById('altura').value);
-            const peso = parseFloat(document.getElementById('peso').value);
-            const imcField = document.getElementById('imc');
-
-            if (altura && peso) {
-                const alturaMetros = altura / 100;
-                const imc = (peso / (alturaMetros * alturaMetros)).toFixed(2);
-                imcField.value = imc;
-            } else {
-                imcField.value = '';
-            }
-        }
-
-        // Máscara para telefone
-        function formatPhone(input) {
-            let value = input.value.replace(/\D/g, '');
-            value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
-            value = value.replace(/(\d)(\d{4})$/, '$1-$2');
-            input.value = value;
-        }
-
-        // Mostrar/esconder campos baseados nas respostas
-        function toggleExerciseFields() {
-            const praticaExercicio = document.querySelector('input[name="pratica_exercicio"]:checked');
-            const tiposExercicio = document.getElementById('tipos-exercicio');
-            const duracaoExercicio = document.getElementById('duracao-exercicio');
-
-            if (praticaExercicio && praticaExercicio.value === 'sim') {
-                tiposExercicio.style.display = 'block';
-                duracaoExercicio.style.display = 'block';
-            } else {
-                tiposExercicio.style.display = 'none';
-                duracaoExercicio.style.display = 'none';
-            }
-        }
-
-        function toggleDiseaseFields() {
-            const temDoenca = document.querySelector('input[name="tem_doenca"]:checked');
-            const tiposDoenca = document.getElementById('tipos-doenca');
-
-            if (temDoenca && temDoenca.value === 'sim') {
-                tiposDoenca.style.display = 'block';
-            } else {
-                tiposDoenca.style.display = 'none';
-            }
-        }
-
-        // Escala de interferência
-        function setupInterferenceScale() {
-            const scaleItems = document.querySelectorAll('.scale-item');
-            const hiddenInput = document.getElementById('interferencia_vida');
-
-            scaleItems.forEach(item => {
-                item.addEventListener('click', () => {
-                    // Remove seleção anterior
-                    scaleItems.forEach(i => i.classList.remove('selected'));
-
-                    // Adiciona seleção atual
-                    item.classList.add('selected');
-                    hiddenInput.value = item.dataset.value;
-                });
-            });
-        }
-
-        // Validação do formulário
-        function validateForm(event) {
+        // Função para salvar dados do formulário no localStorage
+        function saveFormToLocalStorage(event) {
             event.preventDefault();
 
-            let isValid = true;
-            const requiredFields = document.querySelectorAll('[required]');
+            // Gerar ID único para o usuário
+            const userId = String(Math.floor(Math.random() * 1000000)).padStart(5, "0");
 
-            requiredFields.forEach(field => {
-                const errorMessage = field.parentNode.querySelector('.error-message');
+            // Coletar todos os dados do formulário
+            const formData = new FormData(event.target);
 
-                if (!field.value.trim()) {
-                    if (errorMessage) {
-                        errorMessage.style.display = 'block';
-                        errorMessage.textContent = 'Este campo é obrigatório';
+            // Criar objeto com os dados pessoais
+            const personalInfo = {
+                // Dados Pessoais
+                nome: formData.get('nome'),
+                email: formData.get('email'),
+                telefone: formData.get('telefone'),
+                idade: formData.get('idade'),
+                altura: formData.get('altura'),
+                peso: formData.get('peso'),
+                imc: formData.get('imc'),
+
+                // Hábitos de Vida
+                fuma: formData.get('fuma'),
+                ja_fumou: formData.get('ja_fumou'),
+                bebe: formData.get('bebe'),
+                ja_bebeu: formData.get('ja_bebeu'),
+                medicamentos: formData.get('medicamentos'),
+
+                // Informações Socioeconômicas
+                escolaridade: formData.get('escolaridade'),
+                renda: formData.get('renda'),
+
+                // Sintomas e Condições
+                motivos: formData.getAll('motivos'), // Array com múltiplas seleções
+                frequencia_urina: formData.get('frequencia_urina'),
+                quantidade_urina: formData.get('quantidade_urina'),
+                interferencia_vida: formData.get('interferencia_vida'),
+                quando_perde: formData.getAll('quando_perde'), // Array com múltiplas seleções
+
+                // Equilíbrio e Quedas
+                desequilibrio: formData.get('desequilibrio'),
+                ja_caiu: formData.get('ja_caiu'),
+                tempo_queda: formData.get('tempo_queda'),
+
+                // Exercícios Físicos
+                pratica_exercicio: formData.get('pratica_exercicio'),
+                tipos_exercicio: formData.getAll('tipos_exercicio'), // Array com múltiplas seleções
+                duracao_treino: formData.get('duracao_treino'),
+
+                // Tratamento
+                tratamento_assoalho: formData.get('tratamento_assoalho'),
+                tempo_diagnostico: formData.get('tempo_diagnostico'),
+
+                // Doenças
+                tem_doenca: formData.get('tem_doenca'),
+                tipos_doenca: formData.getAll('tipos_doenca'), // Array com múltiplas seleções
+
+                // Metadados
+                data_preenchimento: new Date().toISOString(),
+                timestamp: Date.now()
+            };
+
+            // Criar objeto do usuário
+            const userData = {
+                id: userId,
+                nome: personalInfo.nome,
+                personal_info: personalInfo,
+                sessions: []
+            };
+
+            // Recuperar array de usuários existentes ou criar novo
+            let users = [];
+            try {
+                const existingUsers = localStorage.getItem('users');
+                if (existingUsers) {
+                    users = JSON.parse(existingUsers);
+                    // Garantir que seja um array
+                    if (!Array.isArray(users)) {
+                        users = [];
                     }
-                    field.style.borderColor = '#ff4757';
-                    isValid = false;
-                } else {
-                    if (errorMessage) {
-                        errorMessage.style.display = 'none';
-                    }
-                    field.style.borderColor = 'rgba(255, 255, 255, 0.2)';
                 }
-            });
-
-            // Validação específica para email
-            const emailField = document.getElementById('email');
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (emailField.value && !emailPattern.test(emailField.value)) {
-                const errorMessage = emailField.parentNode.querySelector('.error-message');
-                if (errorMessage) {
-                    errorMessage.style.display = 'block';
-                    errorMessage.textContent = 'Por favor, insira um email válido';
-                }
-                emailField.style.borderColor = '#ff4757';
-                isValid = false;
+            } catch (error) {
+                console.error('Erro ao recuperar usuários existentes:', error);
+                users = [];
             }
 
-            // Validação para campos de radio obrigatórios
-            const requiredRadioGroups = ['fuma', 'frequencia_urina', 'tratamento_assoalho', 'tem_doenca'];
-            requiredRadioGroups.forEach(groupName => {
-                const checkedRadio = document.querySelector(`input[name="${groupName}"]:checked`);
-                if (!checkedRadio) {
-                    isValid = false;
-                    // Encontrar o container do grupo de radio e mostrar erro
-                    const radioGroup = document.querySelector(`input[name="${groupName}"]`).closest('.form-group');
-                    if (radioGroup) {
-                        radioGroup.style.borderLeft = '3px solid #ff4757';
-                        setTimeout(() => {
-                            radioGroup.style.borderLeft = 'none';
-                        }, 3000);
-                    }
-                }
-            });
+            // Adicionar novo usuário ao array
+            users.push(userData);
 
-            // Validação da escala de interferência
-            const interferencia = document.getElementById('interferencia_vida').value;
-            if (!interferencia) {
-                const scaleContainer = document.querySelector('.scale-container');
-                scaleContainer.style.border = '2px solid #ff4757';
-                setTimeout(() => {
-                    scaleContainer.style.border = 'none';
-                }, 3000);
-                isValid = false;
-            }
+            // Salvar no localStorage
+            try {
+                localStorage.setItem('users', JSON.stringify(users));
 
-            // Validação para pelo menos um motivo selecionado
-            const motivosChecked = document.querySelectorAll('input[name="motivos"]:checked');
-            if (motivosChecked.length === 0) {
-                const motivosGroup = document.querySelector('input[name="motivos"]').closest('.form-group');
-                motivosGroup.style.borderLeft = '3px solid #ff4757';
-                setTimeout(() => {
-                    motivosGroup.style.borderLeft = 'none';
-                }, 3000);
-                isValid = false;
-            }
+                // Log de sucesso
+                console.log('Dados salvos com sucesso!');
+                console.log('ID do usuário:', userId);
+                console.log('Dados do usuário:', userData);
 
-            if (isValid) {
-                // Aqui você pode enviar os dados para o servidor
-                const formData = new FormData(event.target);
-                console.log('Formulário válido! Dados:', Object.fromEntries(formData));
-
-                // Simular envio
+                // Feedback visual de sucesso
                 const submitBtn = document.querySelector('.submit-btn');
-                submitBtn.textContent = 'Enviando...';
+                submitBtn.textContent = 'Dados Salvos com Sucesso!';
+                submitBtn.style.backgroundColor = '#00b894';
                 submitBtn.disabled = true;
 
+                // Opcional: limpar o formulário após 2 segundos
                 setTimeout(() => {
-                    alert('Formulário enviado com sucesso!');
-                    submitBtn.textContent = 'Enviar Formulário';
-                    submitBtn.disabled = false;
+                    if (confirm('Dados salvos com sucesso! Deseja limpar o formulário?')) {
+                        event.target.reset();
+                        // Resetar o botão
+                        submitBtn.textContent = 'Enviar Formulário';
+                        submitBtn.style.backgroundColor = '';
+                        submitBtn.disabled = false;
+                        // Limpar campo IMC calculado
+                        document.getElementById('imc').value = '';
+                        // Limpar seleções da escala
+                        document.querySelectorAll('.scale-item').forEach(item => {
+                            item.classList.remove('selected');
+                        });
+                    } else {
+                        submitBtn.textContent = 'Enviar Formulário';
+                        submitBtn.style.backgroundColor = '';
+                        submitBtn.disabled = false;
+                    }
                 }, 2000);
-            } else {
-                // Scroll para o primeiro erro
-                const firstError = document.querySelector(
-                    '[style*="border-color: rgb(255, 71, 87)"], [style*="border-left: 3px solid rgb(255, 71, 87)"]'
-                );
 
-                if (firstError) {
-                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
+                return true;
+
+            } catch (error) {
+                console.error('Erro ao salvar no localStorage:', error);
+                alert('Erro ao salvar os dados. Por favor, tente novamente.');
+                return false;
             }
         }
 
-        // Event listeners
+        // Adicionar o event listener ao formulário
         document.addEventListener('DOMContentLoaded', () => {
-            createParticles();
-            setupInterferenceScale();
+            const form = document.getElementById('evaluationForm');
+            if (form) {
+                // Remover listeners anteriores de validação se existirem
+                const newForm = form.cloneNode(true);
+                form.parentNode.replaceChild(newForm, form);
 
-            // IMC calculation
-            document.getElementById('altura').addEventListener('input', calculateIMC);
-            document.getElementById('peso').addEventListener('input', calculateIMC);
+                // Adicionar novo listener
+                newForm.addEventListener('submit', saveFormToLocalStorage);
+            }
 
-            // Phone formatting
-            document.getElementById('telefone').addEventListener('input', (e) => formatPhone(e.target));
-
-            // Toggle fields
-            document.querySelectorAll('input[name="pratica_exercicio"]').forEach(radio => {
-                radio.addEventListener('change', toggleExerciseFields);
-            });
-
-            document.querySelectorAll('input[name="tem_doenca"]').forEach(radio => {
-                radio.addEventListener('change', toggleDiseaseFields);
-            });
-
-            // Form validation
-            document.getElementById('evaluationForm').addEventListener('submit', validateForm);
-
-            // Clear error styling on input
-            document.querySelectorAll('.form-input, .form-select').forEach(field => {
-                field.addEventListener('input', () => {
-                    field.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                    const errorMessage = field.parentNode.querySelector('.error-message');
-                    if (errorMessage) {
-                        errorMessage.style.display = 'none';
-                    }
+            const scaleItems = document.querySelectorAll('.scale-item');
+            scaleItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    // Remover seleção anterior
+                    scaleItems.forEach(i => i.classList.remove('selected'));
+                    // Adicionar seleção atual
+                    item.classList.add('selected');
+                    // Atualizar o campo oculto
+                    document.getElementById('interferencia_vida').value = item.getAttribute('data-value');
                 });
             });
         });
+
+        // Função auxiliar para recuperar todos os usuários
+        function getAllUsers() {
+            try {
+                const users = localStorage.getItem('users');
+                return users ? JSON.parse(users) : [];
+            } catch (error) {
+                console.error('Erro ao recuperar usuários:', error);
+                return [];
+            }
+        }
+
+        // Função auxiliar para buscar usuário por ID
+        function getUserById(userId) {
+            const users = getAllUsers();
+            return users.find(user => user.id === userId);
+        }
+
+        // Função auxiliar para limpar todos os usuários (use com cuidado!)
+        function clearAllUsers() {
+            if (confirm('Tem certeza que deseja limpar todos os dados de usuários?')) {
+                localStorage.removeItem('users');
+                console.log('Todos os dados de usuários foram removidos.');
+            }
+        }
+
+        // Função auxiliar para exportar dados como JSON
+        function exportUsersData() {
+            const users = getAllUsers();
+            const dataStr = JSON.stringify(users, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
+            const exportFileDefaultName = 'users_data_' + new Date().toISOString().slice(0, 10) + '.json';
+
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+
+        // Expor funções úteis no objeto window para acesso via console
+        window.formStorage = {
+            getAllUsers,
+            getUserById,
+            clearAllUsers,
+            exportUsersData
+        };
     </script>
 </body>
 

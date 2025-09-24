@@ -1,5 +1,5 @@
 const gameVars = {
-    sessionDuration: 600,
+    sessionDuration: 60,
     adaptDuration: 30,
     startTime: "",
     startZPosition: 0,
@@ -180,25 +180,33 @@ function getSessionStats() {
 }
 
 function saveSession(sessionStats) {
-    // 1. Pega o objeto "sessions" atual do localStorage (ou cria um vazio)
-    const sessions = JSON.parse(localStorage.getItem("sessions")) || {};
+    const userId = new URLSearchParams(window.location.search).get('id');
+    if (!userId) {
+        console.error("User ID not found in URL parameters.");
+        return;
+    }
+    // Busca usuário no localStorage 
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const user = users.find(u => u.id === userId);
+    if (!user) {
+        console.error("User not found in localStorage.");
+        return;
+    }
 
-    // 2. Gera um novo ID automático
-    // Pega os IDs existentes, transforma em números, encontra o maior e soma 1
-    const newId = Object.keys(sessions).length > 0
-        ? Math.max(...Object.keys(sessions).map(id => Number(id))) + 1
-        : 1;
-
-    // 3. Cria a nova sessão
+    // Cria a nova sessão
     const session = {
         occurredAt: new Date().toISOString(),
         stats: sessionStats,
         activities: gameVars.activities
     };
 
-    // 4. Adiciona ao objeto sessions
-    sessions[newId] = session;
+    // Adiciona ao objeto sessions
+    user.sessions.push(session);
+
+    // atualiza users
+    const userIndex = users.findIndex(u => u.id === userId);
+    users[userIndex] = user;
 
     // 5. Salva de volta no localStorage
-    localStorage.setItem("sessions", JSON.stringify(sessions));
+    localStorage.setItem("users", JSON.stringify(users));
 }

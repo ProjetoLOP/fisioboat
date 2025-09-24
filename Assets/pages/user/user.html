@@ -113,38 +113,163 @@
     </div>
 
     <script>
-        // Criar partículas flutuantes
-        function createParticles() {
-            const particlesContainer = document.getElementById('particles');
-            const particleCount = 20;
+        // Função para obter parâmetro da URL
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            const results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
 
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.top = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 6 + 's';
-                particlesContainer.appendChild(particle);
+        // Função para formatar data
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        // Função para carregar dados do usuário
+        function loadUserData() {
+            const userId = getUrlParameter('id');
+
+            if (!userId) {
+                console.error('ID do usuário não encontrado na URL');
+                return;
+            }
+
+            // Buscar dados no localStorage
+            const usersData = localStorage.getItem('users');
+            if (!usersData) {
+                console.error('Dados de usuários não encontrados no localStorage');
+                return;
+            }
+
+            let users;
+            try {
+                users = JSON.parse(usersData);
+            } catch (error) {
+                console.error('Erro ao parsear dados dos usuários:', error);
+                return;
+            }
+
+            // Encontrar usuário pelo ID
+            const user = users.find(u => u.id === userId);
+            if (!user) {
+                console.error('Usuário não encontrado com ID:', userId);
+                return;
+            }
+
+            // Atualizar avatar (primeira letra do nome)
+            const playerAvatar = document.querySelector('.player-avatar');
+            if (playerAvatar && user.personal_info && user.personal_info.nome) {
+                playerAvatar.textContent = user.personal_info.nome.charAt(0).toUpperCase();
+            }
+
+            // Atualizar nome do jogador
+            const playerName = document.querySelector('.player-name');
+            if (playerName && user.personal_info && user.personal_info.nome) {
+                playerName.textContent = user.personal_info.nome;
+            }
+
+            // Atualizar detalhes do jogador (idade, altura, peso)
+            const playerDetails = document.querySelector('.player-details');
+            if (playerDetails && user.personal_info) {
+                const idade = user.personal_info.idade || 'N/A';
+                const altura = user.personal_info.altura ? `${user.personal_info.altura}cm` : 'N/A';
+                const peso = user.personal_info.peso ? `${user.personal_info.peso}kg` : 'N/A';
+                playerDetails.textContent = `Idade: ${idade} | Altura: ${altura} | Peso: ${peso}`;
+            }
+
+            // Atualizar histórico de sessões
+            const sessionGrid = document.querySelector('.session-grid');
+            if (sessionGrid && user.sessions && user.sessions.length > 0) {
+                // Limpar sessões existentes
+                sessionGrid.innerHTML = '';
+
+                // Ordenar sessões por data (mais recente primeiro)
+                const sortedSessions = user.sessions.sort((a, b) => new Date(b.occurredAt) - new Date(a.occurredAt));
+
+                // Criar elementos para cada sessão
+                sortedSessions.forEach(session => {
+                    const sessionItem = document.createElement('div');
+                    sessionItem.className = 'session-item';
+
+                    const sessionDate = formatDate(session.occurredAt);
+                    const duration = Math.round(session.stats.sessionDuration);
+                    const reps = session.stats.reps;
+
+                    sessionItem.innerHTML = `
+                <div class="session-date">
+                    <div class="date-icon">📅</div>
+                    ${sessionDate}
+                </div>
+                <div class="session-stats">
+                    <div style="display: flex; gap: 1rem;">
+                        <div class="stat-group">
+                            <div class="stat-icon">⏱️</div>
+                            <span>${duration}s</span>
+                        </div>
+                        <div class="stat-group">
+                            <div class="stat-icon">🔁</div>
+                            <span>${reps} repetições</span>
+                        </div>
+                    </div>
+                    <div class="star-rating">⭐</div>
+                </div>
+            `;
+
+                    // Adicionar event listener para clique
+                    sessionItem.addEventListener('click', function () {
+                        console.log('Abrindo detalhes da sessão:', session);
+                        // Implementar visualização de detalhes da sessão
+                    });
+
+                    sessionGrid.appendChild(sessionItem);
+                });
+            } else if (sessionGrid) {
+                // Se não há sessões, mostrar mensagem
+                sessionGrid.innerHTML = `
+            <div style="text-align: center; padding: 2rem; color: #666; grid-column: 1 / -1;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
+                <p>Nenhuma sessão registrada ainda.</p>
+                <p>Clique em "Iniciar Nova Sessão" para começar!</p>
+            </div>
+        `;
             }
         }
 
-        function startNewSession() {
-            window.open('/Assets/scenes/dev/incont_urinaria/game.html', '_self')
-        }
-
-        // Inicializar quando a página carregar
+        // Executar quando a página carregar
         document.addEventListener('DOMContentLoaded', function () {
+            loadUserData();
             createParticles();
 
-            // Adicionar interatividade às sessões
-            const sessionItems = document.querySelectorAll('.session-item');
-            sessionItems.forEach(item => {
-                item.addEventListener('click', function () {
-                    console.log('Abrindo detalhes da sessão...');
-                    // Implementar visualização de detalhes da sessão
-                });
-            });
+            // Manter funcionalidade existente das partículas
+            function createParticles() {
+                const particlesContainer = document.getElementById('particles');
+                const particleCount = 20;
+
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.top = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 6 + 's';
+                    particlesContainer.appendChild(particle);
+                }
+            }
         });
+
+        // Manter função startNewSession existente
+        function startNewSession() {
+            const userId = getUrlParameter('id');
+            if (userId) {
+                window.open('/Assets/scenes/dev/incont_urinaria/game.html?id=' + userId, '_self');
+            } else {
+                console.error('ID do usuário não encontrado para iniciar sessão');
+            }
+        }
     </script>
 </body>
 
