@@ -65,12 +65,12 @@ document.addEventListener('click', function (event) {
 }, { once: true });
 
 window.addEventListener("detector:ready", () => {
-    setupCamera();
-    // setupVideo();
+    // setupCamera();
+    setupVideo();
 });
 
 window.addEventListener("pose:ready", () => {
-    setTimeout(startGame, 1200);
+    startGame();
 });
 
 window.addEventListener("squatDetected", (event) => {
