@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        /* Estilos básicos para melhor visualização */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            overflow: hidden;
+        }
+
+        #checkupOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* background: rgba(0, 0, 0, 0.8); */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.3s;
+        }
+
+        #checkupOverlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #video-container {
+            position: relative;
+            max-width: 90vw;
+            max-height: 70vh;
+        }
+
+        #video {
+            width: 100%;
+            opacity: 0.1;
+            height: auto;
+            display: block;
+        }
+
+        #poseCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Estilos para os ícones de movimento */
+        .movementState {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            width: 80px;
+            height: 80px;
+        }
+
+        .movementState img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: none;
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        .movementState img.active {
+            display: block;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.7; }
+        }
+
+        .loading-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            display: none;
+        }
+
+        .loading-dots.active {
+            display: block;
+        }
+
+        .loading-dots span {
+            animation: blink 1.4s infinite both;
+        }
+
+        .loading-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loading-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes blink {
+            0%, 60%, 100% { opacity: 0.3; }
+            30% { opacity: 1; }
+        }
+
+        .exercise-interface {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            min-width: 250px;
+            display: none;
+        }
+
+        .exercise-interface.active {
+            display: block;
+        }
+
+        .keypoints-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .keypoints-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .keypoints-toggle.active {
+            background: #4CAF50;
+        }
+
+        .keypoints-info {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+        }
+
+        .keypoints-info.visible {
+            display: block;
+        }
+
+        .stat-item {
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<!-- MoveNet Lib -->
+<script id="tfjs" src="https://cdnjs.cloudflare.com/ajax/libs/tensorflow/4.11.0/tf.min.js"></script>
+<script id="pose-detection" src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
+
+<body>
+    <div class="active" id="checkupOverlay">
+        <div id="video-container">
+            <video id="video"></video>
+            <!-- CANVAS ADICIONADO AQUI -->
+            <canvas id="poseCanvas"></canvas>
+            <div class="loading-dots active">
+                <span>.</span><span>.</span><span>.</span>
+            </div>
+        </div>
+        <h1 id="overlayText">Carregando modelo...</h1>
+    </div>
+
+    <div class="movementState">
+        <img id="performing" src="/Assets/scenario/images/squats.png">
+        <img id="complete" src="/Assets/scenario/images/man.png">
+    </div>
+
+    <div class="exercise-interface active" id="exerciseInterface">
+        <div class="exercise-header">
+            <div class="exercise-icon">
+                <div class="squat-figure"></div>
+            </div>
+            <h1 class="exercise-title">SQUATS</h1>
+            <!-- BOTÃO DE TOGGLE KEYPOINTS -->
+            <button id="toggleKeypoints" class="keypoints-toggle" title="Mostrar/Ocultar Pontos">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                        d="M12 1v6m0 6v6m4.22-13.22l4.24 4.24M1.54 1.54l4.24 4.24M20.46 20.46l-4.24-4.24M1.54 20.46l4.24-4.24" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Seção Geral: REPS e TIME -->
+        <div class="general-stats">
+            <div class="stat-item" id="reps">
+                <div class="stat-label">REPS</div>
+                <div class="stat-value">0</div>
+            </div>
+
+            <div class="stat-item timer-container" id="time">
+                <div class="stat-label">TIME</div>
+                <div class="timer-display">
+                    <span class="timer-minutes">00</span>
+                    <span class="timer-separator">:</span>
+                    <span class="timer-seconds">00</span>
+                    <span class="stat-unit">/MIN</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Last Squat: DURATION e DEPTH -->
+        <div class="last-squat-stats">
+            <div class="stat-item" id="duration">
+                <div class="stat-label">DURATION</div>
+                <div class="stat-value">0<span class="stat-unit">s</span></div>
+            </div>
+
+            <div class="stat-item" id="depth">
+                <div class="stat-label">DEPTH</div>
+                <div class="stat-value">0<span class="stat-unit">cm</span></div>
+            </div>
+        </div>
+
+        <!-- INDICADOR DE KEYPOINTS -->
+        <div class="keypoints-info" id="keypointsInfo">
+            <span class="keypoints-status">Pontos: <span id="keypointsCount">0/17</span></span>
+            <span class="keypoints-confidence">Confiança: <span id="avgConfidence">0%</span></span>
+        </div>
+    </div>
+
+    <script>
+        // LISCENSE 1.0 - DeepSquat
+
+        // ================================================
+        // CONFIGURAÇÃO DE VÍDEO
+        // ================================================
+        
+        let videoReady = false;
+
+        // Listener para quando o detector estiver pronto
+        window.addEventListener("detector:ready", () => {
+            console.log("[Video] Detector pronto, configurando vídeo...");
+            setupVideo();
+        });
+
+        // Função para preparar vídeo
+        function setupVideo() {
+            const videoEl = document.getElementById("video");
+            const overlayText = document.getElementById("overlayText");
+            
+            // Configure o vídeo
+            videoEl.src = "/Assets/videos/stress3.mp4";
+            videoEl.loop = true;
+            videoEl.muted = true;
+            
+            // Atualiza o texto do overlay
+            if (overlayText) {
+                overlayText.textContent = "Carregando vídeo...";
+            }
+            
+            // Evento quando o vídeo começar a tocar
+            videoEl.addEventListener("playing", () => {
+                console.log("[Video] Vídeo começou a tocar");
+                
+                // Remove o indicador de carregamento
+                const loadingDots = document.querySelector(".loading-dots");
+                if (loadingDots) {
+                    loadingDots.classList.remove("active");
+                }
+                
+                // Atualiza o texto do overlay
+                if (overlayText) {
+                    overlayText.textContent = "";
+                }
+                
+                // Marca o vídeo como pronto
+                videoReady = true;
+                
+                // Inicializa o canvas para os keypoints
+                initKeypointsCanvas();
+                
+                // Começa a detecção de pose
+                if (detectorReady) {
+                    detectPose();
+                }
+            });
+            
+            // Evento quando o vídeo estiver carregado o suficiente para tocar
+            videoEl.addEventListener("canplay", () => {
+                console.log("[Video] Vídeo pode ser reproduzido");
+                
+                // Ajusta o canvas ao tamanho do vídeo
+                const canvas = document.getElementById('poseCanvas');
+                if (canvas && videoEl.videoWidth && videoEl.videoHeight) {
+                    canvas.width = videoEl.videoWidth;
+                    canvas.height = videoEl.videoHeight;
+                }
+            });
+            
+            // Tratamento de erros
+            videoEl.addEventListener("error", (e) => {
+                console.error("[Video] Erro ao carregar vídeo:", e);
+                if (overlayText) {
+                    overlayText.textContent = "Erro ao carregar vídeo";
+                }
+            });
+            
+            // Inicia o vídeo
+            videoEl.play().catch(err => {
+                console.error("[Video] Erro ao iniciar reprodução:", err);
+                
+                // Se falhar, adiciona um listener de clique para o usuário iniciar
+                document.getElementById("checkupOverlay").addEventListener("click", () => {
+                    videoEl.play();
+                    document.getElementById("checkupOverlay").classList.add("hidden");
+                }, { once: true });
+                
+                if (overlayText) {
+                    overlayText.textContent = "Clique para iniciar";
+                }
+            });
+        }
+
+        // Adiciona um listener para esconder o overlay quando o usuário clicar
+        // document.getElementById("checkupOverlay").addEventListener("click", function() {
+        //     if (videoReady) {
+        //         this.classList.add("hidden");
+        //     }
+        // });
+
+        // ================================================
+        // SISTEMA DE KEYPOINTS VISUAIS
+        // ================================================
+
+        // Variáveis globais para o canvas e visualização
+        let canvas;
+        let ctx;
+        let isKeypointsVisible = false;
+        let keypointsToggleBtn;
+        let keypointsInfo;
+
+        // Configuração dos keypoints
+        const KEYPOINT_CONFIG = {
+            radius: 6,
+            lineWidth: 2,
+            minScore: 0.3,
+            colors: {
+                high: '#4CAF50',
+                medium: '#FFC107',
+                low: '#FF9800'
+            },
+            connections: [
+                ['nose', 'left_eye'],
+                ['nose', 'right_eye'],
+                ['left_eye', 'left_ear'],
+                ['right_eye', 'right_ear'],
+                ['left_shoulder', 'right_shoulder'],
+                ['left_shoulder', 'left_hip'],
+                ['right_shoulder', 'right_hip'],
+                ['left_hip', 'right_hip'],
+                ['left_shoulder', 'left_elbow'],
+                ['left_elbow', 'left_wrist'],
+                ['right_shoulder', 'right_elbow'],
+                ['right_elbow', 'right_wrist'],
+                ['left_hip', 'left_knee'],
+                ['left_knee', 'left_ankle'],
+                ['right_hip', 'right_knee'],
+                ['right_knee', 'right_ankle']
+            ]
+        };
+
+        // Inicializar canvas quando o vídeo estiver pronto
+        function initKeypointsCanvas() {
+            canvas = document.getElementById('poseCanvas');
+            if (!canvas) {
+                console.error('[Keypoints] Canvas não encontrado');
+                return;
+            }
+
+            ctx = canvas.getContext('2d');
+
+            const video = document.getElementById('video');
+            if (video.videoWidth && video.videoHeight) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+            }
+
+            console.log('[Keypoints] Canvas inicializado:', canvas.width, 'x', canvas.height);
+            setupKeypointsToggle();
+        }
+
+        // Configurar botão de toggle dos keypoints
+        function setupKeypointsToggle() {
+            keypointsToggleBtn = document.getElementById('toggleKeypoints');
+            keypointsInfo = document.getElementById('keypointsInfo');
+
+            if (keypointsToggleBtn) {
+                keypointsToggleBtn.addEventListener('click', () => {
+                    isKeypointsVisible = !isKeypointsVisible;
+                    keypointsToggleBtn.classList.toggle('active', isKeypointsVisible);
+
+                    if (keypointsInfo) {
+                        keypointsInfo.classList.toggle('visible', isKeypointsVisible);
+                    }
+
+                    if (!isKeypointsVisible && ctx) {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    }
+
+                    console.log('[Keypoints] Visualização:', isKeypointsVisible ? 'Ativada' : 'Desativada');
+                });
+            }
+        }
+
+        // Função principal para desenhar keypoints
+        function drawKeypoints(keypoints) {
+            if (!ctx || !keypoints) return;
+            
+            // Limpa o canvas sempre
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Só desenha se a visualização estiver ativa
+            if (!isKeypointsVisible) return;
+
+            const validKeypoints = keypoints.filter(kp => kp.score > threshold);
+
+            const keypointMap = {};
+            validKeypoints.forEach(kp => {
+                keypointMap[kp.name] = kp;
+            });
+
+            drawSkeleton(keypointMap);
+
+            validKeypoints.forEach(kp => {
+                drawKeypoint(kp);
+            });
+
+            updateKeypointsInfo(validKeypoints, keypoints);
+            highlightSquatKeypoints(keypointMap);
+        }
+
+        // Desenhar um keypoint individual
+        function drawKeypoint(kp) {
+            let color;
+            if (kp.score > 0.7) {
+                color = KEYPOINT_CONFIG.colors.high;
+            } else if (kp.score > 0.5) {
+                color = KEYPOINT_CONFIG.colors.medium;
+            } else {
+                color = KEYPOINT_CONFIG.colors.low;
+            }
+
+            ctx.beginPath();
+            ctx.arc(kp.x, kp.y, KEYPOINT_CONFIG.radius, 0, 2 * Math.PI);
+            ctx.fillStyle = color;
+            ctx.fill();
+
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            if (kp.score > 0.7) {
+                ctx.beginPath();
+                ctx.arc(kp.x, kp.y, KEYPOINT_CONFIG.radius + 3, 0, 2 * Math.PI);
+                ctx.strokeStyle = color + '40';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+            }
+        }
+
+        // Desenhar esqueleto
+        function drawSkeleton(keypointMap) {
+            KEYPOINT_CONFIG.connections.forEach(([start, end]) => {
+                const kp1 = keypointMap[start];
+                const kp2 = keypointMap[end];
+
+                if (kp1 && kp2) {
+                    const avgScore = (kp1.score + kp2.score) / 2;
+
+                    let color;
+                    if (avgScore > 0.7) {
+                        color = KEYPOINT_CONFIG.colors.high;
+                    } else if (avgScore > 0.5) {
+                        color = KEYPOINT_CONFIG.colors.medium;
+                    } else {
+                        color = KEYPOINT_CONFIG.colors.low;
+                    }
+
+                    ctx.beginPath();
+                    ctx.moveTo(kp1.x, kp1.y);
+                    ctx.lineTo(kp2.x, kp2.y);
+                    ctx.strokeStyle = color + '99';
+                    ctx.lineWidth = KEYPOINT_CONFIG.lineWidth;
+                    ctx.stroke();
+                }
+            });
+        }
+
+        // Destacar keypoints importantes para o agachamento
+        function highlightSquatKeypoints(keypointMap) {
+            const importantPoints = ['left_hip', 'right_hip', 'left_knee', 'right_knee'];
+
+            importantPoints.forEach(pointName => {
+                const kp = keypointMap[pointName];
+                if (kp && kp.score > threshold) {
+                    ctx.beginPath();
+                    ctx.arc(kp.x, kp.y, KEYPOINT_CONFIG.radius + 5, 0, 2 * Math.PI);
+                    ctx.strokeStyle = '#00BCD4';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([5, 5]);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+            });
+        }
+
+        // Atualizar informações dos keypoints
+        function updateKeypointsInfo(validKeypoints, allKeypoints) {
+            const keypointsCount = document.getElementById('keypointsCount');
+            const avgConfidence = document.getElementById('avgConfidence');
+
+            if (keypointsCount) {
+                keypointsCount.textContent = `${validKeypoints.length}/17`;
+            }
+
+            if (avgConfidence && validKeypoints.length > 0) {
+                const avgScore = validKeypoints.reduce((sum, kp) => sum + kp.score, 0) / validKeypoints.length;
+                avgConfidence.textContent = `${Math.round(avgScore * 100)}%`;
+            }
+        }
+
+        // ================================================
+        // SISTEMA DE DETECÇÃO DE AGACHAMENTOS
+        // ================================================
+
+        // Variáveis globais
+        let detectorReady = false;
+        let detector;
+        const threshold = 0.3;
+
+        let normalizedStartDist = { left: null, right: null };
+
+        let emaDepth = 0;
+        const EMA_ALPHA = 0.4;
+        const emaHistory = [];
+        const HISTORY_SIZE = 4;
+
+        const TREND_SLOPE_THRESHOLD = 0.005;
+        const RESTING_THRESHOLD = 0.04;
+
+        let lastPerformingTime = null;
+        const MIN_DURATION_MS = 300;
+        let movementState = "idle";
+
+        let maxDepthRecorded = 0;
+        let squatCount = 0;
+        let startTime = Date.now();
+
+        // Função para calcular distância euclidiana
+        function calculateDistance(a, b) {
+            return Math.hypot(a.x - b.x, a.y - b.y);
+        }
+
+        // Normaliza pela largura do quadril
+        function normalize(dist, hipL, hipR) {
+            const ref = calculateDistance(hipL, hipR);
+            return dist / ref;
+        }
+
+        // Profundidade dinâmica no frame atual
+        function computeDepth(normLeft, normRight) {
+            const dL = 1 - (normLeft / normalizedStartDist.left);
+            const dR = 1 - (normRight / normalizedStartDist.right);
+            return Math.min(dL, dR);
+        }
+
+        // Regressão linear simples
+        function linearSlope(values) {
+            const n = values.length;
+            const xMean = (n - 1) / 2;
+            const yMean = values.reduce((sum, v) => sum + v, 0) / n;
+            let num = 0, den = 0;
+            for (let i = 0; i < n; i++) {
+                const dx = i - xMean;
+                num += dx * (values[i] - yMean);
+                den += dx * dx;
+            }
+            return num / den;
+        }
+
+        // Avalia a tendência do movimento
+        function evaluateTrend() {
+            if (emaDepth <= RESTING_THRESHOLD) {
+                if (movementState === "performing") {
+                    const elapsed = Date.now() - lastPerformingTime;
+                    if (elapsed >= MIN_DURATION_MS) {
+                        movementState = "completed";
+                        console.log("Estado: completed");
+                        
+                        // Atualiza ícones de movimento
+                        updateMovementIcons('complete');
+
+                        // Incrementa contador
+                        squatCount++;
+                        updateUI();
+
+                        const detail = {
+                            depth: maxDepthRecorded,
+                            duration: elapsed,
+                            instant: new Date().toISOString()
+                        };
+
+                        window.dispatchEvent(new CustomEvent("squatDetected", { detail }));
+                        window.dispatchEvent(new CustomEvent("completed", { detail }));
+                        
+                        // Remove ícone após 1 segundo
+                        setTimeout(() => {
+                            updateMovementIcons('idle');
+                        }, 1000);
+                    }
+                }
+
+                if (movementState !== "idle") {
+                    movementState = "idle";
+                    console.log("Estado: idle");
+                }
+                
+                emaHistory.length = 0;
+                maxDepthRecorded = 0;
+                return;
+            }
+
+            if (emaHistory.length < HISTORY_SIZE) return;
+
+            const slope = linearSlope(emaHistory);
+
+            if (slope > TREND_SLOPE_THRESHOLD) {
+                if (movementState !== "performing") {
+                    movementState = "performing";
+                    lastPerformingTime = Date.now();
+                    console.log("Estado: performing");
+                    
+                    // Atualiza ícones de movimento
+                    updateMovementIcons('performing');
+                    
+                    window.dispatchEvent(new CustomEvent("performing"));
+                }
+            }
+        }
+        
+        // Função para atualizar ícones de movimento
+        function updateMovementIcons(state) {
+            const performingIcon = document.getElementById('performing');
+            const completeIcon = document.getElementById('complete');
+            
+            // Remove todas as classes active
+            if (performingIcon) performingIcon.classList.remove('active');
+            if (completeIcon) completeIcon.classList.remove('active');
+            
+            // Adiciona active ao ícone correto
+            if (state === 'performing' && performingIcon) {
+                performingIcon.classList.add('active');
+            } else if (state === 'complete' && completeIcon) {
+                completeIcon.classList.add('active');
+            }
+        }
+
+        // Atualiza a interface
+        function updateUI() {
+            // Atualiza contador de reps
+            const repsElement = document.querySelector('#reps .stat-value');
+            if (repsElement) {
+                repsElement.textContent = squatCount;
+            }
+
+            // Atualiza timer
+            const elapsed = Date.now() - startTime;
+            const minutes = Math.floor(elapsed / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            
+            const minutesEl = document.querySelector('.timer-minutes');
+            const secondsEl = document.querySelector('.timer-seconds');
+            
+            if (minutesEl) minutesEl.textContent = String(minutes).padStart(2, '0');
+            if (secondsEl) secondsEl.textContent = String(seconds).padStart(2, '0');
+
+            // Atualiza depth e duration do último agachamento
+            if (maxDepthRecorded > 0) {
+                const depthEl = document.querySelector('#depth .stat-value');
+                if (depthEl) {
+                    depthEl.innerHTML = `${Math.round(maxDepthRecorded * 100)}<span class="stat-unit">cm</span>`;
+                }
+            }
+
+            if (lastPerformingTime) {
+                const durationEl = document.querySelector('#duration .stat-value');
+                if (durationEl) {
+                    const duration = (Date.now() - lastPerformingTime) / 1000;
+                    durationEl.innerHTML = `${duration.toFixed(1)}<span class="stat-unit">s</span>`;
+                }
+            }
+        }
+
+        // Timer de atualização da UI
+        setInterval(updateUI, 100);
+
+        // Extrai keypoints confiáveis
+        function extractKeypoints(keypoints) {
+            const filtered = keypoints.filter(kp => kp.score > threshold);
+            return {
+                leftHip: filtered.find(kp => kp.name === "left_hip"),
+                rightHip: filtered.find(kp => kp.name === "right_hip"),
+                leftKnee: filtered.find(kp => kp.name === "left_knee"),
+                rightKnee: filtered.find(kp => kp.name === "right_knee"),
+            };
+        }
+
+        // Reset quando um squat é detectado
+        window.addEventListener("squatDetected", () => {
+            emaHistory.length = 0;
+            maxDepthRecorded = 0;
+        });
+
+        // Prepara o detector MoveNet
+        async function prepareDetector() {
+            console.log("[prepareDetector] Carregando modelo MoveNet...");
+
+            const t0 = performance.now();
+
+            try {
+                detector = await poseDetection.createDetector(
+                    poseDetection.SupportedModels.MoveNet,
+                    { modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING }
+                );
+            } catch (err) {
+                console.error("[prepareDetector] Erro ao criar detector:", err);
+                return;
+            }
+
+            console.log(`[prepareDetector] Modelo carregado (${Math.round(performance.now() - t0)}ms).`);
+            console.log("[prepareDetector] Iniciando warmup sintético...");
+
+            const warmupStart = performance.now();
+
+            try {
+                const fakeImage = tf.zeros([192, 192, 3]);
+                await detector.estimatePoses(fakeImage);
+                fakeImage.dispose();
+            } catch (err) {
+                console.warn("[prepareDetector] Erro no warmup:", err);
+            }
+
+            const warmupElapsed = Math.round(performance.now() - warmupStart);
+            console.log(`[prepareDetector] Warmup concluído (${warmupElapsed}ms).`);
+
+            detectorReady = true;
+            window.dispatchEvent(new CustomEvent("detector:ready"));
+            console.log("[prepareDetector] Detector pronto!");
+        }
+
+        // Loop principal de detecção
+        async function detectPose() {
+            if (!detector || !videoReady) {
+                requestAnimationFrame(detectPose);
+                return;
+            }
+
+            const video = document.getElementById("video");
+            
+            try {
+                const poses = await detector.estimatePoses(video);
+
+                if (poses.length > 0) {
+                    drawKeypoints(poses[0].keypoints);
+
+                    const kp = extractKeypoints(poses[0].keypoints);
+                    if (kp.leftHip && kp.rightHip && kp.leftKnee && kp.rightKnee) {
+                        const rawL = calculateDistance(kp.leftHip, kp.leftKnee);
+                        const rawR = calculateDistance(kp.rightHip, kp.rightKnee);
+                        const normL = normalize(rawL, kp.leftHip, kp.rightHip);
+                        const normR = normalize(rawR, kp.leftHip, kp.rightHip);
+
+                        if (normalizedStartDist.left === null) {
+                            normalizedStartDist.left = normalize(rawL, kp.leftHip, kp.rightHip);
+                            normalizedStartDist.right = normalize(rawR, kp.leftHip, kp.rightHip);
+                            window.dispatchEvent(new CustomEvent("pose:ready"));
+                            console.log("Postura inicial definida.");
+                        } else {
+                            const depth = computeDepth(normL, normR);
+                            if (depth > maxDepthRecorded) maxDepthRecorded = depth;
+
+                            emaDepth = EMA_ALPHA * depth + (1 - EMA_ALPHA) * emaDepth;
+
+                            emaHistory.push(emaDepth);
+                            if (emaHistory.length > HISTORY_SIZE) {
+                                emaHistory.shift();
+                            }
+
+                            evaluateTrend();
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("[detectPose] Erro:", err);
+            }
+
+            requestAnimationFrame(detectPose);
+        }
+
+        // Inicialização
+        prepareDetector();
+        
+        // Ativa visualização de keypoints por padrão para testes
+        setTimeout(() => {
+            isKeypointsVisible = true;
+            const btn = document.getElementById('toggleKeypoints');
+            if (btn) btn.classList.add('active');
+            const info = document.getElementById('keypointsInfo');
+            if (info) info.classList.add('visible');
+            console.log('[Debug] Keypoints ativados automaticamente');
+        }, 2000);
+    </script>
+</body>
+
+</html>

@@ -54,11 +54,13 @@ document.addEventListener('keypress', function (event) {
         const loadingDots = document.querySelector(".loading-dots");
         loadingDots.classList.add("active");
     }
-}, {once: true});
+}, { once: true });
 
 window.addEventListener("detector:ready", () => {
+    window.loadingManager.completeTask('detector');
+    
     // setupCamera();
-     setupVideo();
+    setupVideo();
 });
 
 window.addEventListener("pose:ready", () => {
