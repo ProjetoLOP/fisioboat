@@ -102,7 +102,12 @@
             <img id="sunsetSky" src="/Assets/scenario/textures/sunset-sky.jpeg">
 
             <!-- Modelos 3D -->
+            <a-asset-item id="bigRockWall" src="/Assets/scenario/models/wall.glb"></a-asset-item>
+            <a-asset-item id="startModel" src="/Assets/scenario/models/start.glb"></a-asset-item>
             <a-asset-item id="boatModel" src="/Assets/scenario/models/BarcoTexturizado.glb"></a-asset-item>
+            <a-asset-item id="orangeKayak" src="/Assets/scenario/models/orangeKayak.glb"></a-asset-item>
+            <a-asset-item id="greenKayak" src="/Assets/scenario/models/greenKayak.glb"></a-asset-item>
+
         </a-assets>
 
         <!-- Céu -->
@@ -112,12 +117,29 @@
         <!-- Oceano -->
         <a-ocean-plane id="ocean" position="0 -1 0"></a-ocean-plane>
 
+        <!-- Paredões -->
+        <a-entity id="wall1" gltf-model="#bigRockWall" position="0 2 0" rotation="0 90 0">
+        </a-entity>
+
+        <a-entity id="wall2" gltf-model="#bigRockWall" position="0 0 -200" rotation="0 90 0">
+        </a-entity>
+
+        <a-entity id="wall3" gltf-model="#bigRockWall" position="0 0 0" rotation="0 270">
+        </a-entity>
+
+        <a-entity id="wall4" gltf-model="#bigRockWall" position="0 0 -200" rotation="0 270 0">
+        </a-entity>
+
+        <!-- Partida -->
+        <a-entity id="startLine" gltf-model="#startModel" position="0 -2 0" rotation="0 0 0" scale="40 35 30">
+        </a-entity>
+
         <!-- Barcos -->
-        <a-entity id="boat" gltf-model="#boatModel" rotation="0 0 0" position="0 0.6 1500" player-boat
+        <a-entity id="boat" gltf-model="#orangeKayak" rotation="0 0 0" position="0 0.6 0" player-boat
             float-on-ocean="oceanId: ocean"
             stretch-rope="target: #botBoat; attachPoint: 0 0.5 -3; targetAttachPoint: 0 0.5 3; slackThreshold: 16; maxSag: 5; startBroken: true"></a-entity>
 
-        <a-entity id="botBoat" gltf-model="#boatModel" rotation="0 0 0" position="0 0.6 1485" bot-boat
+        <a-entity id="botBoat" gltf-model="#greenKayak" rotation="0 0 0" position="0 0.6 -15" bot-boat
             float-on-ocean="oceanId: ocean"></a-entity>
 
         <!-- Lidar com proximidade dos barcos -->
@@ -126,10 +148,10 @@
         <!-- Câmeras (escolher uma) -->
 
         <!-- Telespectador / Observador -->
-        <!-- <a-entity camera look-controls wasd-controls position="-8 200 1500"></a-entity> -->
+        <a-entity camera look-controls wasd-controls position="-8 10 -5"></a-entity>
 
         <!-- Usuário - seguindo o barco -->
-        <a-entity camera look-controls follow="target: #boat; offset: 0 1.5 -1"></a-entity>
+        <!-- <a-entity camera look-controls follow="target: #boat; offset: 0 1.5 -1"></a-entity> -->
     </a-scene>
 
     <script>

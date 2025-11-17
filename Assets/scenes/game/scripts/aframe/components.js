@@ -55,7 +55,7 @@ AFRAME.registerComponent('player-boat', {
     const bot = document.querySelector('#botBoat');
     if (bot) {
       const bz = bot.getAttribute('position').z;
-      if (Math.abs(this.currPosition.z - bz) < 6) {
+      if (Math.abs(this.currPosition.z - bz) < 10) {
         this.velocity *= 0.7;
         const rope = document.querySelector('[stretch-rope]');
         if (rope?.components['stretch-rope'].ropeBroken) {
@@ -209,8 +209,8 @@ AFRAME.registerComponent('bot-boat', {
 AFRAME.registerComponent('stretch-rope', {
   schema: {
     target: { type: 'selector' },
-    attachPoint: { type: 'vec3', default: { x: 0, y: 0.5, z: 2 } },
-    targetAttachPoint: { type: 'vec3', default: { x: 0, y: 0.5, z: -2 } },
+    attachPoint: { type: 'vec3', default: { x: 0, y: 0.5, z: -4 } },
+    targetAttachPoint: { type: 'vec3', default: { x: 0, y: 0.5, z: -10 } },
     breakDistance: { type: 'number', default: 20 },
     slackThreshold: { type: 'number', default: 10 },
     maxSag: { type: 'number', default: 2 },
