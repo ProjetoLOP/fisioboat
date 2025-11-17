@@ -18,12 +18,12 @@ AFRAME.registerComponent('wobble-normal', {
 AFRAME.registerComponent('wobble-geometry', {
   schema: {
     // Wave amplitude and variance.
-    amplitude: {default: 0.1},
-    amplitudeVariance: {default: 0.3},
+    amplitude: { default: 0.1 },
+    amplitudeVariance: { default: 0.3 },
 
     // Wave speed and variance.
-    speed: {default: 0.25},
-    speedVariance: {default: 2},
+    speed: { default: 0.25 },
+    speedVariance: { default: 2 },
   },
   play: function () {
     let data = this.data;
@@ -44,7 +44,7 @@ AFRAME.registerComponent('wobble-geometry', {
     if (!dt) return;
 
     const posAttribute = this.geometry.getAttribute('position');
-    for (let i = 0; i < posAttribute.count; i++){
+    for (let i = 0; i < posAttribute.count; i++) {
       const vprops = this.waves[i];
       const value = vprops.z + Math.sin(vprops.ang) * vprops.amp;
       posAttribute.setZ(i, value);
@@ -69,7 +69,7 @@ AFRAME.registerPrimitive('a-ocean-plane', {
       color: '#8ab39f',
       metalness: 1,
       roughness: 0.2,
-      normalMap: 'url(https://assets.3dstreet.app/materials/waternormals.jpg)',
+      normalMap: 'url(/Assets/scenario/images/waternormals.jpg)',
       normalTextureRepeat: '50 50',
       normalTextureOffset: '0 0',
       normalScale: '0.5 0.5',
@@ -84,27 +84,31 @@ AFRAME.registerComponent('float-on-ocean', {
   schema: { oceanId: { type: 'string', default: 'ocean' } },
 
   init: function () {
-      this.oceanEl = document.getElementById(this.data.oceanId);
-      this.tempPos = new THREE.Vector3();
+    this.oceanEl = document.getElementById(this.data.oceanId);
+    this.tempPos = new THREE.Vector3();
   },
 
   tick: function () {
-      if (!this.oceanEl) return;
+    if (!this.oceanEl) return;
 
-      // Pegar posição X, Z do objeto em coordenadas de mundo
-      const worldPos = this.el.object3D.getWorldPosition(this.tempPos);
+    // Pegar posição X, Z do objeto em coordenadas de mundo
+    const worldPos = this.el.object3D.getWorldPosition(this.tempPos);
 
-      // Obter a altura do oceano naquele X,Z
-      const waveY = getOceanHeightAt(worldPos.x, worldPos.z, this.oceanEl);
+    // Obter a altura do oceano naquele X,Z
+    const waveY = getOceanHeightAt(worldPos.x, worldPos.z, this.oceanEl);
 
-      // Ajustar Y do objeto para ficar na superfície
-      // (talvez acrescente um offset se ele tiver um casco, etc.)
-      worldPos.y = waveY + 0.2; // offset
+    // Ajustar Y do objeto para ficar na superfície
+    // (talvez acrescente um offset se ele tiver um casco, etc.)
+    worldPos.y = waveY + 0.2; // offset
 
-      // Setar de volta no objeto
-      this.el.object3D.position.copy(worldPos);
+    // Balanço lateral
+    this.el.object3D.rotation.x = Math.sin(worldPos.x * 0.05 + performance.now() / 500) * 0.02;
+    this.el.object3D.rotation.z = Math.cos(worldPos.z * 0.05 + performance.now() / 500) * 0.02;
+
+    // Setar de volta no objeto
+    this.el.object3D.position.copy(worldPos);
   }
-});  
+});
 
 /**
  * Retorna a altura do oceano (em coordenadas de mundo) para um determinado (x, z) no mundo.
@@ -116,13 +120,13 @@ AFRAME.registerComponent('float-on-ocean', {
 function getOceanHeightAt(worldX, worldZ, oceanEl) {
   // 1) Obter objeto Three.js (Mesh) do oceano
   const mesh = oceanEl.getObject3D('mesh');
-  if (!mesh) { 
+  if (!mesh) {
     console.warn('Oceano ainda não está carregado!');
     return 0;
   }
   const geometry = mesh.geometry;
   const positionAttr = geometry.getAttribute('position');
-  
+
   // Número de subdivisões
   const segW = 100;
   const segH = 100;
@@ -131,12 +135,12 @@ function getOceanHeightAt(worldX, worldZ, oceanEl) {
 
   // Largura e altura do plano
   const planeHeight = 4000;
-  const planeWidth  = 4000;
-  
+  const planeWidth = 4000;
+
   // 2) Converter (worldX, worldZ) para coordenadas LOCAIS do plano
   //    Precisamos de um Vector3 para usar worldToLocal().
   const worldPos = new THREE.Vector3(worldX, 0, worldZ);
-  mesh.parent.worldToLocal(worldPos); 
+  mesh.parent.worldToLocal(worldPos);
   // Agora, worldPos está em coordenadas locais do "oceanEl".
   // Por padrão, o THREE.PlaneGeometry vai de -width/2 até +width/2 em X,
   // e -height/2 até +height/2 em Y (antes de qualquer rotação).
@@ -155,14 +159,14 @@ function getOceanHeightAt(worldX, worldZ, oceanEl) {
 
   const localX = worldPos.x; // deve variar de -750 a +750
   const localY = worldPos.y; // deve variar de -750 a +750 (pois, antes da rotação, era "height" em Y)
-  
+
   // 3) Descobrir em qual célula da malha (grid) o ponto caiu
   //    Precisamos primeiro deslocar de [-750, +750] para [0, 1500]
   const x0 = localX + planeWidth / 2;
   const y0 = localY + planeHeight / 2;
 
   // Cada célula tem tamanho:
-  const cellW = planeWidth  / segW;  // 1500 / 100 = 15
+  const cellW = planeWidth / segW;  // 1500 / 100 = 15
   const cellH = planeHeight / segH;  // 1500 / 100 = 15
 
   // Índices inteiros (col, row) na grid
@@ -170,7 +174,7 @@ function getOceanHeightAt(worldX, worldZ, oceanEl) {
   let row = Math.floor(y0 / cellH);
 
   // Garantir que não saiam do grid
-  col = THREE.MathUtils.clamp(col, 0, segW - 1); 
+  col = THREE.MathUtils.clamp(col, 0, segW - 1);
   row = THREE.MathUtils.clamp(row, 0, segH - 1);
 
   // 4) Obter os 4 vértices do quadrilátero que envolve (x0, y0)
@@ -183,7 +187,7 @@ function getOceanHeightAt(worldX, worldZ, oceanEl) {
 
   function getXYZ(col, row) {
     // Pega o índice base no array "position"
-    const idxBase = getVertIndex(col, row) * 3; 
+    const idxBase = getVertIndex(col, row) * 3;
     return new THREE.Vector3(
       positionAttr.getX(getVertIndex(col, row)),
       positionAttr.getY(getVertIndex(col, row)),
@@ -192,17 +196,17 @@ function getOceanHeightAt(worldX, worldZ, oceanEl) {
   }
 
   // Cantos:
-  const v00 = getXYZ(col,   row);     // canto inferior-esquerdo do cell
-  const v10 = getXYZ(col+1, row);     // canto inferior-direito
-  const v01 = getXYZ(col,   row+1);   // canto superior-esquerdo
-  const v11 = getXYZ(col+1, row+1);   // canto superior-direito
+  const v00 = getXYZ(col, row);     // canto inferior-esquerdo do cell
+  const v10 = getXYZ(col + 1, row);     // canto inferior-direito
+  const v01 = getXYZ(col, row + 1);   // canto superior-esquerdo
+  const v11 = getXYZ(col + 1, row + 1);   // canto superior-direito
 
   // Coordenadas (no plano local) desses cantos (x,y). z neles é a altura da onda.
   // Precisamos fazer a interpolação bilinear em z, mas usando (x,y) para achar o peso.
-  const xLeft   = -planeWidth/2  + col   * cellW; 
-  const xRight  = -planeWidth/2  + (col+1) * cellW;
-  const yBottom = -planeHeight/2 + row   * cellH;
-  const yTop    = -planeHeight/2 + (row+1) * cellH;
+  const xLeft = -planeWidth / 2 + col * cellW;
+  const xRight = -planeWidth / 2 + (col + 1) * cellW;
+  const yBottom = -planeHeight / 2 + row * cellH;
+  const yTop = -planeHeight / 2 + (row + 1) * cellH;
 
   // Frações de interpolação [0..1]
   const tx = (localX - xLeft) / (xRight - xLeft);
@@ -224,7 +228,7 @@ function getOceanHeightAt(worldX, worldZ, oceanEl) {
   // 5) Precisamos converter esse ponto local (x, y, z=onda) de volta para mundo
   const localPoint = new THREE.Vector3(localX, localY, localZ);
   mesh.parent.localToWorld(localPoint);
-  
+
   // A coordenada final .y do localPoint será a "altura no mundo"
   // (pois a rotação -90° faz com que o z local vire y no mundo).
   return localPoint.y;

@@ -1,21 +1,19 @@
 // Componente para controlar o barco do jogador
 AFRAME.registerComponent('player-boat', {
   schema: {
-    acceleration: { type: 'number', default: 7 },   // impulso de aceleração por squat
-    drag: { type: 'number', default: 0.3 },   // coeficiente de arrasto (1/s)
-    maxSpeed: { type: 'number', default: 7 }    // velocidade máxima (m/s)
+    acceleration: { type: 'number', default: 7 },
+    drag: { type: 'number', default: 0.3 },
+    maxSpeed: { type: 'number', default: 7 }
   },
 
   init() {
     this.velocity = 0;
     this.isMoving = false;
 
-    // eventos de input
     window.addEventListener('keydown', e => { if (e.key === ' ') this.isMoving = true; });
     window.addEventListener('keyup', e => { if (e.key === ' ') this.isMoving = false; });
     window.addEventListener('completed', () => this.isMoving = true);
 
-    // fixed-step
     this.accumulator = 0;
     this.fixedStepMs = 30;
     this.prevPosition = this.el.object3D.position.clone();
@@ -33,25 +31,20 @@ AFRAME.registerComponent('player-boat', {
   },
 
   _physicsStep(dt) {
-    // atualiza prev
     this.prevPosition.copy(this.currPosition);
 
     if (this.isMoving) {
       this.velocity += this.data.acceleration;
       this.isMoving = false;
     } else {
-      // desaceleração via arrasto proporcional à velocidade
       this.velocity -= this.velocity * this.data.drag * dt;
     }
 
-    // clamp e zero small
     this.velocity = THREE.MathUtils.clamp(this.velocity, 0, this.data.maxSpeed);
     if (this.velocity < 0.01) this.velocity = 0;
 
-    // atualiza posição
     this.currPosition.z -= this.velocity * dt;
 
-    // colisão com bot
     const bot = document.querySelector('#botBoat');
     if (bot) {
       const bz = bot.getAttribute('position').z;
@@ -80,20 +73,15 @@ AFRAME.registerComponent('player-boat', {
   }
 });
 
-
-// Componente para telespectador seguir barco
 AFRAME.registerComponent('follow', {
   schema: {
-    target: { type: 'selector' }, // Alvo a ser seguido
-    offset: { type: 'vec3', default: { x: 0, y: 0, z: 3 } }, // Offset em relação ao alvo
+    target: { type: 'selector' },
+    offset: { type: 'vec3', default: { x: 0, y: 0, z: 3 } },
   },
   tick: function () {
-    const target = this.data.target; // Obtém o alvo configurado
-
-    // Posição do objeto alvo no espaço 3D
+    const target = this.data.target;
     const targetPosition = target.object3D.position;
 
-    // Atualiza a posição do objeto atual para seguir o alvo com o offset
     this.el.object3D.position.set(
       targetPosition.x + this.data.offset.x,
       targetPosition.y + this.data.offset.y,
@@ -109,11 +97,24 @@ AFRAME.registerComponent('evasive-speed-controller', {
   },
 
   init: function () {
-    this.lastDistance = null; // Armazena a última distância registrada
-    this.botBoatMaxSpeed = this.data.botBoat.getAttribute('bot-boat').maxSpeed;
+    this.lastDistance = null;
+    this.botBoatMaxSpeed = null; // Inicializa como null
+    this.maxSpeedInitialized = false; // Flag de controle
   },
 
   tick: function () {
+    // Captura o maxSpeed original apenas uma vez (lazy initialization)
+    if (!this.maxSpeedInitialized) {
+      const botBoatAttr = this.data.botBoat.getAttribute('bot-boat');
+      if (botBoatAttr && botBoatAttr.maxSpeed) {
+        this.botBoatMaxSpeed = botBoatAttr.maxSpeed;
+        this.maxSpeedInitialized = true;
+        console.log('[evasive-speed-controller] maxSpeed capturado:', this.botBoatMaxSpeed);
+      } else {
+        return; // Aguarda bot-boat estar pronto
+      }
+    }
+
     const boatPosition = this.data.boat.getAttribute('position');
     const botBoatPosition = this.data.botBoat.getAttribute('position');
 
@@ -124,22 +125,16 @@ AFRAME.registerComponent('evasive-speed-controller', {
     if (boatsDistance !== this.lastDistance) {
       const velocityPercentage = 1 - boatsDistance / 10;
       this.data.botBoat.setAttribute('bot-boat', { maxSpeed: this.botBoatMaxSpeed * velocityPercentage });
-
-      // console.log("Distância entre barcos: " + boatsDistance);
-      // console.log(`Velocidade setada para ${velocityPercentage * 100}%`);
-      // console.log("-------------------");
-
       this.lastDistance = boatsDistance;
     }
   }
 });
 
-// Componente para controlar o botBarco
 AFRAME.registerComponent('bot-boat', {
   schema: {
-    acceleration: { type: 'number', default: 7.77 },
+    acceleration: { type: 'number', default: 8.5 },
     drag: { type: 'number', default: 0.3 },
-    maxSpeed: { type: 'number', default: 7.77 }
+    maxSpeed: { type: 'number', default: 8.5 }
   },
 
   init() {
@@ -162,7 +157,6 @@ AFRAME.registerComponent('bot-boat', {
       this.isRacing = true;
     });
 
-    // fixed-step
     this.accumulator = 0;
     this.fixedStepMs = 30;
     this.prevPosition = this.el.object3D.position.clone();
@@ -202,10 +196,6 @@ AFRAME.registerComponent('bot-boat', {
   }
 });
 
-
-
-
-// Componente para a corda esticável entre os barcos
 AFRAME.registerComponent('stretch-rope', {
   schema: {
     target: { type: 'selector' },
@@ -220,7 +210,6 @@ AFRAME.registerComponent('stretch-rope', {
   init: function () {
     console.log('[stretch-rope] Inicializando componente de corda esticável.');
 
-    // Salva referência ao material
     this.material = new THREE.MeshStandardMaterial({
       color: 0x4c3b30,
       emissive: 0x222222,
@@ -235,7 +224,7 @@ AFRAME.registerComponent('stretch-rope', {
     this.ropeMesh.frustumCulled = false;
 
     this.el.sceneEl.object3D.add(this.ropeMesh);
-    console.log('[stretch-rope] Corda adicionada ao scene para pré‑carregamento.');
+    console.log('[stretch-rope] Corda adicionada ao scene para pré-carregamento.');
 
     this.ropeBroken = this.data.startBroken;
 
@@ -271,15 +260,13 @@ AFRAME.registerComponent('stretch-rope', {
 
     const distance = startWorld.distanceTo(endWorld);
 
-    // 🔴 Muda a cor para vermelho se estiver perto de romper
     const warningThreshold = this.data.breakDistance * 0.7;
     if (distance > warningThreshold) {
-      this.material.color.set(0xff0000); // Vermelho
+      this.material.color.set(0xff0000);
     } else {
-      this.material.color.set(0x4c3b30); // Cor original
+      this.material.color.set(0x4c3b30);
     }
 
-    // Rompe se exceder breakDistance
     if (distance > this.data.breakDistance) {
       console.log(`[stretch-rope] Distância excedida (${distance.toFixed(2)} > ${this.data.breakDistance}). Corda rompida.`);
       this.el.sceneEl.object3D.remove(this.ropeMesh);
@@ -310,5 +297,236 @@ AFRAME.registerComponent('stretch-rope', {
       console.log('[stretch-rope] Corda removida (via remove()).');
     }
     this.ropeBroken = true;
+  }
+});
+
+// ===============================
+// ANIMAÇÃO DE PERSONAGENS NOS KAYAKS - CORRIGIDO
+// ===============================
+
+AFRAME.registerComponent('boat-character-animation', {
+  schema: {
+    characterClass: { type: 'string', default: '.player-character' },
+    boatComponent: { type: 'string', default: 'player-boat' },
+    minSpeed: { type: 'number', default: 0.3 },
+    maxSpeed: { type: 'number', default: 2.5 },
+    deceleration: { type: 'number', default: 0.92 },
+    stopThreshold: { type: 'number', default: 0.7 },
+    minimumAnimSpeed: { type: 'number', default: 0.6 }
+  },
+
+  init() {
+    this.boatController = null;
+    this.characterModel = null;
+    this.currentAnimSpeed = 0;
+    this.targetAnimSpeed = 0;
+    this.shouldStop = false;
+    this.mixer = null;
+    this.action = null;
+    this.initialized = false;
+    this.retryCount = 0;
+    this.maxRetries = 100; // Aumentei para dar mais tempo
+
+    console.log(`[boat-character-animation] Inicializando para ${this.data.boatComponent}`);
+
+    // Busca o personagem
+    this.characterModel = this.el.querySelector(this.data.characterClass);
+
+    if (!this.characterModel) {
+      console.error(`[boat-character-animation] Personagem não encontrado: ${this.data.characterClass}`);
+      return;
+    }
+
+    // Setup do modelo
+    this.setupCharacterModel();
+  },
+
+  setupCharacterModel() {
+    const setupAnimation = () => {
+      console.log(`[boat-character-animation] Modelo carregado para ${this.data.boatComponent}`);
+
+      if (!this.characterModel.components['animation-mixer']) {
+        this.characterModel.setAttribute('animation-mixer', {
+          clip: '*',
+          loop: 'repeat',
+          timeScale: 0
+        });
+      }
+
+      this.characterModel.setAttribute('visible', true);
+
+      // Aguarda o mixer ser inicializado
+      setTimeout(() => {
+        const mixerComp = this.characterModel.components['animation-mixer'];
+        if (mixerComp && mixerComp.mixer) {
+          this.mixer = mixerComp.mixer;
+          if (this.mixer._actions && this.mixer._actions.length > 0) {
+            this.action = this.mixer._actions[0];
+            console.log(`[boat-character-animation] Ação de animação encontrada para ${this.data.boatComponent}`);
+            this.initialized = true;
+          } else {
+            console.warn(`[boat-character-animation] Nenhuma ação encontrada no mixer`);
+          }
+        } else {
+          console.warn(`[boat-character-animation] Mixer não inicializado`);
+        }
+        this._setAnimationSpeed(this.characterModel, 0);
+      }, 200);
+    };
+
+    if (this.characterModel.getObject3D('mesh')) {
+      setupAnimation();
+    } else {
+      this.characterModel.addEventListener('model-loaded', setupAnimation);
+    }
+  },
+
+  tick(time, deltaTime) {
+    // 🔧 FIX: Busca o controlador com retry e validação robusta
+    if (!this.boatController) {
+      if (this.retryCount < this.maxRetries) {
+        this.retryCount++;
+        
+        // Tenta buscar o componente
+        const component = this.el.components[this.data.boatComponent];
+        
+        if (component && component.velocity !== undefined) {
+          this.boatController = component;
+          console.log(`[boat-character-animation] ✅ Controlador encontrado: ${this.data.boatComponent} (tentativa ${this.retryCount})`);
+        }
+        
+        // Não bloqueia a renderização enquanto procura
+        if (!this.boatController) {
+          return;
+        }
+      } else {
+        console.error(`[boat-character-animation] ❌ Falha ao encontrar ${this.data.boatComponent} após ${this.maxRetries} tentativas`);
+        // Desabilita o componente para não ficar tentando infinitamente
+        this.el.removeAttribute('boat-character-animation');
+        return;
+      }
+    }
+
+    // Só continua se estiver completamente inicializado
+    if (!this.initialized || !this.characterModel) {
+      return;
+    }
+
+    // Calcula velocidade alvo baseada na velocidade do barco
+    const velocity = this.boatController.velocity || 0;
+    const maxVelocity = this.boatController.data.maxSpeed;
+    const velocityNorm = Math.min(1, Math.max(0, velocity / maxVelocity));
+
+    if (velocity > 0.1) {
+      this.targetAnimSpeed = this.data.minSpeed +
+        (this.data.maxSpeed - this.data.minSpeed) * velocityNorm;
+      this.shouldStop = false;
+    } else {
+      this.targetAnimSpeed = 0;
+      this.shouldStop = true;
+    }
+
+    // Verifica se deve parar em posição favorável
+    if (this.shouldStop && this.currentAnimSpeed <= this.data.stopThreshold) {
+      if (this._isInFavorablePosition()) {
+        this.currentAnimSpeed = 0;
+        this._setAnimationSpeed(this.characterModel, 0);
+        return;
+      } else {
+        this.currentAnimSpeed = this.data.stopThreshold;
+        this._setAnimationSpeed(this.characterModel, this.currentAnimSpeed);
+        return;
+      }
+    }
+
+    // Interpola suavemente a velocidade da animação
+    const delta = Math.min(deltaTime / 1000, 0.1);
+    if (this.currentAnimSpeed > this.targetAnimSpeed) {
+      this.currentAnimSpeed = this.currentAnimSpeed * Math.pow(this.data.deceleration, delta * 60);
+      this.currentAnimSpeed = Math.max(this.currentAnimSpeed, this.data.minimumAnimSpeed);
+      if (this.currentAnimSpeed < 0.01 && !this.shouldStop) {
+        this.currentAnimSpeed = 0;
+      }
+    } else {
+      const lerpFactor = 1 - Math.pow(0.001, delta);
+      this.currentAnimSpeed += (this.targetAnimSpeed - this.currentAnimSpeed) * lerpFactor;
+    }
+
+    this._setAnimationSpeed(this.characterModel, this.currentAnimSpeed);
+  },
+
+  _isInFavorablePosition() {
+    if (!this.action) return true;
+
+    const duration = this.action.getClip().duration;
+    const currentTime = this.action.time % duration;
+    const normalizedTime = currentTime / duration;
+
+    const windowSize = 0.1;
+    const isAtStart = normalizedTime <= windowSize || normalizedTime >= (1 - windowSize);
+    const isAtMiddle = Math.abs(normalizedTime - 0.5) <= windowSize;
+
+    return isAtStart || isAtMiddle;
+  },
+
+  _setAnimationSpeed(el, speed) {
+    if (!el) return;
+
+    const mixer = el.components['animation-mixer'];
+    if (!mixer || !mixer.mixer) return;
+
+    mixer.data.timeScale = speed;
+
+    if (mixer.mixer && mixer.mixer._actions) {
+      mixer.mixer._actions.forEach(action => {
+        action.timeScale = speed;
+        action.paused = false;
+      });
+    }
+  }
+});
+
+// ===============================
+// COMPONENTE KILL-CUBES
+// ===============================
+
+AFRAME.registerComponent('kill-cubes', {
+  init() {
+    this.el.addEventListener('model-loaded', () => {
+      console.log('[kill-cubes] Procurando cubos para remover...');
+
+      let cubesRemoved = 0;
+
+      this.el.object3D.traverse((node) => {
+        if (node.isMesh) {
+          const name = node.name.toLowerCase();
+          const geometry = node.geometry;
+
+          const isCube = name.includes('cube') ||
+            name.includes('box') ||
+            (geometry && geometry.type === 'BoxGeometry');
+
+          const isDebugObject = geometry &&
+            geometry.attributes.position &&
+            geometry.attributes.position.count === 24;
+
+          if (isCube || isDebugObject) {
+            console.log(`[kill-cubes] 🗑️ Removendo: ${node.name || 'unnamed'} (${geometry?.type || 'unknown'})`);
+            node.visible = false;
+
+            if (node.parent) {
+              node.parent.remove(node);
+              cubesRemoved++;
+            }
+          }
+        }
+      });
+
+      if (cubesRemoved > 0) {
+        console.log(`[kill-cubes] ✔ ${cubesRemoved} cubo(s) removido(s)`);
+      } else {
+        console.log('[kill-cubes] ℹ️ Nenhum cubo encontrado');
+      }
+    });
   }
 });
