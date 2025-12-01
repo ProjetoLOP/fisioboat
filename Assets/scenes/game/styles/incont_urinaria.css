@@ -1,0 +1,19 @@
+.images {
+    position: absolute;
+    top: 15%;
+    left: 50%;
+    z-index: 1;
+    transform: translate(-50%, -50%);
+}
+
+.images img {
+    visibility: hidden;
+    opacity: 0;
+    width: 200px;
+    transition: all 0.3s;
+}
+
+.images img.active {
+    visibility: visible;
+    opacity: 1;
+}

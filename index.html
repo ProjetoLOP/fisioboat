@@ -39,11 +39,37 @@
         function searchUsers(query) {
             if (!query.trim()) return [];
 
-            const users = JSON.parse(localStorage.getItem("users")) || [];
+            let users = [];
+            try {
+                const usersData = localStorage.getItem("users");
+                if (usersData) {
+                    users = JSON.parse(usersData);
+
+                    if (!Array.isArray(users)) {
+                        users = [];
+                    } else {
+                        users = users.filter(u => u && typeof u === 'object');
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar usuários:', error);
+                return [];
+            }
 
             return users.filter(user => {
-                return user.nome.toLowerCase().includes(query.toLowerCase())
-            }).slice(0, 5); // Limita a 5 resultados
+                let userName = null;
+                if (user.nome) {
+                    userName = user.nome;
+                } else if (user.personal_info && user.personal_info.nome) {
+                    userName = user.personal_info.nome;
+                }
+
+                if (!userName || typeof userName !== 'string') {
+                    return false;
+                }
+
+                return userName.toLowerCase().includes(query.toLowerCase());
+            }).slice(0, 5);
         }
 
         // Função para renderizar os resultados
@@ -52,31 +78,55 @@
 
             if (results.length === 0) {
                 resultsContainer.innerHTML = `
-                    <div class="no-results">
-                        <i>🔍</i><br>
-                        Nenhum usuário encontrado para "${query}"
-                    </div>
-                `;
+            <div class="no-results">
+                <i>🔍</i><br>
+                Nenhum usuário encontrado para "${escapeHtml(query)}"
+            </div>
+        `;
             } else {
-                resultsContainer.innerHTML = results.map(user => `
-                    <div class="user-item" onclick="selectUser('${user.id}', '${user.nome}')">
-                        <div class="user-avatar">${user.nome.charAt(0).toUpperCase()}</div>
-                        <div class="user-info">
-                            <div class="user-name">${highlightMatch(user.nome, query)}</div>
-                            <div class="user-level">#${user.id}</div>
-                        </div>
+                resultsContainer.innerHTML = results.map(user => {
+                    let userName = 'Nome não definido';
+                    if (user.nome) {
+                        userName = user.nome;
+                    } else if (user.personal_info && user.personal_info.nome) {
+                        userName = user.personal_info.nome;
+                    }
+
+                    const userAvatar = userName.charAt(0).toUpperCase();
+                    const userId = user.id || 'sem-id';
+
+                    // Escapar valores para prevenir problemas com aspas
+                    const escapedUserName = escapeHtml(userName);
+                    const escapedUserId = escapeHtml(String(userId));
+
+                    return `
+                <div class="user-item" data-user-id="${escapedUserId}" data-user-name="${escapedUserName}">
+                    <div class="user-avatar">${userAvatar}</div>
+                    <div class="user-info">
+                        <div class="user-name">${highlightMatch(escapedUserName, query)}</div>
+                        <div class="user-level">#${escapedUserId}</div>
                     </div>
-                `).join('');
+                </div>
+            `;
+                }).join('');
             }
 
             resultsContainer.classList.add('show');
+        }
+
+        // Função para escapar HTML e prevenir XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         // Função para destacar o termo pesquisado
         function highlightMatch(text, query) {
             if (!query.trim()) return text;
 
-            const regex = new RegExp(`(${query})`, 'gi');
+            const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`(${escapedQuery})`, 'gi');
             return text.replace(regex, '<span style="color: #ff6b35; font-weight: bold;">$1</span>');
         }
 
@@ -92,11 +142,9 @@
             searchInput.value = userName;
             hideResults();
 
-            // Simular seleção do usuário
-            window.open(`/Assets/pages/user/user.html?id=${userId}`, "_self");
+            window.open(`/Assets/pages/user/user.html?id=${encodeURIComponent(userId)}`, "_self");
             console.log('Usuário selecionado:', { id: userId, name: userName });
 
-            // Efeito visual de seleção
             searchInput.style.borderColor = '#4CAF50';
             setTimeout(() => {
                 searchInput.style.borderColor = '';
@@ -107,7 +155,6 @@
         document.getElementById('searchInput').addEventListener('input', function (e) {
             const query = e.target.value;
 
-            // Limpar timeout anterior
             clearTimeout(searchTimeout);
 
             if (query.trim() === '') {
@@ -115,14 +162,13 @@
                 return;
             }
 
-            // Simular delay de busca para efeito mais realista
             isSearching = true;
 
             searchTimeout = setTimeout(() => {
                 const results = searchUsers(query);
                 renderResults(results, query);
                 isSearching = false;
-            }, 150); // 150ms delay
+            }, 150);
         });
 
         // Esconder resultados quando clicar fora
@@ -130,6 +176,16 @@
             const searchContainer = document.querySelector('.search-container');
             if (!searchContainer.contains(e.target)) {
                 hideResults();
+            }
+        });
+
+        // Delegação de eventos para cliques em usuários
+        document.getElementById('searchResults').addEventListener('click', function (e) {
+            const userItem = e.target.closest('.user-item');
+            if (userItem) {
+                const userId = userItem.getAttribute('data-user-id');
+                const userName = userItem.getAttribute('data-user-name');
+                selectUser(userId, userName);
             }
         });
 
@@ -168,13 +224,16 @@
             } else if (e.key === 'Enter') {
                 e.preventDefault();
                 if (currentSelected) {
-                    currentSelected.click();
+                    const userId = currentSelected.getAttribute('data-user-id');
+                    const userName = currentSelected.getAttribute('data-user-name');
+                    selectUser(userId, userName);
                 }
             } else if (e.key === 'Escape') {
                 hideResults();
                 this.blur();
             }
         });
+
         function createParticles() {
             const particlesContainer = document.getElementById('particles');
             const particleCount = 15;
@@ -183,11 +242,9 @@
                 const particle = document.createElement('div');
                 particle.classList.add('particle');
 
-                // Posição aleatória
                 particle.style.left = Math.random() * 100 + '%';
                 particle.style.top = Math.random() * 100 + '%';
 
-                // Delay aleatório para animação
                 particle.style.animationDelay = Math.random() * 6 + 's';
                 particle.style.animationDuration = (Math.random() * 3 + 4) + 's';
 
@@ -202,6 +259,7 @@
             let currentText = 0;
             let currentChar = 0;
             let isDeleting = false;
+            let typingInterval;
 
             function type() {
                 const text = texts[currentText];
@@ -222,16 +280,17 @@
                 }
 
                 const speed = isDeleting ? 50 : 100;
-                setTimeout(type, speed);
+                typingInterval = setTimeout(type, speed);
             }
 
-            // Só inicia o efeito se o input não estiver focado
             input.addEventListener('focus', () => {
+                clearTimeout(typingInterval);
                 input.placeholder = 'Digite aqui...';
             });
 
             input.addEventListener('blur', () => {
                 if (input.value === '') {
+                    clearTimeout(typingInterval);
                     setTimeout(type, 500);
                 }
             });
@@ -241,22 +300,21 @@
 
         // Efeito de clique no botão
         document.getElementById('createBtn').addEventListener('click', function () {
-            // Criar efeito de ondas
             const button = this;
             const ripple = document.createElement('span');
             ripple.style.cssText = `
-                position: absolute;
-                border-radius: 50%;
-                background: rgba(255, 255, 255, 0.6);
-                transform: scale(0);
-                animation: ripple 0.6s linear;
-                left: 50%;
-                top: 50%;
-                margin-left: -10px;
-                margin-top: -10px;
-                width: 20px;
-                height: 20px;
-            `;
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.6);
+        transform: scale(0);
+        animation: ripple 0.6s linear;
+        left: 50%;
+        top: 50%;
+        margin-left: -10px;
+        margin-top: -10px;
+        width: 20px;
+        height: 20px;
+    `;
 
             button.appendChild(ripple);
 
@@ -273,7 +331,6 @@
                 const query = this.value.trim();
                 if (query) {
                     console.log('Buscar usuário:', query);
-                    // Aqui você pode adicionar lógica para busca mais avançada
                 }
             }
         });
@@ -281,17 +338,50 @@
         // Adicionar estilo de ripple para animação
         const style = document.createElement('style');
         style.textContent = `
-            @keyframes ripple {
-                to {
-                    transform: scale(4);
-                    opacity: 0;
-                }
-            }
-        `;
+    @keyframes ripple {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+`;
         document.head.appendChild(style);
+
+        // Função para limpar dados corrompidos do localStorage
+        function cleanupLocalStorage() {
+            try {
+                const usersData = localStorage.getItem('users');
+                if (!usersData) return;
+
+                let users = JSON.parse(usersData);
+
+                if (!Array.isArray(users)) {
+                    console.warn('Dados de usuários corrompidos detectados. Resetando...');
+                    localStorage.setItem('users', JSON.stringify([]));
+                    return;
+                }
+
+                const validUsers = users.filter(user => {
+                    if (!user || typeof user !== 'object') return false;
+
+                    const hasId = user.id;
+                    const hasName = user.nome || (user.personal_info && user.personal_info.nome);
+
+                    return hasId && hasName;
+                });
+
+                if (validUsers.length !== users.length) {
+                    console.log(`Removidos ${users.length - validUsers.length} usuários inválidos`);
+                    localStorage.setItem('users', JSON.stringify(validUsers));
+                }
+            } catch (error) {
+                console.error('Erro ao limpar localStorage:', error);
+            }
+        }
 
         // Inicializar efeitos
         window.addEventListener('load', function () {
+            cleanupLocalStorage();
             createParticles();
             setTimeout(typeEffect, 1000);
         });
