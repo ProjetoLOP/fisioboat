@@ -39,28 +39,55 @@
 
             <div class="session-config-wrapper">
                 <div class="session-config">
+                    <!-- Seleção de Jogo -->
+                    <div class="game-selection">
+                        <label class="config-label">Selecione o Jogo</label>
+                        <div class="game-options">
+                            <div class="game-option active" data-game="incontinencia"
+                                onclick="selectGame('incontinencia')">
+                                <img src="/Assets/scenario/images/incontScreen.png" alt="Incontinência Urinária">
+                                <div class="game-option-name">Incontinência Urinária</div>
+                            </div>
+                            <div class="game-option" data-game="corrida" onclick="selectGame('corrida')">
+                                <img src="/Assets/scenario/images/raceScreen.png" alt="Corrida">
+                                <div class="game-option-name">Corrida</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Configurações Comuns -->
                     <div class="config-row">
                         <label>Tempo de Sessão (min)</label>
                         <input type="number" id="sessionTime" min="1" max="120" value="20" class="config-input">
                     </div>
 
-                    <div class="config-row">
-                        <label>Tipo da Sessão</label>
-                        <select id="sessionType" class="config-select">
-                            <option value="forca">Força</option>
-                            <option value="resistencia" selected>Resistência</option>
-                            <option value="mista">Mista</option>
-                        </select>
+                    <!-- Configurações específicas da Incontinência -->
+                    <div id="incontinenciaConfig" class="game-specific-config">
+                        <div class="config-row">
+                            <label>Tipo da Sessão</label>
+                            <select id="sessionType" class="config-select">
+                                <option value="forca">Força</option>
+                                <option value="resistencia" selected>Resistência</option>
+                                <option value="mista">Mista</option>
+                            </select>
+                        </div>
+
+                        <div class="config-row">
+                            <label>Figuras por Minuto</label>
+                            <input type="number" id="figuresByMinute" min="1" max="10" value="3" class="config-input">
+                        </div>
+
+                        <div class="config-row">
+                            <label>Duração da Figura (seg)</label>
+                            <input type="number" id="figureDuration" min="1" max="6" value="4" class="config-input">
+                        </div>
                     </div>
 
-                    <div class="config-row">
-                        <label>Figuras por Minuto</label>
-                        <input type="number" id="figuresByMinute" min="1" max="10" value="3" class="config-input">
-                    </div>
-
-                    <div class="config-row">
-                        <label>Duração da Figura (seg)</label>
-                        <input type="number" id="figureDuration" min="1" max="6" value="4" class="config-input">
+                    <!-- Configurações específicas da Corrida -->
+                    <div id="corridaConfig" class="game-specific-config" style="display: none;">
+                        <div class="config-note">
+                            Apenas o tempo de sessão é configurável para o jogo de corrida.
+                        </div>
                     </div>
                 </div>
             </div>
@@ -912,6 +939,82 @@
                     }
                 }
             });
+        }
+
+        // Função para selecionar jogo
+        function selectGame(gameType) {
+            // Remover classe active de todos
+            document.querySelectorAll('.game-option').forEach(option => {
+                option.classList.remove('active');
+            });
+
+            // Adicionar classe active ao selecionado
+            const selectedOption = document.querySelector(`[data-game="${gameType}"]`);
+            if (selectedOption) {
+                selectedOption.classList.add('active');
+            }
+
+            // Mostrar/ocultar configurações específicas
+            const incontinenciaConfig = document.getElementById('incontinenciaConfig');
+            const corridaConfig = document.getElementById('corridaConfig');
+
+            if (gameType === 'incontinencia') {
+                incontinenciaConfig.style.display = 'contents';
+                corridaConfig.style.display = 'none';
+            } else {
+                incontinenciaConfig.style.display = 'none';
+                corridaConfig.style.display = 'block';
+            }
+        }
+
+        // Função para obter configurações da sessão (SUBSTITUIR a existente)
+        function getSessionConfig() {
+            const sessionTime = document.getElementById('sessionTime')?.value || 20;
+            const selectedGame = document.querySelector('.game-option.active')?.getAttribute('data-game') || 'incontinencia';
+
+            const config = {
+                sessionDuration: parseInt(sessionTime, 10),
+                gameType: selectedGame
+            };
+
+            // Adicionar configurações específicas se for incontinência
+            if (selectedGame === 'incontinencia') {
+                const sessionType = document.getElementById('sessionType')?.value || 'resistencia';
+                const figuresByMinute = document.getElementById('figuresByMinute')?.value || 3;
+                const figuresDuration = document.getElementById('figureDuration')?.value || 4;
+
+                config.sessionType = sessionType;
+                config.figuresByMinute = parseInt(figuresByMinute, 10);
+                config.figuresDuration = parseInt(figuresDuration, 10);
+            }
+
+            console.log('Configurações da Sessão:', config);
+            return config;
+        }
+
+        // Função para iniciar nova sessão (SUBSTITUIR a existente)
+        function startNewSession() {
+            const userId = getUrlParameter('id');
+            if (!userId) {
+                console.error('ID do usuário não encontrado para iniciar sessão');
+                alert('Erro: ID do usuário não encontrado');
+                return;
+            }
+
+            const sessionConfig = getSessionConfig();
+            const configParam = encodeURIComponent(JSON.stringify(sessionConfig));
+
+            // Determinar qual jogo abrir
+            const selectedGame = document.querySelector('.game-option.active')?.getAttribute('data-game') || 'incontinencia';
+
+            let gameUrl;
+            if (selectedGame === 'corrida') {
+                gameUrl = `/Assets/scenes/game/race/index.html?id=${userId}&sessionConfig=${configParam}`;
+            } else {
+                gameUrl = `/Assets/scenes/game/incont_urinaria/game.html?id=${userId}&sessionConfig=${configParam}`;
+            }
+
+            window.open(gameUrl, '_self');
         }
     </script>
 </body>
