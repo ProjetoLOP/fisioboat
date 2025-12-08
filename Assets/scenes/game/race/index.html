@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Developing</title>
+    <title>Corrida de Barcos com Personagem</title>
 
     <!-- MoveNet Lib -->
     <script id="tfjs" src="/Assets/scripts/Libs/tfjs.js"></script>
@@ -20,22 +20,20 @@
         // Register the 'hdri' component
         AFRAME.registerComponent('hdri', {
             schema: {
-                url: { type: 'string' }, // Define the data schema
+                url: { type: 'string' },
             },
             init: function () {
-                const { url } = this.data; // Get the URL from the component data
-                const sceneEl = this.el; // Reference to the A-Frame scene element
-                const scene = sceneEl.object3D; // THREE.js scene object
-                const renderer = sceneEl.renderer; // A-Frame renderer
-                // Set up the HDRI loader
+                const { url } = this.data;
+                const sceneEl = this.el;
+                const scene = sceneEl.object3D;
+                const renderer = sceneEl.renderer;
                 const rgbeLoader = new THREE.RGBELoader();
                 rgbeLoader.setDataType(THREE.UnsignedByteType);
                 rgbeLoader.load(url, (texture) => {
-                    // PMREM Generator for converting the texture to a suitable format
                     const pmremGenerator = new THREE.PMREMGenerator(renderer);
                     pmremGenerator.compileEquirectangularShader();
                     const envMap = pmremGenerator.fromEquirectangular(texture).texture;
-                    scene.environment = envMap; // Set the scene environment
+                    scene.environment = envMap;
                     texture.dispose();
                     pmremGenerator.dispose();
                 });
@@ -43,13 +41,8 @@
         });
     </script>
 
-    <script src="/Assets/scenes/game/scripts/game/utils.js"></script>
-    <script src="/Assets/scenes/game/scripts/aframe/components.js"></script>
-
-    <link rel="stylesheet" href="/Assets/scenes/game/styles/checkup.css">
-    <link rel="stylesheet" href="/Assets/scenes/game/styles/congrats.css">
-    <link rel="stylesheet" href="/Assets/scenes/game/styles/incont_urinaria.css">
-    <link rel="stylesheet" href="/Assets/scenes/game/styles/loading.css">
+    <link rel="stylesheet" href="/Assets/scenes/game/race/styles/style.css">
+    <link rel="stylesheet" href="/Assets/scenes/game/race/styles/loading.css">
 </head>
 
 <body>
@@ -61,69 +54,36 @@
         <div class="loading-text" id="loadingText">Carregando... 0%</div>
     </div>
 
-    <div class="images">
-        <img src="/Assets/scenario/images/aperta.png" id="aperta">
+    <!-- UI de início -->
+    <div id="startUI">
+        <h2>Pressione Enter para começar!</h2>
     </div>
 
-    <div class="active" id="checkupOverlay">
-        <div id="video-container">
-            <video id="video"></video>
-            <div class="loading-dots active">
-                <span>.</span><span>.</span><span>.</span>
-            </div>
-        </div>
-        <h1>Aperte <i>"Enter"</i> quando estiver pronto</h1>
+    <!-- UI de final -->
+    <div id="finishUI" style="display: none;">
+        <h2>🏆 Corrida Finalizada! 🏆</h2>
+        <div id="leaderboard"></div>
     </div>
 
-    <div class="celebration-overlay" id="celebrationOverlay">
-        <div class="celebration-content">
-            <!-- Confetes -->
-            <div class="confetti"></div>
-            <div class="confetti"></div>
-            <div class="confetti"></div>
-            <div class="confetti"></div>
-            <div class="confetti"></div>
-            <div class="confetti"></div>
-            <div class="confetti"></div>
-            <div class="confetti"></div>
-            <div class="confetti"></div>
-            <div class="confetti"></div>
+    <div id="countdownUI"><span id="countdownText"></span></div>
 
-            <h1 class="celebration-title">🎉 Parabéns! 🎉</h1>
-            <p class="celebration-subtitle">Você concluiu a sessão com sucesso!</p>
-            <button class="save-button">
-                💾 Salvar Sessão
-            </button>
-        </div>
-    </div>
+    <div id="leaderboard-corner"></div>
 
-    <a-scene renderer="colorManagement: true; physicallyCorrectLights: true;"
+    <a-scene id="scene" renderer="colorManagement: true; physicallyCorrectLights: true;"
         hdri="url: /Assets/scenario/hdr/afternoon.hdr">
-
-        <!-- Pre-carregar assets -->
-        <a-assets timeout="60000">
-            <!-- Texturas -->
-            <img id="ropeTexture" src="/Assets/scenario/textures/rope.jpg">
-            <img id="sunsetSky" src="/Assets/scenario/textures/sunset-sky.jpeg">
-
-            <!-- Modelos 3D -->
-            <a-asset-item id="bigRockWall" src="/Assets/scenario/models/wall.glb"></a-asset-item>
-            <a-asset-item id="startModel" src="/Assets/scenario/models/start.glb"></a-asset-item>
-            <a-asset-item id="boatModel" src="/Assets/scenario/models/BarcoTexturizado.glb"></a-asset-item>
-            <a-asset-item id="orangeKayak" src="/Assets/scenario/models/orangeKayak.glb"></a-asset-item>
-            <a-asset-item id="greenKayak" src="/Assets/scenario/models/greenKayak.glb"></a-asset-item>
-
-            <a-asset-item id="playerCharacter" src="/Assets/scenario/models/remar.glb"></a-asset-item>
-        </a-assets>
-
-        <!-- Céu -->
-        <a-sky rotation="0 180 0" src="#sunsetSky" geometry="primitive: sphere; radius: 5000">
-        </a-sky>
-
-        <!-- Oceano -->
+        <a-sky rotation="0 180 0" src="/Assets/scenario/textures/sunset-sky.jpeg"></a-sky>
         <a-ocean-plane id="ocean" position="0 -1 0"></a-ocean-plane>
 
-        <!-- Paredões -->
+        <a-assets timeout="60000">
+            <a-asset-item id="startModel" src="/Assets/scenario/models/start.glb"></a-asset-item>
+            <a-asset-item id="orangeKayak" src="/Assets/scenario/models/orangeKayak.glb"></a-asset-item>
+            <a-asset-item id="greenKayak" src="/Assets/scenario/models/greenKayak.glb"></a-asset-item>
+            <a-asset-item id="blueKayak" src="/Assets/scenario/models/blueKayak.glb"></a-asset-item>
+            <a-asset-item id="personagemRemar" src="/Assets/scenario/models/remar.glb"></a-asset-item>
+            <a-asset-item id="bigRockWall" src="/Assets/scenario/models/wall.glb"></a-asset-item>
+        </a-assets>
+
+        <!-- Cenário -->
         <a-entity id="wall1" gltf-model="#bigRockWall" position="0 2 0" rotation="0 90 0">
         </a-entity>
 
@@ -136,56 +96,66 @@
         <a-entity id="wall4" gltf-model="#bigRockWall" position="0 0 -200" rotation="0 270 0">
         </a-entity>
 
+        <!-- Barco principal COM PERSONAGEM -->
+        <a-entity id="boat" gltf-model="#orangeKayak" rotation="0 0 0" position="0 0.6 0" boat-controls
+            float-on-ocean="oceanId: ocean" check-finish character-row-switch visible="true">
+
+            <!-- Personagem Remando -->
+            <a-entity id="char-row" gltf-model="#personagemRemar" position="0 0.3 -0.4" rotation="0 180 0"
+                animation-mixer="clip:*; loop:repeat; timeScale:0" kill-cubes visible="true"></a-entity>
+        </a-entity>
+
+        <!-- Barcos bots -->
+
+        <!-- Bot 1 -->
+        <a-entity id="bot1" class="bot-boat" gltf-model="#greenKayak" position="-10 0.6 0"
+            float-on-ocean="oceanId: ocean; heightOffset: 0.6; smoothFactor: 0.15" bot-boat-movement
+            bot-character-animation visible="true">
+            <a-entity class="bot-char-row" gltf-model="#personagemRemar" position="0 0.3 -0.4" rotation="0 180 0"
+                animation-mixer="clip:*; loop:repeat; timeScale:1" kill-cubes visible="false"></a-entity>
+        </a-entity>
+
+        <!-- Bot 2 -->
+        <a-entity id="bot2" class="bot-boat" gltf-model="#blueKayak" position="10 0.6 0" float-on-ocean="oceanId: ocean"
+            bot-boat-movement bot-character-animation visible="true">
+            <a-entity class="bot-char-row" gltf-model="#personagemRemar" position="0 0.3 -0.4" rotation="0 180 0"
+                animation-mixer="clip:*; loop:repeat; timeScale:1" kill-cubes visible="false"></a-entity>
+        </a-entity>
+
+
         <!-- Partida -->
         <a-entity id="startLine" gltf-model="#startModel" position="0 -2 0" rotation="0 0 0" scale="40 35 30">
         </a-entity>
 
-        <!-- Barco do Jogador -->
-        <a-entity id="boat" gltf-model="#orangeKayak" rotation="0 0 0" position="0 0.6 0" player-boat
-            boat-character-animation="characterClass: .player-character; boatComponent: player-boat"
-            float-on-ocean="oceanId: ocean"
-            stretch-rope="target: #botBoat; attachPoint: 0 0.5 -3; targetAttachPoint: 0 0.5 3; slackThreshold: 16; maxSag: 5; startBroken: true"
-            visible="true">
-
-            <!-- Personagem do jogador -->
-            <a-entity class="player-character" gltf-model="#playerCharacter" position="0 0.3 -0.4" rotation="0 180 0"
-                scale="1 1 1" animation-mixer="clip:*; loop:repeat; timeScale:0" kill-cubes visible="false">
-            </a-entity>
+        <!-- Meta -->
+        <a-entity id="finishLine" gltf-model="#startModel" position="0 -1 -200" rotation="0 0 0" scale="40 35 30"
+            fix-materials>
         </a-entity>
 
-        <!-- Barco do Bot -->
-        <a-entity id="botBoat" gltf-model="#greenKayak" rotation="0 0 0" position="0 0.6 -15" bot-boat
-            boat-character-animation="characterClass: .bot-character; boatComponent: bot-boat"
-            float-on-ocean="oceanId: ocean" visible="true">
+        <!-- Câmera livre inicial -->
+        <a-entity id="freeCamera" camera wasd-controls position="-15 6.5 -14" rotation="0 -140 0"
+            active="true"></a-entity>
 
-            <a-entity class="bot-character" gltf-model="#playerCharacter" position="0 0.3 -0.4" rotation="0 180 0"
-                scale="1 1 1" animation-mixer="clip:*; loop:repeat; timeScale:0" kill-cubes visible="false">
-            </a-entity>
-        </a-entity>
+        <!-- Câmera do barco (3ª pessoa) -->
+        <a-entity id="boatCamera" camera="active: false" follow="target: #boat; offset: 0 6.5 14"
+            wasd-controls-enabled="false"></a-entity>
 
-        <!-- Lidar com proximidade dos barcos -->
-        <a-entity id="evasive-speed-controller" evasive-speed-controller="boat: #boat; botBoat: #botBoat"></a-entity>
-
-        <!-- Câmeras (escolher uma) -->
-
-        <!-- Telespectador / Observador -->
-        <!-- <a-entity camera look-controls wasd-controls position="0 5 15"></a-entity> -->
-
-        <!-- Usuário - seguindo o barco -->
-        <a-entity camera look-controls follow="target: #boat; offset: 0 3 -1"></a-entity>
+        <!-- Câmera do barco POV (1ª pessoa) -->
+        <a-entity id="boatCameraPov" camera="active: false" look-controls follow="target: #boat; offset: 0 2.8 -0.6"
+            wasd-controls-enabled="false"></a-entity>
     </a-scene>
+
+    <div id="cameraHint">Pressione <strong>C</strong> para alternar entre câmeras</div>
 
     <script>
         // Sistema de carregamento
         class LoadingManager {
             constructor() {
                 this.tasks = {
-                    scene: false,
-                    detector: false
+                    scene: false
                 };
                 this.weights = {
-                    scene: 50,
-                    detector: 50
+                    scene: 100
                 };
                 this.currentProgress = 0;
                 this.targetProgress = 0;
@@ -345,10 +315,62 @@
             }, 500);
         }
     </script>
-    <script src="/Assets/scenes/game/scripts/moveNet.min.js"></script>
-    <script src="/Assets/scenes/game/scripts/game/game.js"></script>
-    <script src="/Assets/scenes/game/scripts/page/checkup.js"></script>
-    <script src="/Assets/scenes/game/scripts/page/page.js"></script>
+
+    <script>
+        // começar com tecla Enter
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                startGame()
+            }
+        });
+
+        // Começar por comando de voz
+        commandListener('iniciar', () => {
+            startGame();
+        });
+
+        function commandListener(comando, callback) {
+            // Verifica suporte do navegador
+            if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
+                console.error('Navegador não suporta reconhecimento de voz');
+                return;
+            }
+
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'pt-BR';
+            recognition.continuous = true;
+            recognition.interimResults = true;
+
+            let comandoExecutado = false;
+
+            recognition.onresult = (event) => {
+                const result = event.results[event.results.length - 1];
+                const texto = result[0].transcript.toLowerCase().trim();
+
+                console.log('Detectado:', texto);
+
+                if (!comandoExecutado && texto.includes(comando.toLowerCase())) {
+                    comandoExecutado = true;
+                    callback();
+                    recognition.stop();
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Erro:', event.error);
+                recognition.stop();
+            };
+
+            recognition.onend = () => {
+                console.log('Microfone desativado');
+            };
+
+            recognition.start();
+            console.log(`Microfone ativado, aguardando "${comando}"...`);
+        }
+    </script>
+    <script src="/Assets/scenes/game/race/scripts/race-manager.js"></script>
+    <script src="/Assets/scenes/game/race/scripts/character-animation.js"></script>
 </body>
 
 </html>

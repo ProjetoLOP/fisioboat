@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="pt_BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developing</title>
+
+    <!-- MoveNet Lib -->
+    <script id="tfjs" src="/Assets/scripts/Libs/tfjs.js"></script>
+    <script id="pose-detection" src="/Assets/scripts/Libs/pose-detection.js"></script>
+    <script id="tfjs-backend-webgl" src="/Assets/scripts/Libs/tfjs-backend-webgl.js"></script>
+
+    <!-- Aframe Lib -->
+    <script src="/Assets/scripts/Libs/aframe.min.js"></script>
+    <script src="/Assets/scripts/Libs/aframe-extras.min.js"></script>
+    <script src="/Assets/scripts/Libs/combo-ocean.js"></script>
+    <script src="/Assets/scripts/Libs/RGBELoader.js"></script>
+    <script>
+        // Register the 'hdri' component
+        AFRAME.registerComponent('hdri', {
+            schema: {
+                url: { type: 'string' }, // Define the data schema
+            },
+            init: function () {
+                const { url } = this.data; // Get the URL from the component data
+                const sceneEl = this.el; // Reference to the A-Frame scene element
+                const scene = sceneEl.object3D; // THREE.js scene object
+                const renderer = sceneEl.renderer; // A-Frame renderer
+                // Set up the HDRI loader
+                const rgbeLoader = new THREE.RGBELoader();
+                rgbeLoader.setDataType(THREE.UnsignedByteType);
+                rgbeLoader.load(url, (texture) => {
+                    // PMREM Generator for converting the texture to a suitable format
+                    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+                    pmremGenerator.compileEquirectangularShader();
+                    const envMap = pmremGenerator.fromEquirectangular(texture).texture;
+                    scene.environment = envMap; // Set the scene environment
+                    texture.dispose();
+                    pmremGenerator.dispose();
+                });
+            }
+        });
+    </script>
+
+    <script src="/Assets/scenes/game/incont_urinaria/scripts/game/utils.js"></script>
+    <script src="/Assets/scenes/game/incont_urinaria/scripts/aframe/components.js"></script>
+
+    <link rel="stylesheet" href="/Assets/scenes/game/incont_urinaria/styles/checkup.css">
+    <link rel="stylesheet" href="/Assets/scenes/game/incont_urinaria/styles/congrats.css">
+    <link rel="stylesheet" href="/Assets/scenes/game/incont_urinaria/styles/incont_urinaria.css">
+    <link rel="stylesheet" href="/Assets/scenes/game/incont_urinaria/styles/loading.css">
+</head>
+
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen">
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="loading-text" id="loadingText">Carregando... 0%</div>
+    </div>
+
+    <div class="images">
+        <img src="/Assets/scenario/images/aperta.png" id="aperta">
+    </div>
+
+    <div class="active" id="checkupOverlay">
+        <div id="video-container">
+            <video id="video"></video>
+            <div class="loading-dots active">
+                <span>.</span><span>.</span><span>.</span>
+            </div>
+        </div>
+        <h1>Aperte <i>"Enter"</i> quando estiver pronto</h1>
+    </div>
+
+    <div class="celebration-overlay" id="celebrationOverlay">
+        <div class="celebration-content">
+            <!-- Confetes -->
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+
+            <h1 class="celebration-title">🎉 Parabéns! 🎉</h1>
+            <p class="celebration-subtitle">Você concluiu a sessão com sucesso!</p>
+            <button class="save-button">
+                💾 Salvar Sessão
+            </button>
+        </div>
+    </div>
+
+    <a-scene renderer="colorManagement: true; physicallyCorrectLights: true;"
+        hdri="url: /Assets/scenario/hdr/afternoon.hdr">
+
+        <!-- Pre-carregar assets -->
+        <a-assets timeout="60000">
+            <!-- Texturas -->
+            <img id="ropeTexture" src="/Assets/scenario/textures/rope.jpg">
+            <img id="sunsetSky" src="/Assets/scenario/textures/sunset-sky.jpeg">
+
+            <!-- Modelos 3D -->
+            <a-asset-item id="bigRockWall" src="/Assets/scenario/models/wall.glb"></a-asset-item>
+            <a-asset-item id="startModel" src="/Assets/scenario/models/start.glb"></a-asset-item>
+            <a-asset-item id="boatModel" src="/Assets/scenario/models/BarcoTexturizado.glb"></a-asset-item>
+            <a-asset-item id="orangeKayak" src="/Assets/scenario/models/orangeKayak.glb"></a-asset-item>
+            <a-asset-item id="greenKayak" src="/Assets/scenario/models/greenKayak.glb"></a-asset-item>
+
+            <a-asset-item id="playerCharacter" src="/Assets/scenario/models/remar.glb"></a-asset-item>
+        </a-assets>
+
+        <!-- Céu -->
+        <a-sky rotation="0 180 0" src="#sunsetSky" geometry="primitive: sphere; radius: 5000">
+        </a-sky>
+
+        <!-- Oceano -->
+        <a-ocean-plane id="ocean" position="0 -1 0"></a-ocean-plane>
+
+        <!-- Paredões -->
+        <a-entity id="wall1" gltf-model="#bigRockWall" position="0 2 0" rotation="0 90 0">
+        </a-entity>
+
+        <a-entity id="wall2" gltf-model="#bigRockWall" position="0 0 -200" rotation="0 90 0">
+        </a-entity>
+
+        <a-entity id="wall3" gltf-model="#bigRockWall" position="0 0 0" rotation="0 270">
+        </a-entity>
+
+        <a-entity id="wall4" gltf-model="#bigRockWall" position="0 0 -200" rotation="0 270 0">
+        </a-entity>
+
+        <!-- Partida -->
+        <a-entity id="startLine" gltf-model="#startModel" position="0 -2 0" rotation="0 0 0" scale="40 35 30">
+        </a-entity>
+
+        <!-- Barco do Jogador -->
+        <a-entity id="boat" gltf-model="#orangeKayak" rotation="0 0 0" position="0 0.6 0" player-boat
+            boat-character-animation="characterClass: .player-character; boatComponent: player-boat"
+            float-on-ocean="oceanId: ocean"
+            stretch-rope="target: #botBoat; attachPoint: 0 0.5 -3; targetAttachPoint: 0 0.5 3; slackThreshold: 16; maxSag: 5; startBroken: true"
+            visible="true">
+
+            <!-- Personagem do jogador -->
+            <a-entity class="player-character" gltf-model="#playerCharacter" position="0 0.3 -0.4" rotation="0 180 0"
+                scale="1 1 1" animation-mixer="clip:*; loop:repeat; timeScale:0" kill-cubes visible="false">
+            </a-entity>
+        </a-entity>
+
+        <!-- Barco do Bot -->
+        <a-entity id="botBoat" gltf-model="#greenKayak" rotation="0 0 0" position="0 0.6 -15" bot-boat
+            boat-character-animation="characterClass: .bot-character; boatComponent: bot-boat"
+            float-on-ocean="oceanId: ocean" visible="true">
+
+            <a-entity class="bot-character" gltf-model="#playerCharacter" position="0 0.3 -0.4" rotation="0 180 0"
+                scale="1 1 1" animation-mixer="clip:*; loop:repeat; timeScale:0" kill-cubes visible="false">
+            </a-entity>
+        </a-entity>
+
+        <!-- Lidar com proximidade dos barcos -->
+        <a-entity id="evasive-speed-controller" evasive-speed-controller="boat: #boat; botBoat: #botBoat"></a-entity>
+
+        <!-- Câmeras (escolher uma) -->
+
+        <!-- Telespectador / Observador -->
+        <!-- <a-entity camera look-controls wasd-controls position="0 5 15"></a-entity> -->
+
+        <!-- Usuário - seguindo o barco -->
+        <a-entity camera look-controls follow="target: #boat; offset: 0 3 -1"></a-entity>
+    </a-scene>
+
+    <script>
+        // Sistema de carregamento
+        class LoadingManager {
+            constructor() {
+                this.tasks = {
+                    scene: false,
+                    detector: false
+                };
+                this.weights = {
+                    scene: 50,
+                    detector: 50
+                };
+                this.currentProgress = 0;
+                this.targetProgress = 0;
+                this.updateProgress();
+                this.startProgressAnimation();
+            }
+
+            completeTask(taskName) {
+                if (this.tasks.hasOwnProperty(taskName) && !this.tasks[taskName]) {
+                    this.tasks[taskName] = true;
+                    console.log(`✓ ${taskName} carregado`);
+                    this.calculateTargetProgress();
+                    this.checkComplete();
+                }
+            }
+
+            calculateTargetProgress() {
+                let progress = 0;
+                for (let task in this.tasks) {
+                    if (this.tasks[task]) {
+                        progress += this.weights[task];
+                    }
+                }
+                this.targetProgress = progress;
+            }
+
+            startProgressAnimation() {
+                const animate = () => {
+                    if (this.currentProgress < this.targetProgress) {
+                        // Incremento suave
+                        const diff = this.targetProgress - this.currentProgress;
+                        this.currentProgress += diff * 0.05; // Velocidade da animação
+
+                        if (Math.abs(this.targetProgress - this.currentProgress) < 0.5) {
+                            this.currentProgress = this.targetProgress;
+                        }
+
+                        this.updateProgressDisplay();
+                    }
+
+                    requestAnimationFrame(animate);
+                };
+                animate();
+            }
+
+            updateProgress() {
+                this.calculateTargetProgress();
+            }
+
+            updateProgressDisplay() {
+                const progress = Math.round(this.currentProgress);
+                const progressBar = document.getElementById('progressBar');
+                const loadingText = document.getElementById('loadingText');
+
+                if (progressBar) {
+                    progressBar.style.width = progress + '%';
+                }
+                if (loadingText) {
+                    let status = 'Carregando';
+                    if (progress < 50) status = 'Carregando modelos e texturas';
+                    else if (progress < 100) status = 'Inicializando detector de pose';
+
+                    loadingText.textContent = `${status}... ${progress}%`;
+                }
+            }
+
+            checkComplete() {
+                const allComplete = Object.values(this.tasks).every(task => task === true);
+                if (allComplete) {
+                    setTimeout(() => {
+                        this.hideLoadingScreen();
+                    }, 800); // Pequeno delay para garantir que chegou a 100%
+                }
+            }
+
+            hideLoadingScreen() {
+                const loadingText = document.getElementById('loadingText');
+
+                if (loadingText) {
+                    loadingText.textContent = 'Carregamento Completo!';
+                }
+
+                setTimeout(() => {
+                    const loadingScreen = document.getElementById('loadingScreen');
+                    if (loadingScreen) {
+                        loadingScreen.classList.add('hidden');
+                        setTimeout(() => {
+                            loadingScreen.style.display = 'none';
+                        }, 500);
+                    }
+                }, 300);
+            }
+        }
+
+        // Inicializa o gerenciador
+        window.loadingManager = new LoadingManager();
+
+        // Monitora o carregamento completo da cena A-Frame
+        document.addEventListener('DOMContentLoaded', () => {
+            const scene = document.querySelector('a-scene');
+            const assets = document.querySelector('a-assets');
+
+            if (assets) {
+                assets.addEventListener('loaded', () => {
+                    console.log('✓ Assets carregados');
+
+                    setTimeout(() => {
+                        const allModelsLoaded = checkAllModelsLoaded();
+                        if (allModelsLoaded) {
+                            window.loadingManager.completeTask('scene');
+                        } else {
+                            waitForModels();
+                        }
+                    }, 1000);
+                });
+            }
+
+            setTimeout(() => {
+                if (!window.loadingManager.tasks.scene) {
+                    console.log('⚠ Timeout da cena, forçando carregamento');
+                    window.loadingManager.completeTask('scene');
+                }
+            }, 15000);
+        });
+
+        function checkAllModelsLoaded() {
+            const modelsWithGltf = document.querySelectorAll('[gltf-model]');
+            let allLoaded = true;
+
+            modelsWithGltf.forEach(entity => {
+                const model = entity.getObject3D('mesh');
+                if (!model) {
+                    allLoaded = false;
+                }
+            });
+
+            return allLoaded;
+        }
+
+        function waitForModels() {
+            let attempts = 0;
+            const maxAttempts = 20;
+
+            const checkInterval = setInterval(() => {
+                attempts++;
+                const allLoaded = checkAllModelsLoaded();
+
+                if (allLoaded) {
+                    console.log('✓ Todos os modelos carregados');
+                    clearInterval(checkInterval);
+                    window.loadingManager.completeTask('scene');
+                } else if (attempts >= maxAttempts) {
+                    console.log('⚠ Timeout dos modelos, continuando mesmo assim');
+                    clearInterval(checkInterval);
+                    window.loadingManager.completeTask('scene');
+                }
+            }, 500);
+        }
+    </script>
+    <script src="/Assets/scenes/game/incont_urinaria/scripts/moveNet.min.js"></script>
+    <script src="/Assets/scenes/game/incont_urinaria/scripts/game/game.js"></script>
+    <script src="/Assets/scenes/game/incont_urinaria/scripts/page/checkup.js"></script>
+    <script src="/Assets/scenes/game/incont_urinaria/scripts/page/page.js"></script>
+</body>
+
+</html>

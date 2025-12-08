@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt_BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corrida de Barcos com Personagem</title>
+
+    <!-- MoveNet Lib -->
+    <script id="tfjs" src="/Assets/scripts/Libs/tfjs.js"></script>
+    <script id="pose-detection" src="/Assets/scripts/Libs/pose-detection.js"></script>
+    <script id="tfjs-backend-webgl" src="/Assets/scripts/Libs/tfjs-backend-webgl.js"></script>
+
+    <!-- Aframe Lib -->
+    <script src="/Assets/scripts/Libs/aframe.min.js"></script>
+    <script src="/Assets/scripts/Libs/aframe-extras.min.js"></script>
+    <script src="/Assets/scripts/Libs/combo-ocean.js"></script>
+    <script src="/Assets/scripts/Libs/RGBELoader.js"></script>
+    <script>
+        // Register the 'hdri' component
+        AFRAME.registerComponent('hdri', {
+            schema: {
+                url: { type: 'string' },
+            },
+            init: function () {
+                const { url } = this.data;
+                const sceneEl = this.el;
+                const scene = sceneEl.object3D;
+                const renderer = sceneEl.renderer;
+                const rgbeLoader = new THREE.RGBELoader();
+                rgbeLoader.setDataType(THREE.UnsignedByteType);
+                rgbeLoader.load(url, (texture) => {
+                    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+                    pmremGenerator.compileEquirectangularShader();
+                    const envMap = pmremGenerator.fromEquirectangular(texture).texture;
+                    scene.environment = envMap;
+                    texture.dispose();
+                    pmremGenerator.dispose();
+                });
+            }
+        });
+    </script>
+
+    <link rel="stylesheet" href="/Assets/scenes/game/race/styles/style.css">
+    <link rel="stylesheet" href="/Assets/scenes/game/race/styles/checkup.css">
+    <link rel="stylesheet" href="/Assets/scenes/game/race/styles/loading.css">
+</head>
+
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen">
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="loading-text" id="loadingText">Carregando... 0%</div>
+    </div>
+
+    <div class="active" id="checkupOverlay">
+        <div id="video-container">
+            <video id="video"></video>
+            <div class="loading-dots active">
+                <span>.</span><span>.</span><span>.</span>
+            </div>
+        </div>
+        <h1>Aperte <i>"Enter"</i> quando estiver pronto</h1>
+    </div>
+
+    <!-- UI de início -->
+    <div id="startUI">
+        <h2>Pressione Enter para começar!</h2>
+    </div>
+
+    <!-- UI de final -->
+    <div id="finishUI" style="display: none;">
+        <h2>🏆 Corrida Finalizada! 🏆</h2>
+        <div id="leaderboard"></div>
+    </div>
+
+    <div id="countdownUI"><span id="countdownText"></span></div>
+
+    <div id="leaderboard-corner"></div>
+
+    <a-scene id="scene" renderer="colorManagement: true; physicallyCorrectLights: true;"
+        hdri="url: /Assets/scenario/hdr/afternoon.hdr">
+        <a-sky rotation="0 180 0" src="/Assets/scenario/textures/sunset-sky.jpeg"></a-sky>
+        <a-ocean-plane id="ocean" position="0 -1 0"></a-ocean-plane>
+
+        <a-assets timeout="60000">
+            <a-asset-item id="startModel" src="/Assets/scenario/models/start.glb"></a-asset-item>
+            <a-asset-item id="orangeKayak" src="/Assets/scenario/models/orangeKayak.glb"></a-asset-item>
+            <a-asset-item id="greenKayak" src="/Assets/scenario/models/greenKayak.glb"></a-asset-item>
+            <a-asset-item id="blueKayak" src="/Assets/scenario/models/blueKayak.glb"></a-asset-item>
+            <a-asset-item id="personagemRemar" src="/Assets/scenario/models/remar.glb"></a-asset-item>
+            <a-asset-item id="bigRockWall" src="/Assets/scenario/models/wall.glb"></a-asset-item>
+        </a-assets>
+
+        <!-- Cenário -->
+        <a-entity id="wall1" gltf-model="#bigRockWall" position="0 2 0" rotation="0 90 0">
+        </a-entity>
+
+        <a-entity id="wall2" gltf-model="#bigRockWall" position="0 0 -200" rotation="0 90 0">
+        </a-entity>
+
+        <a-entity id="wall3" gltf-model="#bigRockWall" position="0 0 0" rotation="0 270">
+        </a-entity>
+
+        <a-entity id="wall4" gltf-model="#bigRockWall" position="0 0 -200" rotation="0 270 0">
+        </a-entity>
+
+        <!-- Barco principal COM PERSONAGEM -->
+        <a-entity id="boat" gltf-model="#orangeKayak" rotation="0 0 0" position="0 0.6 0" boat-controls
+            float-on-ocean="oceanId: ocean" check-finish character-row-switch visible="true">
+
+            <!-- Personagem Remando -->
+            <a-entity id="char-row" gltf-model="#personagemRemar" position="0 0.3 -0.4" rotation="0 180 0"
+                animation-mixer="clip:*; loop:repeat; timeScale:0" kill-cubes visible="true"></a-entity>
+        </a-entity>
+
+        <!-- Barcos bots -->
+
+        <!-- Bot 1 -->
+        <a-entity id="bot1" class="bot-boat" gltf-model="#greenKayak" position="-10 0.6 0"
+            float-on-ocean="oceanId: ocean; heightOffset: 0.6; smoothFactor: 0.15" bot-boat-movement
+            bot-character-animation visible="true">
+            <a-entity class="bot-char-row" gltf-model="#personagemRemar" position="0 0.3 -0.4" rotation="0 180 0"
+                animation-mixer="clip:*; loop:repeat; timeScale:1" kill-cubes visible="false"></a-entity>
+        </a-entity>
+
+        <!-- Bot 2 -->
+        <a-entity id="bot2" class="bot-boat" gltf-model="#blueKayak" position="10 0.6 0" float-on-ocean="oceanId: ocean"
+            bot-boat-movement bot-character-animation visible="true">
+            <a-entity class="bot-char-row" gltf-model="#personagemRemar" position="0 0.3 -0.4" rotation="0 180 0"
+                animation-mixer="clip:*; loop:repeat; timeScale:1" kill-cubes visible="false"></a-entity>
+        </a-entity>
+
+        <!-- Partida -->
+        <a-entity id="startLine" gltf-model="#startModel" position="0 -2 0" rotation="0 0 0" scale="40 35 30">
+        </a-entity>
+
+        <!-- Meta -->
+        <a-entity id="finishLine" gltf-model="#startModel" position="0 -1 -200" rotation="0 0 0" scale="40 35 30">
+        </a-entity>
+
+        <!-- Câmera livre inicial -->
+        <a-entity id="freeCamera" camera wasd-controls position="-15 6.5 -14" rotation="0 -140 0"
+            active="true"></a-entity>
+
+        <!-- Câmera do barco (3ª pessoa) -->
+        <a-entity id="boatCamera" camera="active: false" follow="target: #boat; offset: 0 6.5 14"
+            wasd-controls-enabled="false"></a-entity>
+
+        <!-- Câmera do barco POV (1ª pessoa) -->
+        <a-entity id="boatCameraPov" camera="active: false" look-controls follow="target: #boat; offset: 0 2.8 -0.6"
+            wasd-controls-enabled="false"></a-entity>
+    </a-scene>
+
+    <div id="cameraHint">Pressione <strong>C</strong> para alternar entre câmeras</div>
+
+    <script>
+        // Sistema de carregamento
+        class LoadingManager {
+            constructor() {
+                this.tasks = {
+                    scene: false,
+                    detector: false
+                };
+                this.weights = {
+                    scene: 50,
+                    detector: 50
+                };
+                this.currentProgress = 0;
+                this.targetProgress = 0;
+                this.updateProgress();
+                this.startProgressAnimation();
+            }
+
+            completeTask(taskName) {
+                if (this.tasks.hasOwnProperty(taskName) && !this.tasks[taskName]) {
+                    this.tasks[taskName] = true;
+                    console.log(`✓ ${taskName} carregado`);
+                    this.calculateTargetProgress();
+                    this.checkComplete();
+                }
+            }
+
+            calculateTargetProgress() {
+                let progress = 0;
+                for (let task in this.tasks) {
+                    if (this.tasks[task]) {
+                        progress += this.weights[task];
+                    }
+                }
+                this.targetProgress = progress;
+            }
+
+            startProgressAnimation() {
+                const animate = () => {
+                    if (this.currentProgress < this.targetProgress) {
+                        // Incremento suave
+                        const diff = this.targetProgress - this.currentProgress;
+                        this.currentProgress += diff * 0.05; // Velocidade da animação
+
+                        if (Math.abs(this.targetProgress - this.currentProgress) < 0.5) {
+                            this.currentProgress = this.targetProgress;
+                        }
+
+                        this.updateProgressDisplay();
+                    }
+
+                    requestAnimationFrame(animate);
+                };
+                animate();
+            }
+
+            updateProgress() {
+                this.calculateTargetProgress();
+            }
+
+            updateProgressDisplay() {
+                const progress = Math.round(this.currentProgress);
+                const progressBar = document.getElementById('progressBar');
+                const loadingText = document.getElementById('loadingText');
+
+                if (progressBar) {
+                    progressBar.style.width = progress + '%';
+                }
+                if (loadingText) {
+                    let status = 'Carregando';
+                    if (progress < 50) status = 'Carregando modelos e texturas';
+                    else if (progress < 100) status = 'Inicializando detector de pose';
+
+                    loadingText.textContent = `${status}... ${progress}%`;
+                }
+            }
+
+            checkComplete() {
+                const allComplete = Object.values(this.tasks).every(task => task === true);
+                if (allComplete) {
+                    setTimeout(() => {
+                        this.hideLoadingScreen();
+                    }, 800); // Pequeno delay para garantir que chegou a 100%
+                }
+            }
+
+            hideLoadingScreen() {
+                const loadingText = document.getElementById('loadingText');
+
+                if (loadingText) {
+                    loadingText.textContent = 'Carregamento Completo!';
+                }
+
+                setTimeout(() => {
+                    const loadingScreen = document.getElementById('loadingScreen');
+                    if (loadingScreen) {
+                        loadingScreen.classList.add('hidden');
+                        setTimeout(() => {
+                            loadingScreen.style.display = 'none';
+                        }, 500);
+                    }
+                }, 300);
+            }
+        }
+
+        // Inicializa o gerenciador
+        window.loadingManager = new LoadingManager();
+
+        // Monitora o carregamento completo da cena A-Frame
+        document.addEventListener('DOMContentLoaded', () => {
+            const scene = document.querySelector('a-scene');
+            const assets = document.querySelector('a-assets');
+
+            if (assets) {
+                assets.addEventListener('loaded', () => {
+                    console.log('✓ Assets carregados');
+
+                    setTimeout(() => {
+                        const allModelsLoaded = checkAllModelsLoaded();
+                        if (allModelsLoaded) {
+                            window.loadingManager.completeTask('scene');
+                        } else {
+                            waitForModels();
+                        }
+                    }, 1000);
+                });
+            }
+
+            setTimeout(() => {
+                if (!window.loadingManager.tasks.scene) {
+                    console.log('⚠ Timeout da cena, forçando carregamento');
+                    window.loadingManager.completeTask('scene');
+                }
+            }, 15000);
+        });
+
+        function checkAllModelsLoaded() {
+            const modelsWithGltf = document.querySelectorAll('[gltf-model]');
+            let allLoaded = true;
+
+            modelsWithGltf.forEach(entity => {
+                const model = entity.getObject3D('mesh');
+                if (!model) {
+                    allLoaded = false;
+                }
+            });
+
+            return allLoaded;
+        }
+
+        function waitForModels() {
+            let attempts = 0;
+            const maxAttempts = 20;
+
+            const checkInterval = setInterval(() => {
+                attempts++;
+                const allLoaded = checkAllModelsLoaded();
+
+                if (allLoaded) {
+                    console.log('✓ Todos os modelos carregados');
+                    clearInterval(checkInterval);
+                    window.loadingManager.completeTask('scene');
+                } else if (attempts >= maxAttempts) {
+                    console.log('⚠ Timeout dos modelos, continuando mesmo assim');
+                    clearInterval(checkInterval);
+                    window.loadingManager.completeTask('scene');
+                }
+            }, 500);
+        }
+    </script>
+    <script src="/Assets/scenes/game/race/scripts/race-manager.js"></script>
+    <script src="/Assets/scenes/game/race/scripts/character-animation.js"></script>
+    <script src="/Assets/scenes/game/race/scripts/moveNet.min.js"></script>
+    <script src="/Assets/scenes/game/race/scripts/checkup.js"></script>
+</body>
+
+</html>
