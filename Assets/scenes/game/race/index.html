@@ -81,10 +81,12 @@
             <a-asset-item id="blueKayak" src="/Assets/scenario/models/blueKayak.glb"></a-asset-item>
             <a-asset-item id="personagemRemar" src="/Assets/scenario/models/remar.glb"></a-asset-item>
             <a-asset-item id="bigRockWall" src="/Assets/scenario/models/wall.glb"></a-asset-item>
+            <a-asset-item id="newScenario" src="/Assets/scenario/models/scene.glb"></a-asset-item>
+            <a-asset-item id="newScenarioDir" src="/Assets/scenario/models/scenedir.glb"></a-asset-item>
         </a-assets>
 
         <!-- Cenário -->
-        <a-entity id="wall1" gltf-model="#bigRockWall" position="0 2 0" rotation="0 90 0">
+        <!--<a-entity id="wall1" gltf-model="#bigRockWall" position="0 2 0" rotation="0 -90 0">
         </a-entity>
 
         <a-entity id="wall2" gltf-model="#bigRockWall" position="0 0 -200" rotation="0 90 0">
@@ -94,7 +96,14 @@
         </a-entity>
 
         <a-entity id="wall4" gltf-model="#bigRockWall" position="0 0 -200" rotation="0 270 0">
-        </a-entity>
+        </a-entity>-->
+        <!--Scenario NOVO-->
+
+         <a-entity id="sceneesq" gltf-model="#newScenario" position="-17 0 0" rotation="0 -90 0" scale="10 10 10">
+         </a-entity>
+
+         <a-entity id="scenedir" gltf-model="#newScenarioDir" position="17 0 -250" rotation="0 90 0" scale="10 10 10">
+         </a-entity>
 
         <!-- Barco principal COM PERSONAGEM -->
         <a-entity id="boat" gltf-model="#orangeKayak" rotation="0 0 0" position="0 0.6 0" boat-controls
