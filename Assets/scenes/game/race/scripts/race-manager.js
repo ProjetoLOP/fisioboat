@@ -82,6 +82,8 @@ function showCountdown(callback) {
             countdownEl.style.display = 'none';
             spaceLocked = false;
             if (callback) callback();
+
+            document.dispatchEvent(new Event('raceStart'));
         }
     };
 
@@ -119,7 +121,7 @@ function enableBoatsMovement() {
 // Inicia a corrida
 function startGame() {
 
-    document.dispatchEvent(new Event('raceStart'));
+    document.dispatchEvent(new Event('gameStart'));
     document.querySelectorAll("#boat, .bot-boat").forEach(e => e.setAttribute("visible", true));
     document.getElementById("startUI").style.display = "none";
     document.getElementById("finishUI").style.display = "none";

@@ -86,24 +86,12 @@
         </a-assets>
 
         <!-- Cenário -->
-        <!--<a-entity id="wall1" gltf-model="#bigRockWall" position="0 2 0" rotation="0 -90 0">
+
+        <a-entity id="sceneesq" gltf-model="#newScenario" position="-17 0 0" rotation="0 -90 0" scale="10 10 10">
         </a-entity>
 
-        <a-entity id="wall2" gltf-model="#bigRockWall" position="0 0 -200" rotation="0 90 0">
+        <a-entity id="scenedir" gltf-model="#newScenarioDir" position="17 0 -250" rotation="0 90 0" scale="10 10 10">
         </a-entity>
-
-        <a-entity id="wall3" gltf-model="#bigRockWall" position="0 0 0" rotation="0 270">
-        </a-entity>
-
-        <a-entity id="wall4" gltf-model="#bigRockWall" position="0 0 -200" rotation="0 270 0">
-        </a-entity>-->
-        <!--Scenario NOVO-->
-
-         <a-entity id="sceneesq" gltf-model="#newScenario" position="-17 0 0" rotation="0 -90 0" scale="10 10 10">
-         </a-entity>
-
-         <a-entity id="scenedir" gltf-model="#newScenarioDir" position="17 0 -250" rotation="0 90 0" scale="10 10 10">
-         </a-entity>
 
         <!-- Barco principal COM PERSONAGEM -->
         <a-entity id="boat" gltf-model="#orangeKayak" rotation="0 0 0" position="0 0.6 0" boat-controls
@@ -235,6 +223,9 @@
                 const allComplete = Object.values(this.tasks).every(task => task === true);
                 if (allComplete) {
                     setTimeout(() => {
+                        // Dispara evento de carregamento completo
+                        document.dispatchEvent(new CustomEvent('loadingComplete'));
+
                         this.hideLoadingScreen();
                     }, 800); // Pequeno delay para garantir que chegou a 100%
                 }
@@ -333,9 +324,12 @@
             }
         });
 
-        // Começar por comando de voz
-        commandListener('iniciar', () => {
-            startGame();
+        // Em qualquer parte do seu código
+        document.addEventListener('loadingComplete', () => {
+            // Começar por comando de voz
+            commandListener('iniciar', () => {
+                startGame();
+            });
         });
 
         function commandListener(comando, callback) {
@@ -374,12 +368,15 @@
                 console.log('Microfone desativado');
             };
 
+            document.addEventListener("gameStart", () => recognition.stop());
+
             recognition.start();
             console.log(`Microfone ativado, aguardando "${comando}"...`);
         }
     </script>
     <script src="/Assets/scenes/game/race/scripts/race-manager.js"></script>
     <script src="/Assets/scenes/game/race/scripts/character-animation.js"></script>
+    <script src="/Assets/scenes/game/race/scripts/soundEffects.js"></script>
 </body>
 
 </html>

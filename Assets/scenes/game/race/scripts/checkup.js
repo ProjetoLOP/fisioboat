@@ -107,8 +107,6 @@ document.addEventListener('keypress', function (event) {
     }
 }, { once: true });
 
-
-// Exemplo de uso:
 commandListener('iniciar', () => {
     startDetection();
 
