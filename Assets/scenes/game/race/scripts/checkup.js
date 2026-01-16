@@ -107,12 +107,15 @@ document.addEventListener('keypress', function (event) {
     }
 }, { once: true });
 
-commandListener('iniciar', () => {
-    startDetection();
+document.addEventListener("loadingComplete", () => {
+    commandListener('iniciar', () => {
+        startDetection();
+    
+        const loadingDots = document.querySelector(".loading-dots");
+        loadingDots.classList.add("active");
+    });
+})
 
-    const loadingDots = document.querySelector(".loading-dots");
-    loadingDots.classList.add("active");
-});
 
 window.addEventListener("detector:ready", () => {
     window.loadingManager.completeTask('detector');

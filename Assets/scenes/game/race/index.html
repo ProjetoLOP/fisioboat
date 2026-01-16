@@ -69,7 +69,8 @@
 
     <div id="leaderboard-corner"></div>
 
-    <a-scene id="scene" renderer="colorManagement: true; physicallyCorrectLights: true;"
+    <a-scene id="scene"
+        renderer="precision: mediump; colorManagement: true; physicallyCorrectLights: true;"
         hdri="url: /Assets/scenario/hdr/afternoon.hdr">
         <a-sky rotation="0 180 0" src="/Assets/scenario/textures/sunset-sky.jpeg"></a-sky>
         <a-ocean-plane id="ocean" position="0 -1 0"></a-ocean-plane>
@@ -145,6 +146,19 @@
     <div id="cameraHint">Pressione <strong>C</strong> para alternar entre câmeras</div>
 
     <script>
+        window.addEventListener("DOMContentLoaded", () => {
+            const sceneEl = document.querySelector("a-scene");
+
+            sceneEl.addEventListener("renderstart", () => {
+                const renderer = sceneEl.renderer;
+
+                renderer.setPixelRatio(0.75); // 🔥 aqui sim funciona
+                renderer.setSize(window.innerWidth, window.innerHeight, false);
+
+                console.log("PixelRatio aplicado:", renderer.getPixelRatio());
+            });
+        });
+
         // Sistema de carregamento
         class LoadingManager {
             constructor() {
