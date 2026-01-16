@@ -72,7 +72,7 @@
     <a-scene id="scene"
         renderer="precision: mediump; colorManagement: true; physicallyCorrectLights: true;"
         hdri="url: /Assets/scenario/hdr/afternoon.hdr">
-        <a-sky rotation="0 180 0" src="/Assets/scenario/textures/sunset-sky.jpeg"></a-sky>
+        <a-sky rotation="0 180 0" scale="8 8 8" src="/Assets/scenario/textures/sunset-sky.jpeg"></a-sky>
         <a-ocean-plane id="ocean" position="0 -1 0"></a-ocean-plane>
 
         <a-assets timeout="60000">
@@ -126,7 +126,7 @@
         </a-entity>
 
         <!-- Meta -->
-        <a-entity id="finishLine" gltf-model="#startModel" position="0 -1 -200" rotation="0 0 0" scale="40 35 30"
+        <a-entity id="finishLine" gltf-model="#startModel" position="0 -1 -400" rotation="0 0 0" scale="40 35 30"
             fix-materials>
         </a-entity>
 

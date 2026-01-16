@@ -87,10 +87,10 @@ AFRAME.registerPrimitive('a-ocean-plane', {
   defaultComponents: {
     geometry: {
       primitive: 'plane',
-      width: 4000,
+      width: 100,
       height: 4000,
-      segmentsWidth: 100,
-      segmentsHeight: 100
+      segmentsWidth: 10,
+      segmentsHeight: 400
     },
     rotation: '-90 0 0',
     material: {
@@ -110,7 +110,7 @@ AFRAME.registerPrimitive('a-ocean-plane', {
       envMapIntensity: 0.35,
 
       normalMap: 'url(/Assets/scenario/images/waternormals.jpg)',
-      normalTextureRepeat: '40 40',
+      normalTextureRepeat: '2 80',
       normalScale: '0.35 0.35'
     },
     'wobble-normal': {},
