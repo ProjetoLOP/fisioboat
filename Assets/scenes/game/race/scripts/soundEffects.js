@@ -15,6 +15,7 @@ const soundEffects = {
         // Inicializa músicas
         this.introMusic = new Audio('/Assets/scenario/songs/racing_intro.mp3');
         this.raceMusic = new Audio('/Assets/scenario/songs/racing_loop.mp3');
+        this.countdownSound = new Audio('/Assets/scenario/songs/countdown.mp3');
 
         // Configura loops
         this.introMusic.loop = true;
@@ -23,10 +24,8 @@ const soundEffects = {
         // Configura volumes
         this.introMusic.volume = 0.7;
         this.raceMusic.volume = 0.7;
+        this.countdownSound.volume = 0.8;
 
-        // Inicializa efeitos sonoros (quando tiver o arquivo)
-        // this.countdownSound = new Audio('/Assets/sounds/countdown.mp3');
-        // this.countdownSound.volume = 0.8;
 
         // Toca música de intro imediatamente
         this.playIntroMusic();
@@ -37,17 +36,16 @@ const soundEffects = {
 
     setupEventListeners() {
         // Evento de countdown - pausa música e toca efeito
-        document.addEventListener('countdown', () => {
+        document.addEventListener('gameStart', () => {
             console.log('[SoundEffects] Countdown iniciado - pausando música');
             this.pauseCurrentMusic();
             
-            // Quando tiver o som de countdown, descomente:
-            // if (this.countdownSound) {
-            //     this.countdownSound.currentTime = 0;
-            //     this.countdownSound.play().catch(err => {
-            //         console.warn('Erro ao tocar countdown:', err);
-            //     });
-            // }
+            if (this.countdownSound) {
+                this.countdownSound.currentTime = 0;
+                this.countdownSound.play().catch(err => {
+                    console.warn('Erro ao tocar countdown:', err);
+                });
+            }
         });
 
         // Evento de início da corrida - toca música de corrida
