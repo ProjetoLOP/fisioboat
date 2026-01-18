@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt_BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developing</title>
+
+    <!-- MoveNet Lib -->
+    <script id="tfjs" src="/Assets/scripts/Libs/tfjs.js"></script>
+    <script id="pose-detection" src="/Assets/scripts/Libs/pose-detection.js"></script>
+    <script id="tfjs-backend-webgl" src="/Assets/scripts/Libs/tfjs-backend-webgl.js"></script>
+
+    <!-- Aframe Lib -->
+    <script src="/Assets/scripts/Libs/aframe.min.js"></script>
+    <script src="/Assets/scripts/Libs/aframe-extras.min.js"></script>
+    <script src="/Assets/scripts/Libs/combo-ocean.js"></script>
+    <script src="/Assets/scripts/Libs/RGBELoader.js"></script>
+    <script>
+        // Register the 'hdri' component
+        AFRAME.registerComponent('hdri', {
+            schema: {
+                url: { type: 'string' }, // Define the data schema
+            },
+            init: function () {
+                const { url } = this.data; // Get the URL from the component data
+                const sceneEl = this.el; // Reference to the A-Frame scene element
+                const scene = sceneEl.object3D; // THREE.js scene object
+                const renderer = sceneEl.renderer; // A-Frame renderer
+                // Set up the HDRI loader
+                const rgbeLoader = new THREE.RGBELoader();
+                rgbeLoader.setDataType(THREE.UnsignedByteType);
+                rgbeLoader.load(url, (texture) => {
+                    // PMREM Generator for converting the texture to a suitable format
+                    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+                    pmremGenerator.compileEquirectangularShader();
+                    const envMap = pmremGenerator.fromEquirectangular(texture).texture;
+                    scene.environment = envMap; // Set the scene environment
+                    texture.dispose();
+                    pmremGenerator.dispose();
+                });
+            }
+        });
+    </script>
+    <script src="/Assets/scenes/dev/cheer/cheer.js"></script>
+</head>
+
+<body>
+    <video id="video" style="position: absolute;width: 300px;z-index: 1;"></video>
+
+    <a-scene stats renderer="colorManagement: true; physicallyCorrectLights: true;"
+        hdri="url: /Assets/scenario/hdr/afternoon.hdr">
+        <a-sky rotation="0 180 0" scale="8 8 8" src="/Assets/scenario/textures/sunset-sky.jpeg"></a-sky>
+
+        <a-ocean-plane id="ocean" position="0 -1 0"></a-ocean-plane>
+
+        <a-assets timeout="60000">
+            <a-asset-item id="startModel" src="/Assets/scenario/models/start.glb"></a-asset-item>
+            <a-asset-item id="newScenario" src="/Assets/scenario/models/scene.glb"></a-asset-item>
+            <a-asset-item id="newScenarioDir" src="/Assets/scenario/models/scenedir.glb"></a-asset-item>
+        </a-assets>
+
+        <!-- Cenário -->
+
+        <a-entity id="sceneesq" gltf-model="#newScenario" position="-17 0 0" rotation="0 -90 0" scale="10 10 10">
+        </a-entity>
+
+        <a-entity id="scenedir" gltf-model="#newScenarioDir" position="17 0 -250" rotation="0 90 0" scale="10 10 10">
+        </a-entity>
+
+        <!-- Partida -->
+        <a-entity id="startLine" gltf-model="#startModel" position="0 -2 0" rotation="0 0 0" scale="40 35 30">
+        </a-entity>
+
+        <!-- Chegada -->
+        <a-entity id="finishLine" gltf-model="#startModel" position="0 -1 -400" rotation="0 0 0" scale="40 35 30"
+            fix-materials>
+        </a-entity>
+
+        <a-entity id="cheeringCrowd1" gltf-model="/Assets/scenario/models/cheering/man-green-clap.glb"
+            position="75.32 6 -101.55" rotation="0 -45 0" scale="3 3 3"
+            animation-mixer="clip: HumanArmature|Man_Clapping; loop: repeat">
+        </a-entity>
+
+        <a-entity id="cheeringCrowd2" gltf-model="/Assets/scenario/models/cheering/man-grey-jump.glb"
+            position="73.32 6 -86.55" rotation="0 -45 0" scale="3 3 3"
+            animation-mixer="clip: HumanArmature|Man_Jump; loop: repeat">
+        </a-entity>
+
+        <a-entity id="cheeringCrowd3" gltf-model="/Assets/scenario/models/cheering/adventurer.glb"
+            position="81.68 7 24.39" rotation="0 -110 0" scale="7 7 7"
+            animation-mixer="clip: CharacterArmature|Wave; loop: repeat">
+        </a-entity>
+
+        <a-entity id="cheeringCrowd4" gltf-model="/Assets/scenario/models/cheering/man-grey-jump.glb"
+            position="53.21 3 38.31" rotation="0 -120 0" scale="3 3 3"
+            animation-mixer="clip: HumanArmature|Man_Clapping; loop: repeat">
+        </a-entity>
+
+        <a-entity id="cheeringCrowd5" gltf-model="/Assets/scenario/models/cheering/man-suit.glb"
+            position="-29.70 4.5 85.20" rotation="0 160 0" scale="3 3 3"
+            animation-mixer="clip: HumanArmature|Man_Idle; loop: repeat">
+        </a-entity>
+
+        <a-entity id="cheeringCrowd6" gltf-model="/Assets/scenario/models/cheering/man-green-clap.glb"
+            position="-84.58 5 -44" rotation="0 60 0" scale="3 3 3" animation-mixer="clip: HumanArmature|Man_Sitting">
+        </a-entity>
+
+        <a-entity id="cheeringCrowd7" gltf-model="/Assets/scenario/models/cheering/man-green-clap.glb"
+            position="-35.49 2.5 -301.24" rotation="0 60 0" scale="3 3 3"
+            animation-mixer="clip: HumanArmature|Man_Clapping">
+        </a-entity>
+
+        <a-entity id="cheeringCrowd8" gltf-model="/Assets/scenario/models/cheering/man-grey-jump.glb"
+            position="-61.32 2.00 -371.39" rotation="0 60 0" scale="3 3 3"
+            animation-mixer="clip: HumanArmature|Man_Idle">
+        </a-entity>
+
+        <a-entity id="cheeringCrowd9" gltf-model="/Assets/scenario/models/cheering/man-green-clap.glb"
+            position="59.10 2.00 -344.79" rotation="0 -40 0" scale="3 3 3"
+            animation-mixer="clip: HumanArmature|Man_Jump">
+        </a-entity>
+
+
+        <!-- Barcos -->
+        <a-entity id="boat" gltf-model="/Assets/scenario/models/BarcoTexturizado.glb" rotation="0 0 0"
+            position="0 0.6 0" boat-controls float-on-ocean="oceanId: ocean"></a-entity>
+
+        <!-- Telespectador -->
+        <a-entity camera look-controls follow="target: #boat; offset: 0 1.5 -1"></a-entity>
+        <!-- <a-entity camera look-controls wasd-controls="acceleration: 90" position="-8 10 -10" log-camera-position>
+        </a-entity> -->
+
+    </a-scene>
+
+    <!-- MoveNet Manipulation -->
+    <script src="/Assets/scripts/moveNet.js"></script>
+    <script>
+        // moveNetDetector.run();
+
+        window.addEventListener("DOMContentLoaded", () => {
+            const sceneEl = document.querySelector("a-scene");
+
+            sceneEl.addEventListener("renderstart", () => {
+                const renderer = sceneEl.renderer;
+
+                renderer.setPixelRatio(0.75); // 🔥 aqui sim funciona
+                renderer.setSize(window.innerWidth, window.innerHeight, false);
+
+                console.log("PixelRatio aplicado:", renderer.getPixelRatio());
+            });
+        });
+
+        function logAnimations(entityId) {
+            const el = document.getElementById(entityId);
+
+            if (!el) {
+                console.warn(`Entidade ${entityId} não encontrada`);
+                return;
+            }
+
+            el.addEventListener('model-loaded', (e) => {
+                const clips = e.detail.model.animations;
+
+                if (!clips || clips.length === 0) {
+                    console.warn(`Nenhuma animação encontrada em ${entityId}`);
+                    return;
+                }
+
+                console.group(`🎬 Animações do ${entityId}`);
+                clips.forEach((clip, index) => {
+                    console.log(`${index + 1}: ${clip.name}`);
+                });
+                console.groupEnd();
+            });
+        }
+    </script>
+</body>
+
+</html>
