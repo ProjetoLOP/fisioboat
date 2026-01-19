@@ -80,10 +80,9 @@
 
     <div id="leaderboard-corner"></div>
 
-    <a-scene id="scene" stats
-        renderer="precision: mediump; colorManagement: true; physicallyCorrectLights: true;"
+    <a-scene stats id="scene" renderer="precision: mediump; colorManagement: true; physicallyCorrectLights: true;"
         hdri="url: /Assets/scenario/hdr/afternoon.hdr">
-        <a-sky rotation="0 180 0" src="/Assets/scenario/textures/sunset-sky.jpeg"></a-sky>
+        <a-sky rotation="0 180 0" scale="8 8 8" src="/Assets/scenario/textures/sunset-sky.jpeg"></a-sky>
         <a-ocean-plane id="ocean" position="0 -1 0"></a-ocean-plane>
 
         <a-assets timeout="60000">
@@ -93,19 +92,16 @@
             <a-asset-item id="blueKayak" src="/Assets/scenario/models/blueKayak.glb"></a-asset-item>
             <a-asset-item id="personagemRemar" src="/Assets/scenario/models/remar.glb"></a-asset-item>
             <a-asset-item id="bigRockWall" src="/Assets/scenario/models/wall.glb"></a-asset-item>
+            <a-asset-item id="newScenario" src="/Assets/scenario/models/scene.glb"></a-asset-item>
+            <a-asset-item id="newScenarioDir" src="/Assets/scenario/models/scenedir.glb"></a-asset-item>
         </a-assets>
 
         <!-- Cenário -->
-        <a-entity id="wall1" gltf-model="#bigRockWall" position="0 2 0" rotation="0 90 0">
+
+        <a-entity id="sceneesq" gltf-model="#newScenario" position="-17 0 0" rotation="0 -90 0" scale="10 10 10">
         </a-entity>
 
-        <a-entity id="wall2" gltf-model="#bigRockWall" position="0 0 -200" rotation="0 90 0">
-        </a-entity>
-
-        <a-entity id="wall3" gltf-model="#bigRockWall" position="0 0 0" rotation="0 270">
-        </a-entity>
-
-        <a-entity id="wall4" gltf-model="#bigRockWall" position="0 0 -200" rotation="0 270 0">
+        <a-entity id="scenedir" gltf-model="#newScenarioDir" position="17 0 -250" rotation="0 90 0" scale="10 10 10">
         </a-entity>
 
         <!-- Barco principal COM PERSONAGEM -->
@@ -134,12 +130,59 @@
                 animation-mixer="clip:*; loop:repeat; timeScale:1" kill-cubes visible="false"></a-entity>
         </a-entity>
 
+
         <!-- Partida -->
         <a-entity id="startLine" gltf-model="#startModel" position="0 -2 0" rotation="0 0 0" scale="40 35 30">
         </a-entity>
 
         <!-- Meta -->
-        <a-entity id="finishLine" gltf-model="#startModel" position="0 -1 -200" rotation="0 0 0" scale="40 35 30">
+        <a-entity id="finishLine" gltf-model="#startModel" position="0 -1 -400" rotation="0 0 0" scale="40 35 30"
+            fix-materials>
+        </a-entity>
+
+        <!-- Torcida -->
+        <a-entity id="cheeringCrowd1" gltf-model="/Assets/scenario/models/cheering/man-green-clap.glb"
+            position="75.32 6 -101.55" rotation="0 -45 0" scale="3 3 3"
+            animation-mixer="clip: HumanArmature|Man_Clapping; loop: repeat">
+        </a-entity>
+
+        <a-entity id="cheeringCrowd2" gltf-model="/Assets/scenario/models/cheering/man-grey-jump.glb"
+            position="73.32 6 -86.55" rotation="0 -45 0" scale="3 3 3"
+            animation-mixer="clip: HumanArmature|Man_Jump; loop: repeat">
+        </a-entity>
+
+        <a-entity id="cheeringCrowd3" gltf-model="/Assets/scenario/models/cheering/adventurer.glb"
+            position="81.68 7 24.39" rotation="0 -110 0" scale="7 7 7"
+            animation-mixer="clip: CharacterArmature|Wave; loop: repeat">
+        </a-entity>
+
+        <a-entity id="cheeringCrowd4" gltf-model="/Assets/scenario/models/cheering/man-grey-jump.glb"
+            position="53.21 3 38.31" rotation="0 -120 0" scale="3 3 3"
+            animation-mixer="clip: HumanArmature|Man_Clapping; loop: repeat">
+        </a-entity>
+
+        <a-entity id="cheeringCrowd5" gltf-model="/Assets/scenario/models/cheering/man-brown.glb"
+            position="-29.70 4.5 85.20" rotation="0 160 0" scale="3 3 3"
+            animation-mixer="clip: HumanArmature|Man_Idle; loop: repeat">
+        </a-entity>
+
+        <a-entity id="cheeringCrowd6" gltf-model="/Assets/scenario/models/cheering/man-green-clap.glb"
+            position="-84.58 5 -44" rotation="0 60 0" scale="3 3 3" animation-mixer="clip: HumanArmature|Man_Sitting">
+        </a-entity>
+
+        <a-entity id="cheeringCrowd7" gltf-model="/Assets/scenario/models/cheering/man-green-clap.glb"
+            position="-35.49 2.5 -301.24" rotation="0 60 0" scale="3 3 3"
+            animation-mixer="clip: HumanArmature|Man_Clapping">
+        </a-entity>
+
+        <a-entity id="cheeringCrowd8" gltf-model="/Assets/scenario/models/cheering/man-grey-jump.glb"
+            position="-61.32 2.00 -371.39" rotation="0 60 0" scale="3 3 3"
+            animation-mixer="clip: HumanArmature|Man_Idle">
+        </a-entity>
+
+        <a-entity id="cheeringCrowd9" gltf-model="/Assets/scenario/models/cheering/man-green-clap.glb"
+            position="59.10 2.00 -344.79" rotation="0 -40 0" scale="3 3 3"
+            animation-mixer="clip: HumanArmature|Man_Jump">
         </a-entity>
 
         <!-- Câmera livre inicial -->
@@ -346,6 +389,7 @@
     <script src="/Assets/scenes/game/race/scripts/character-animation.js"></script>
     <script src="/Assets/scenes/game/race/scripts/moveNet.min.js"></script>
     <script src="/Assets/scenes/game/race/scripts/checkup.js"></script>
+    <script src="/Assets/scenes/game/race/scripts/soundEffects.js"></script>
 </body>
 
 </html>

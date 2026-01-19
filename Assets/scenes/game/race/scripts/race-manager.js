@@ -429,8 +429,16 @@ AFRAME.registerComponent('check-finish', {
             boatsStatus.sort((a, b) => a.boat.getAttribute('position').z - b.boat.getAttribute('position').z);
             this.updateCornerLeaderboard(boatsStatus);
         } else {
-            if (this.leaderboardCorner) this.leaderboardCorner.style.display = 'none';
-            this.updateFinalLeaderboard();
+            // Corrida acabou - todos os barcos cruzaram a linha de chegada
+            if (!this.raceFinished) {
+                this.raceFinished = true;
+
+                if (this.leaderboardCorner) this.leaderboardCorner.style.display = 'none';
+                this.updateFinalLeaderboard();
+
+                // Dispara o evento raceFinish
+                document.dispatchEvent(new CustomEvent('raceFinish'));
+            }
         }
     },
 
