@@ -39,6 +39,103 @@
                 });
             }
         });
+
+        // Componente de neblina com limite de altura (estilo GTA SA)
+        AFRAME.registerComponent('height-fog', {
+            schema: {
+                color: { type: 'color', default: '#FF8C42' },
+                near: { type: 'number', default: 80 },
+                far: { type: 'number', default: 400 },
+                maxHeight: { type: 'number', default: 25 }
+            },
+
+            init: function () {
+                const scene = this.el.sceneEl.object3D;
+                const data = this.data;
+
+                // Configura fog linear do THREE.js
+                const color = new THREE.Color(data.color);
+                scene.fog = new THREE.Fog(color, data.near, data.far);
+
+                // Aguarda a cena carregar
+                setTimeout(() => {
+                    scene.traverse((object) => {
+                        if (object.isMesh) {
+                            this.applyHeightFogToMesh(object, data);
+                        }
+                    });
+                }, 1000);
+
+                // Observa novos objetos adicionados
+                this.el.sceneEl.addEventListener('object3dset', (evt) => {
+                    if (evt.detail.object) {
+                        evt.detail.object.traverse((obj) => {
+                            if (obj.isMesh) {
+                                this.applyHeightFogToMesh(obj, data);
+                            }
+                        });
+                    }
+                });
+            },
+
+            applyHeightFogToMesh: function (object, data) {
+                if (!object.isMesh || !object.material) return;
+                if (object.material.userData.hasHeightFog) return;
+
+                const material = object.material;
+                material.userData.hasHeightFog = true;
+                material.fog = true;
+
+                const originalOnBeforeCompile = material.onBeforeCompile;
+
+                material.onBeforeCompile = (shader) => {
+                    if (originalOnBeforeCompile) {
+                        originalOnBeforeCompile(shader);
+                    }
+
+                    // Adiciona uniform para altura máxima da neblina
+                    shader.uniforms.fogMaxHeight = { value: data.maxHeight };
+
+                    // Adiciona vWorldPosition no vertex shader se não existir
+                    if (!shader.vertexShader.includes('varying vec3 vWorldPosition')) {
+                        shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader;
+                        shader.vertexShader = shader.vertexShader.replace(
+                            '#include <worldpos_vertex>',
+                            `
+                            #include <worldpos_vertex>
+                            vWorldPosition = worldPosition.xyz;
+                            `
+                        );
+                    }
+
+                    // Adiciona vWorldPosition no fragment shader se não existir
+                    if (!shader.fragmentShader.includes('varying vec3 vWorldPosition')) {
+                        shader.fragmentShader = 'varying vec3 vWorldPosition;\nuniform float fogMaxHeight;\n' + shader.fragmentShader;
+                    }
+
+                    // Substitui o fog_fragment com versão que considera altura
+                    shader.fragmentShader = shader.fragmentShader.replace(
+                        '#include <fog_fragment>',
+                        `
+                        #ifdef USE_FOG
+                            // Calcula fator de altura (0 = sem neblina acima de maxHeight, 1 = neblina total abaixo)
+                            float heightFactor = clamp(1.0 - (vWorldPosition.y / fogMaxHeight), 0.0, 1.0);
+                            
+                            // Calcula distância da câmera
+                            float depth = length(vWorldPosition - cameraPosition);
+                            
+                            // Aplica neblina linear com fator de altura
+                            float fogFactor = smoothstep(fogNear, fogFar, depth) * heightFactor;
+                            
+                            gl_FragColor.rgb = mix(gl_FragColor.rgb, fogColor, fogFactor);
+                        #endif
+                        `
+                    );
+                };
+
+                material.needsUpdate = true;
+            }
+        });
     </script>
 
     <link rel="stylesheet" href="/Assets/scenes/game/race/styles/style.css">
@@ -69,8 +166,12 @@
 
     <div id="leaderboard-corner"></div>
 
-    <a-scene id="scene" renderer="precision: mediump; colorManagement: true; physicallyCorrectLights: true;"
+    <!-- SCENE COM NEBLINA ESTILO GTA SA -->
+    <a-scene id="scene" 
+        height-fog="color: #FFA559; near: 80; far: 700; maxHeight: 300"
+        renderer="precision: mediump; colorManagement: true; physicallyCorrectLights: true;"
         hdri="url: /Assets/scenario/hdr/afternoon.hdr">
+        
         <a-sky rotation="0 180 0" scale="8 8 8" src="/Assets/scenario/textures/sunset-sky.jpeg"></a-sky>
         <a-ocean-plane id="ocean" position="0 -1 0"></a-ocean-plane>
 
@@ -86,7 +187,6 @@
         </a-assets>
 
         <!-- Cenário -->
-
         <a-entity id="sceneesq" gltf-model="#newScenario" position="-17 0 0" rotation="0 -90 0" scale="10 10 10">
         </a-entity>
 
@@ -177,15 +277,15 @@
 
         <!-- Câmera livre inicial -->
         <a-entity id="freeCamera" camera wasd-controls position="-15 6.5 -14" rotation="0 -140 0"
-            active="true"></a-entity>
+            active="true" far="400"></a-entity>
 
         <!-- Câmera do barco (3ª pessoa) -->
         <a-entity id="boatCamera" camera="active: false" follow="target: #boat; offset: 0 6.5 14"
-            wasd-controls-enabled="false"></a-entity>
+            wasd-controls-enabled="false" far="400"></a-entity>
 
         <!-- Câmera do barco POV (1ª pessoa) -->
         <a-entity id="boatCameraPov" camera="active: false" look-controls follow="target: #boat; offset: 0 2.8 -0.6"
-            wasd-controls-enabled="false"></a-entity>
+            wasd-controls-enabled="false" far="400"></a-entity>
     </a-scene>
 
     <div id="cameraHint">Pressione <strong>C</strong> para alternar entre câmeras</div>
