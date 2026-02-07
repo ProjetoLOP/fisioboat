@@ -14,7 +14,7 @@
     <!-- Aframe Lib -->
     <script src="/Assets/scripts/Libs/aframe.min.js"></script>
     <script src="/Assets/scripts/Libs/aframe-extras.min.js"></script>
-    <script src="/Assets/scripts/Libs/combo-ocean.js"></script>
+    <script src="/Assets/scripts/Libs/combo-ocean-incont.js"></script>
     <script src="/Assets/scripts/Libs/RGBELoader.js"></script>
     <script>
         // Register the 'hdri' component
@@ -112,6 +112,9 @@
             <a-asset-item id="boatModel" src="/Assets/scenario/models/BarcoTexturizado.glb"></a-asset-item>
             <a-asset-item id="orangeKayak" src="/Assets/scenario/models/orangeKayak.glb"></a-asset-item>
             <a-asset-item id="greenKayak" src="/Assets/scenario/models/greenKayak.glb"></a-asset-item>
+            <a-asset-item id="newScenario" src="/Assets/scenario/models/scene.glb"></a-asset-item>
+            <a-asset-item id="newScenarioDir" src="/Assets/scenario/models/scenedir.glb"></a-asset-item>
+
 
             <a-asset-item id="playerCharacter" src="/Assets/scenario/models/remar.glb"></a-asset-item>
         </a-assets>
@@ -124,16 +127,11 @@
         <a-ocean-plane id="ocean" position="0 -1 0"></a-ocean-plane>
 
         <!-- Paredões -->
-        <a-entity id="wall1" gltf-model="#bigRockWall" position="0 2 0" rotation="0 90 0">
+        <!-- Cenário -->
+        <a-entity id="sceneesq" gltf-model="#newScenario" position="-17 0 0" rotation="0 -90 0" scale="10 10 10">
         </a-entity>
 
-        <a-entity id="wall2" gltf-model="#bigRockWall" position="0 0 -200" rotation="0 90 0">
-        </a-entity>
-
-        <a-entity id="wall3" gltf-model="#bigRockWall" position="0 0 0" rotation="0 270">
-        </a-entity>
-
-        <a-entity id="wall4" gltf-model="#bigRockWall" position="0 0 -200" rotation="0 270 0">
+        <a-entity id="scenedir" gltf-model="#newScenarioDir" position="34 0 -900" rotation="0 90 0" scale="10 10 10">
         </a-entity>
 
         <!-- Partida -->
@@ -174,6 +172,21 @@
         <!-- Usuário - seguindo o barco -->
         <a-entity camera look-controls follow="target: #boat; offset: 0 3 -1"></a-entity>
     </a-scene>
+
+    <script>
+        window.addEventListener("DOMContentLoaded", () => {
+            const sceneEl = document.querySelector("a-scene");
+
+            sceneEl.addEventListener("renderstart", () => {
+                const renderer = sceneEl.renderer;
+
+                renderer.setPixelRatio(0.75); // 🔥 aqui sim funciona
+                renderer.setSize(window.innerWidth, window.innerHeight, false);
+
+                console.log("PixelRatio aplicado:", renderer.getPixelRatio());
+            });
+        });
+    </script>
 
     <script>
         // Sistema de carregamento

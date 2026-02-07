@@ -59,8 +59,8 @@ document.addEventListener('keypress', function (event) {
 window.addEventListener("detector:ready", () => {
     window.loadingManager.completeTask('detector');
     
-    // setupCamera();
-    setupVideo();
+    setupCamera();
+    // setupVideo();
 });
 
 window.addEventListener("pose:ready", () => {

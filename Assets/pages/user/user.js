@@ -203,7 +203,7 @@ function createSessionCard(session) {
                 <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
                     <div class="stat-group">
                         <div class="stat-icon">🎯</div>
-                        <span>${avgDepth}%</span>
+                        <span>${avgDepth}% prof.</span>
                     </div>
                 </div>
             </div>
