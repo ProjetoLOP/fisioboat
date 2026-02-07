@@ -421,16 +421,175 @@ a {
     font-size: 0.8rem;
 }
 
-.star-rating {
-    color: #ff6b35;
-    font-size: 1.5rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
+/* ========================================
+   BOTÕES DE DOWNLOAD
+======================================== */
+
+/* Ícones SVG de download */
+.download-icon {
+    width: 20px;
+    height: 20px;
+    color: white;
+    transition: transform 0.3s ease;
 }
 
-.star-rating:hover {
-    transform: scale(1.2);
-    filter: drop-shadow(0 0 8px rgba(255, 107, 53, 0.6));
+.download-icon-sm {
+    width: 24px;
+    height: 24px;
+    color: #ff6b35;
+    transition: transform 0.3s ease;
+}
+
+.download-button:hover .download-icon-sm {
+    transform: translateY(2px);
+    color: #f7931e;
+}
+
+.download-all-btn:hover .download-icon {
+    transform: translateY(2px);
+}
+
+/* Botão de download individual (ícone SVG) */
+.download-button {
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    user-select: none;
+    position: relative;
+    filter: drop-shadow(0 2px 4px rgba(255, 107, 53, 0.2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(255, 107, 53, 0.08), rgba(247, 147, 30, 0.12));
+    border: 2px solid transparent;
+}
+
+.download-button:hover {
+    transform: translateY(-4px) scale(1.15);
+    filter: drop-shadow(0 8px 16px rgba(255, 107, 53, 0.4));
+    background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(247, 147, 30, 0.2));
+    border-color: rgba(255, 107, 53, 0.3);
+}
+
+.download-button:active {
+    transform: translateY(-1px) scale(1.05);
+    filter: drop-shadow(0 4px 8px rgba(255, 107, 53, 0.3));
+}
+
+.download-button::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #ff6b35, #f7931e);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+    filter: blur(8px);
+}
+
+.download-button:hover::before {
+    opacity: 0.3;
+}
+
+/* Botão "Baixar Tudo" */
+.download-all-btn {
+    background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+    color: white;
+    border: none;
+    padding: 0.9rem 1.8rem;
+    border-radius: 14px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.download-all-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        transparent
+    );
+    transition: left 0.5s ease;
+}
+
+.download-all-btn:hover::before {
+    left: 100%;
+}
+
+.download-all-btn:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4),
+                0 4px 12px rgba(247, 147, 30, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    background: linear-gradient(135deg, #F7931E 0%, #FF6B35 100%);
+}
+
+.download-all-btn:active {
+    transform: translateY(-1px) scale(0.98);
+    box-shadow: 0 3px 12px rgba(255, 107, 53, 0.3),
+                inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Animação de pulso para chamar atenção */
+@keyframes pulse-download {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(255, 107, 53, 0.25);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(255, 107, 53, 0.4),
+                    0 0 25px rgba(255, 107, 53, 0.2);
+    }
+}
+
+.download-all-btn {
+    animation: pulse-download 3s ease-in-out infinite;
+}
+
+.download-all-btn:hover {
+    animation: none;
+}
+
+/* Responsivo para botões de download */
+@media (max-width: 768px) {
+    .download-all-btn {
+        padding: 0.75rem 1.4rem;
+        font-size: 0.95rem;
+        gap: 0.5rem;
+    }
+    
+    .download-icon {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .download-button {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .download-icon-sm {
+        width: 20px;
+        height: 20px;
+    }
 }
 
 .session-config-wrapper.expanded {
